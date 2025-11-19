@@ -24,18 +24,32 @@ public class JwtTokenProvider {
         this.accessTokenValidityInMilliseconds = validityInMilliseconds;
     }
 
+    // Access Token 생성 (만료시간: 1시간)
+    public String createAccessToken(String email) {
+        return createToken(email, this.accessTokenValidityInMilliseconds);
+    }
+
+    // Refresh Token 생성 (만료시간: 2주 고정)
+    public String createRefreshToken(String email) {
+        
+        long refreshTokenValidity = 14L * 24 * 60 * 60 * 1000; // 2주
+        return createToken(email, refreshTokenValidity);
+    }
+
+
     // 토큰 생성
-    public String createToken(String email) {
+    private String createToken(String email, long validityMs) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
+        Date validity = new Date(now + validityMs);
 
         return Jwts.builder()
-                .subject(email)
-                .issuedAt(new Date())
-                .expiration(validity)
-                .signWith(key)
+                .subject(email)           // 토큰 제목 (유저 이메일)
+                .issuedAt(new Date())     // 생성 시간
+                .expiration(validity)     // 만료 시간
+                .signWith(key)            // 암호화 서명
                 .compact();
     }
+
 
     // 토큰에서 이메일(Subject) 추출
     public String getEmail(String token) {

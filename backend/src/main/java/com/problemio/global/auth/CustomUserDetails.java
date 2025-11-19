@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final User user; // 우리가 만든 도메인 객체
+    private final User user;
 
     // 권한 반환  (!!임시 : "ROLE_USER"만 반환)
     @Override

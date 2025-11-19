@@ -31,7 +31,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // 1. 인증(회원가입, 로그인)은 당연히 누구나 가능
+                        // 로그아웃 때문에 전체로 넣지는 않음
+                        .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/reissue").permitAll()
+
+                        // 2.  퀴즈 조회 및 풀이 제출도 누구나 가능하게 변경
+                        // (GET /api/quizzes/**, POST /api/quizzes/**/submit 등)
+                        .requestMatchers("/api/quizzes/**").permitAll()
+
+                        // 나머지는 인증 필요 (예: 마이페이지, 퀴즈 생성/삭제 등)
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

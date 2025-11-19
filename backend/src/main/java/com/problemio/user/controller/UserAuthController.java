@@ -1,6 +1,7 @@
 package com.problemio.user.controller;
 
 import com.problemio.global.common.ApiResponse;
+import com.problemio.user.dto.TokenResponse;
 import com.problemio.user.dto.UserLoginRequest;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.dto.UserSignupRequest;
@@ -9,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,10 +33,19 @@ public class UserAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody @Valid UserLoginRequest request) {
-        String accessToken = userService.login(request);
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody @Valid UserLoginRequest request) {
+        TokenResponse tokenResponse = userService.login(request);
 
-        return ResponseEntity
-                .ok(ApiResponse.success(accessToken));
+        return ResponseEntity.ok(ApiResponse.success(tokenResponse));
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal UserDetails userDetails) {
+        // @AuthenticationPrincipal: 토큰에서 파싱한 유저 정보(UserDetails)를 바로 가져옵니다.
+        // userDetails가 null이면 SecurityConfig에서 이미 403 에러로 막아줍니다.
+
+        userService.logout(userDetails.getUsername()); // getUsername() == email
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
