@@ -42,11 +42,6 @@ export const login = async (email, password) => {
   // 토큰 저장
   if (response.data.data?.accessToken) {
     localStorage.setItem('accessToken', response.data.data.accessToken)
-    // Backend TokenResponse에는 user 정보가 없으므로 별도 조회 필요
-    const meResponse = await getMe()
-    if (meResponse) {
-      localStorage.setItem('user', JSON.stringify(meResponse))
-    }
   }
   
   return response.data.data
@@ -68,24 +63,4 @@ export const getMe = async () => {
   return response.data.data
 }
 
-// 카카오 로그인 URL 조회
-export const getKakaoLoginUrl = async () => {
-  const response = await apiClient.get(`${BASE_URL}/kakao/login-url`)
-  return response.data.data
-}
-
-// 카카오 콜백 처리
-export const handleKakaoCallback = async (code) => {
-  const response = await apiClient.get(`${BASE_URL}/kakao/callback?code=${code}`)
-  
-  // 토큰 저장
-  if (response.data.data?.accessToken) {
-    localStorage.setItem('accessToken', response.data.data.accessToken)
-    if (response.data.data.user) {
-      localStorage.setItem('user', JSON.stringify(response.data.data.user))
-    }
-  }
-  
-  return response.data.data
-}
 

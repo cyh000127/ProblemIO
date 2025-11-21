@@ -1,6 +1,7 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import App from './App.vue'
@@ -20,11 +21,17 @@ import Avatar from 'primevue/avatar'
 import Badge from 'primevue/badge'
 import Divider from 'primevue/divider'
 import FileUpload from 'primevue/fileupload'
+import Menubar from 'primevue/menubar'
+import Chips from 'primevue/chips'
+import Paginator from 'primevue/paginator'
+import ConfirmDialog from 'primevue/confirmdialog'
+import ConfirmationService from 'primevue/confirmationservice'
 
 // PrimeIcons
 import 'primeicons/primeicons.css'
 
 const app = createApp(App)
+const pinia = createPinia()
 
 // PrimeVue 설정
 app.use(PrimeVue, {
@@ -38,6 +45,8 @@ app.use(PrimeVue, {
 })
 
 app.use(ToastService)
+app.use(ConfirmationService)
+app.use(pinia)
 app.use(router)
 
 // PrimeVue 컴포넌트 등록
@@ -53,5 +62,9 @@ app.component('Avatar', Avatar)
 app.component('Badge', Badge)
 app.component('Divider', Divider)
 app.component('FileUpload', FileUpload)
+app.component('Menubar', Menubar)
+app.component('Chips', Chips)
+app.component('Paginator', Paginator)
+app.component('ConfirmDialog', ConfirmDialog)
 
 app.mount('#app')

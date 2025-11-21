@@ -1,9 +1,5 @@
 import apiClient from './axios'
 
-/**
- * 풀이 제출 관련 API
- */
-
 // 퀴즈 풀이 제출
 export const submitQuiz = async (quizId, answers) => {
   const response = await apiClient.post(`/quizzes/${quizId}/submissions`, {

@@ -1,5 +1,7 @@
 import apiClient from './axios'
 
+const BASE_URL = '/quizzes'
+
 /**
  * 퀴즈 관련 API
  */
@@ -17,30 +19,30 @@ export const getQuizzes = async (params = {}) => {
     queryParams.append('keyword', keyword)
   }
   
-  const response = await apiClient.get(`/quizzes?${queryParams.toString()}`)
-  return response.data.data  // ApiResponse 구조에 맞게 .data 추가
+  const response = await apiClient.get(`${BASE_URL}?${queryParams.toString()}`)
+  return response.data.data
 }
 
 // 퀴즈 상세 조회
 export const getQuiz = async (quizId) => {
-  const response = await apiClient.get(`/quizzes/${quizId}`)
+  const response = await apiClient.get(`${BASE_URL}/${quizId}`)
   return response.data.data
 }
 
 // 퀴즈 생성
 export const createQuiz = async (data) => {
-  const response = await apiClient.post('/quizzes', {
+  const response = await apiClient.post(BASE_URL, {
     title: data.title,
     description: data.description,
     thumbnailUrl: data.thumbnailUrl,
     isPublic: data.isPublic ?? true,
     questions: data.questions.map((q) => ({
-      order: q.order,
+      order: q.questionOrder,
       imageUrl: q.imageUrl,
       description: q.description,
-      answers: q.answers.map((a) => ({
-        text: a.text,
-        sortOrder: a.sortOrder,
+      answers: q.answers.map((a, idx) => ({
+        text: a,
+        sortOrder: idx + 1,
       })),
     })),
   })
@@ -49,20 +51,20 @@ export const createQuiz = async (data) => {
 
 // 퀴즈 수정
 export const updateQuiz = async (quizId, data) => {
-  const response = await apiClient.put(`/quizzes/${quizId}`, {
+  const response = await apiClient.put(`${BASE_URL}/${quizId}`, {
     title: data.title,
     description: data.description,
     thumbnailUrl: data.thumbnailUrl,
     isPublic: data.isPublic,
     questions: data.questions.map((q) => ({
       id: q.id,
-      order: q.order,
+      order: q.questionOrder,
       imageUrl: q.imageUrl,
       description: q.description,
-      answers: q.answers.map((a) => ({
+      answers: q.answers.map((a, idx) => ({
         id: a.id,
-        text: a.text,
-        sortOrder: a.sortOrder,
+        text: a,
+        sortOrder: idx + 1,
       })),
     })),
   })
@@ -71,18 +73,24 @@ export const updateQuiz = async (quizId, data) => {
 
 // 퀴즈 삭제
 export const deleteQuiz = async (quizId) => {
-  await apiClient.delete(`/quizzes/${quizId}`)
+  await apiClient.delete(`${BASE_URL}/${quizId}`)
 }
 
 // 퀴즈 좋아요
 export const likeQuiz = async (quizId) => {
-  const response = await apiClient.post(`/quizzes/${quizId}/like`)
+  const response = await apiClient.post(`${BASE_URL}/${quizId}/like`)
   return response.data.data
 }
 
 // 퀴즈 좋아요 취소
 export const unlikeQuiz = async (quizId) => {
-  const response = await apiClient.delete(`/quizzes/${quizId}/like`)
+  const response = await apiClient.delete(`${BASE_URL}/${quizId}/like`)
+  return response.data.data
+}
+
+// 내가 만든 퀴즈 목록
+export const getMyQuizzes = async () => {
+  const response = await apiClient.get('/users/me/quizzes')
   return response.data.data
 }
 

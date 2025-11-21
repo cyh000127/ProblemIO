@@ -1,9 +1,5 @@
 import apiClient from './axios'
 
-/**
- * 사용자 관련 API
- */
-
 // 유저 공개 프로필 조회
 export const getUserProfile = async (userId) => {
   const response = await apiClient.get(`/users/${userId}`)
@@ -23,14 +19,16 @@ export const updateMyProfile = async (data) => {
 // 비밀번호 변경
 export const changePassword = async (currentPassword, newPassword) => {
   await apiClient.patch('/users/me/password', {
-    currentPassword,
-    newPassword,
+    oldPassword: currentPassword,
+    newPassword: newPassword,
   })
 }
 
 // 회원 탈퇴
-export const deleteAccount = async () => {
-  await apiClient.delete('/users/me')
+export const deleteAccount = async (password) => {
+  await apiClient.post('/users/me/withdraw', {
+    password,
+  })
 }
 
 // 팔로우
@@ -62,12 +60,6 @@ export const getMySummary = async () => {
   return response.data.data
 }
 
-// 내가 만든 퀴즈 목록
-export const getMyQuizzes = async () => {
-  const response = await apiClient.get('/users/me/quizzes')
-  return response.data.data
-}
-
 // 내가 좋아요한 퀴즈 목록
 export const getMyLikedQuizzes = async () => {
   const response = await apiClient.get('/users/me/liked-quizzes')
@@ -79,4 +71,3 @@ export const getFollowingQuizzes = async (sort = 'latest') => {
   const response = await apiClient.get(`/users/me/following-quizzes?sort=${sort}`)
   return response.data.data
 }
-

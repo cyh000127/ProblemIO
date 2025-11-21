@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="flex align-items-center justify-content-center min-h-screen px-4">
-      <Card class="w-full max-w-md">
+      <Card class="w-full max-w-md shadow-5">
         <template #header>
           <div class="p-6 text-center">
             <router-link to="/" class="no-underline">
@@ -30,10 +30,10 @@
               </div>
               <div class="flex flex-column gap-2">
                 <label for="password" class="text-sm font-medium">Password</label>
-                <InputText
+                <Password
                   id="password"
                   v-model="password"
-                  type="password"
+                  toggleMask
                   placeholder="••••••••"
                   required
                   class="w-full"
@@ -52,7 +52,7 @@
 
             <div class="text-center text-sm">
               <span class="text-color-secondary">Don't have an account? </span>
-              <router-link to="/auth/signup" class="text-primary font-semibold no-underline">
+              <router-link to="/signup" class="text-primary font-semibold no-underline">
                 Sign up
               </router-link>
             </div>
@@ -65,12 +65,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
-import { login } from '@/api/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const route = useRoute()
 const toast = useToast()
+const authStore = useAuthStore()
+
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
@@ -78,9 +81,11 @@ const loading = ref(false)
 const handleLogin = async () => {
   loading.value = true
   try {
-    await login(email.value, password.value)
+    await authStore.loginUser(email.value, password.value)
     toast.add({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 })
-    router.push('/feed')
+    
+    const redirect = route.query.redirect as string || '/'
+    router.push(redirect)
   } catch (error: any) {
     toast.add({
       severity: 'error',
@@ -144,10 +149,6 @@ const handleLogin = async () => {
   font-weight: 600;
 }
 
-.font-medium {
-  font-weight: 500;
-}
-
 .text-center {
   text-align: center;
 }
@@ -166,5 +167,10 @@ const handleLogin = async () => {
 
 .no-underline {
   text-decoration: none;
+}
+
+.shadow-5 {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 </style>
