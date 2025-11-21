@@ -5,6 +5,23 @@
 
 <mapper namespace="com.problemio.quiz.mapper.QuizLikeMapper">
 
-    <!-- 좋아요 추가/삭제 관련 SQL 들어갈 자리 -->
+    <insert id="insertQuizLike" parameterType="com.problemio.quiz.domain.QuizLike">
+        INSERT INTO quiz_likes (user_id, quiz_id, created_at)
+        VALUES (#{userId}, #{quizId}, NOW())
+    </insert>
+
+    <delete id="deleteQuizLike">
+        DELETE FROM quiz_likes WHERE user_id = #{userId} AND quiz_id = #{quizId}
+    </delete>
+
+    <select id="findByUserIdAndQuizId" resultType="com.problemio.quiz.domain.QuizLike">
+        SELECT user_id AS userId, quiz_id AS quizId, created_at AS createdAt
+        FROM quiz_likes
+        WHERE user_id = #{userId} AND quiz_id = #{quizId}
+    </select>
+
+    <select id="countByQuizId" resultType="int">
+        SELECT COUNT(*) FROM quiz_likes WHERE quiz_id = #{quizId}
+    </select>
 
 </mapper>

@@ -1,5 +1,6 @@
 package com.problemio.question.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 public class QuestionAnswerDto {
 
     private Long id;
+    @JsonProperty("text")
     private String answerText;
     private int sortOrder;
 }

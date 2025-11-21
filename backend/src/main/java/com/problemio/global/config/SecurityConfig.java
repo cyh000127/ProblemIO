@@ -17,13 +17,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 보안 설정
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -32,33 +30,30 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                //  CORS: WebConfig의 설정을 사용
                 .cors(Customizer.withDefaults())
-
-                //  CSRF: JWT 사용이므로 비활성화
                 .csrf(csrf -> csrf.disable())
-
-                //  인가 정책
                 .authorizeHttpRequests(auth -> auth
-                        // 인증(회원가입, 로그인, 토큰 재발급)
+                        // 인증(회원가입, 로그인, 토큰 발급)
                         .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/reissue").permitAll()
 
-                        // 퀴즈 조회 및 풀이 제출은 누구나 가능
+                        // 파일 업로드 및 정적 업로드 리소스
+                        .requestMatchers("/api/files/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+
+                        // 퀴즈 조회 등 외부 노출 가능 구간
                         .requestMatchers("/api/quizzes/**").permitAll()
 
-                        // 이메일 인증 관련
+                        // 이메일 인증
                         .requestMatchers("/api/auth/email/**").permitAll()
 
-                        // 유저, 팔로우 정보는 인증 필요 (명시적 작성)
+                        // 그 외 유저/팔로우는 인증 필요
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/follows/**").authenticated()
 
-                        // 그 외 모든 요청은 인증 필요
+                        // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
-
-                //  JWT 필터 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class

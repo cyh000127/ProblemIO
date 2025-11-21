@@ -2,9 +2,12 @@ package com.problemio.quiz.service;
 
 import com.problemio.quiz.dto.*;
 
+import java.util.Map;
 import java.util.List;
 
 public interface QuizService {
+
+    Map<String, Object> getQuizzes(int page, int size, String sort, String keyword);
 
     QuizResponse createQuiz(Long userId, QuizCreateRequest request);
 
@@ -12,7 +15,7 @@ public interface QuizService {
 
     void deleteQuiz(Long userId, Long quizId);
 
-    QuizResponse getQuiz(Long quizId);
+    QuizResponse getQuiz(Long quizId, Long viewerId);
 
     List<QuizSummaryDto> getPublicQuizzes();
 

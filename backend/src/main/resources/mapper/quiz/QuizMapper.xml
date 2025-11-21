@@ -4,4 +4,92 @@
 
 <mapper namespace="com.problemio.quiz.mapper.QuizMapper">
 
+    <resultMap id="QuizResultMap" type="com.problemio.quiz.domain.Quiz">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="isPublic" column="is_public"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="playCount" column="play_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertQuiz" parameterType="com.problemio.quiz.domain.Quiz" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO quizzes (
+            user_id, title, description, thumbnail_url, is_public, like_count, play_count, created_at, updated_at
+        ) VALUES (
+            #{userId}, #{title}, #{description}, #{thumbnailUrl}, #{isPublic}, #{likeCount}, #{playCount}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="updateQuiz" parameterType="com.problemio.quiz.domain.Quiz">
+        UPDATE quizzes
+        SET
+            title = #{title},
+            description = #{description},
+            thumbnail_url = #{thumbnailUrl},
+            is_public = #{isPublic},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteQuiz">
+        DELETE FROM quizzes WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultMap="QuizResultMap">
+        SELECT * FROM quizzes WHERE id = #{id}
+    </select>
+
+    <select id="findPublicQuizzes" resultMap="QuizResultMap">
+        SELECT * FROM quizzes WHERE is_public = TRUE ORDER BY created_at DESC
+    </select>
+
+    <select id="findQuizzesByUserId" resultMap="QuizResultMap">
+        SELECT * FROM quizzes WHERE user_id = #{userId} ORDER BY created_at DESC
+    </select>
+
+    <update id="incrementPlayCount">
+        UPDATE quizzes SET play_count = play_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="incrementLikeCount">
+        UPDATE quizzes SET like_count = like_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decrementLikeCount">
+        UPDATE quizzes SET like_count = CASE WHEN like_count > 0 THEN like_count - 1 ELSE 0 END WHERE id = #{id}
+    </update>
+
+    <select id="searchQuizzes" resultMap="QuizResultMap">
+        SELECT *
+        FROM quizzes
+        WHERE is_public = TRUE
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+                 OR description LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <choose>
+            <when test="sort == 'popular'">
+                ORDER BY like_count DESC, play_count DESC, created_at DESC
+            </when>
+            <otherwise>
+                ORDER BY created_at DESC
+            </otherwise>
+        </choose>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countQuizzes" resultType="int">
+        SELECT COUNT(*)
+        FROM quizzes
+        WHERE is_public = TRUE
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%')
+                 OR description LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
 </mapper>

@@ -14,6 +14,8 @@ public interface QuizMapper {
 
     void updateQuiz(Quiz quiz);
 
+    void deleteQuiz(@Param("id") Long id);
+
     Optional<Quiz> findById(@Param("id") Long id);
 
     List<Quiz> findPublicQuizzes();
@@ -21,4 +23,15 @@ public interface QuizMapper {
     List<Quiz> findQuizzesByUserId(@Param("userId") Long userId);
 
     void incrementPlayCount(@Param("id") Long id);
+
+    List<Quiz> searchQuizzes(@Param("offset") int offset,
+                             @Param("size") int size,
+                             @Param("sort") String sort,
+                             @Param("keyword") String keyword);
+
+    int countQuizzes(@Param("keyword") String keyword);
+
+    void incrementLikeCount(@Param("id") Long id);
+
+    void decrementLikeCount(@Param("id") Long id);
 }

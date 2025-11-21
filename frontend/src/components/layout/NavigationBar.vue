@@ -71,7 +71,7 @@
       router.push({ name: 'search', query: { q: searchKeyword.value } })
     }
   }
-  
+
   const handleCreateQuiz = () => {
     if (!authStore.isAuthenticated) {
       confirm.require({

@@ -132,18 +132,19 @@ const router = createRouter({
 
 // Navigation Guard
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+    const authStore = useAuthStore()
 
-  // 인증이 필요한 라우트인지 확인
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // 원래 가려던 경로를 query로 전달
-    next({
-      name: 'login',
-      query: { redirect: to.fullPath },
-    })
-  } else {
-    next()
-  }
+    // 인증이 필요한 라우트인지 확인
+    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+        // 원래 가려던 경로를 query로 전달
+        next({
+            name: 'login',
+            query: { redirect: to.fullPath },
+        })
+    } else {
+        next()
+    }
+
 })
 
 export default router
