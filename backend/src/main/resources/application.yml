@@ -48,7 +48,7 @@ mybatis:
 
 # JWT 설정
 jwt:
-  secret: ${JWT_SECRET}
+  secret: v3ryS3cr3tK3yMustB3L0ng3rTh4n256B1tsF0rS3cur1ty!!
   expiration: 3600000 # 1시간
 
 # 로깅 레벨 설정
