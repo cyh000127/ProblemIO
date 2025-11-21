@@ -7,9 +7,11 @@ import com.problemio.user.dto.UserResponse;
 import com.problemio.user.dto.UserSummaryDto;
 import com.problemio.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -33,12 +35,21 @@ public class UserController {
     }
 
     // 프로필 수정
-    @PatchMapping("/me")
+    @PatchMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
-            @RequestBody UserResponse request,
+            @RequestPart(value = "data") UserResponse request,
+            @RequestPart(value = "file", required = false) MultipartFile file, // [체크] 이름이 'file'이어야 함
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
-        return ResponseEntity.ok(ApiResponse.success(userService.updateProfile(userId, request)));
+
+        Long myId = userDetails.getUser().getId();
+        // 로그 추가 (파일이 들어왔는지 확인용)
+        if (file != null && !file.isEmpty()) {
+            System.out.println(">>> [Controller] 파일 수신 성공: " + file.getOriginalFilename());
+        } else {
+            System.out.println(">>> [Controller] 파일이 없거나 비어있음");
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(userService.updateProfile(myId, request, file)));
     }
 
     // 비밀번호 변경

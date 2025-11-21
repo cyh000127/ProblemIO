@@ -57,10 +57,3 @@ export const logout = async () => {
   }
 }
 
-// 내 정보 조회
-export const getMe = async () => {
-  const response = await apiClient.get(`${BASE_URL}/me`)
-  return response.data.data
-}
-
-

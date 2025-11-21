@@ -17,11 +17,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(3600);
     }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // /uploads/** 요청을 로컬 C:/upload 폴더에서 서빙
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:/C:/upload/");
-    }
 }

@@ -6,13 +6,10 @@ export const getUserProfile = async (userId) => {
   return response.data.data
 }
 
-// 내 프로필 수정
-export const updateMyProfile = async (data) => {
-  const response = await apiClient.patch('/users/me', {
-    nickname: data.nickname,
-    statusMessage: data.statusMessage,
-    profileImageUrl: data.profileImageUrl,
-  })
+// 내 프로필 수정 (닉네임 + 상태메시지 + 프로필 이미지)
+export const updateMyProfile = async (formData) => {
+ 
+  const response = await apiClient.patch('/users/me', formData)
   return response.data.data
 }
 

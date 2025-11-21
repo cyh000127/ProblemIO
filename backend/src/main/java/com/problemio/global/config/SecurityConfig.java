@@ -46,7 +46,7 @@ public class SecurityConfig {
                         // 이메일 인증
                         .requestMatchers("/api/auth/email/**").permitAll()
 
-                        // 그 외 유저/팔로우는 인증 필요
+                        // 그 외 유저/팔로우는 인증 필요 (명시적 작성)
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/follows/**").authenticated()
 

@@ -3,6 +3,7 @@ package com.problemio.user.service;
 import com.problemio.quiz.dto.QuizSummaryDto;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.dto.UserSummaryDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface UserService {
     UserResponse getUserById(Long id);
 
     // 프로필 수정
-    UserResponse updateProfile(Long userId, UserResponse request);
+    UserResponse updateProfile(Long userId, UserResponse request, MultipartFile file);
 
     // 비밀번호 변경
     void changePassword(Long userId, String oldPassword, String newPassword);
