@@ -1,40 +1,40 @@
 <template>
   <div class="home-container">
-    <div class="container mx-auto px-4">
-      <!-- Filter Tabs -->
-      <div class="flex justify-content-center gap-4 mb-6">
-        <Button :label="'Latest'" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
-        <Button :label="'Popular'" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
+    <div class="container mx-20 px-4">
+      <div class="home-controls mb-6">
+        <div class="flex gap-1">
+          <Button :label="'인기순'" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
+          <Button :label="'최신순'" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
+        </div>
+        <span class="p-input-icon-left home-search">
+          <i class="pi pi-search" />
+          <InputText v-model="searchKeyword" placeholder="Search quizzes..." class="w-20rem max-w-full" @keyup.enter="handleSearch" />
+        </span>
       </div>
 
-      <!-- Quiz Grid -->
       <div v-if="loading" class="text-center py-8">
         <i class="pi pi-spin pi-spinner text-4xl"></i>
       </div>
 
-      <div v-else-if="quizzes.length === 0" class="text-center py-8">
+      <div v-else-if="quizzes.length === 0" class="text-center py-8 empty-state">
         <p class="text-color-secondary text-xl">No quizzes found</p>
       </div>
 
       <div v-else class="quiz-grid-container mb-6">
-        <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-card cursor-pointer bg-white rounded-lg overflow-hidden border-2 border-gray-800 shadow-lg" @click="goToQuiz(quiz.id)">
-          <!-- 상단: 썸네일 -->
-          <div class="quiz-thumbnail bg-gray-200 overflow-hidden flex items-center justify-center">
+        <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-card cursor-pointer" @click="goToQuiz(quiz.id)">
+          <div class="quiz-thumbnail">
             <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="quiz-thumbnail-img" />
           </div>
-
-          <!-- 하단: 제목과 좋아요 정보 -->
-          <div class="px-2 py-2 flex items-center justify-between gap-2">
-            <h3 class="text-base font-bold m-0 truncate flex-1">{{ quiz.title }}</h3>
-            <div class="flex items-center gap-[3px] text-xs text-color-secondary flex-shrink-0">
+          <div class="quiz-meta">
+            <h3 class="quiz-title">{{ quiz.title }}</h3>
+            <div class="quiz-stat">
               <i class="pi pi-heart text-xs"></i>
-              <span class="text-xs">{{ quiz.likeCount || 0 }}</span>
+              <span>{{ quiz.likeCount || 0 }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Pagination -->
       <Paginator v-if="totalPages > 1" :first="(currentPage - 1) * pageSize" :rows="pageSize" :totalRecords="totalElements" @page="onPageChange" class="mb-6" />
     </div>
   </div>
@@ -50,6 +50,7 @@ const router = useRouter();
 const toast = useToast();
 
 const quizzes = ref([]);
+const searchKeyword = ref("");
 const loading = ref(false);
 const sort = ref("latest");
 const currentPage = ref(1);
@@ -84,6 +85,12 @@ const goToQuiz = (quizId: number) => {
   router.push(`/quiz/${quizId}`);
 };
 
+const handleSearch = () => {
+  if (searchKeyword.value.trim()) {
+    router.push({ name: "search", query: { q: searchKeyword.value } });
+  }
+};
+
 const onPageChange = (event: any) => {
   currentPage.value = event.page + 1;
   loadQuizzes();
@@ -102,6 +109,7 @@ onMounted(() => {
 <style scoped>
 .home-container {
   min-height: calc(100vh - 200px);
+  padding: 1rem 0 2rem;
 }
 
 .container {
@@ -113,6 +121,23 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+}
+
+.home-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0 1rem;
+  flex-wrap: wrap;
+}
+
+.home-search {
+  margin-left: auto;
+}
+
+.w-20rem {
+  width: 20rem;
 }
 
 @media (max-width: 768px) {
@@ -133,24 +158,73 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #eef3f6, #f7ede8);
 }
 
 .quiz-thumbnail-img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
   object-position: center;
   image-rendering: auto;
-  transform: scale(0.5);
-  transform-origin: center;
+  transition: transform 0.2s ease;
 }
 
 .quiz-card {
+  background: #ffffffee;
+  border-radius: 18px;
+  border: 1px solid rgba(55, 65, 81, 0.06);
+  padding: 0.6rem 0.6rem 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--surface-glow);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .quiz-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-card:hover .quiz-thumbnail-img {
+  transform: scale(1.03);
+}
+
+.quiz-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.4rem 0.4rem;
+}
+
+.quiz-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quiz-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(137, 168, 124, 0.15);
+  color: var(--color-heading);
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  background: rgba(244, 241, 236, 0.6);
+  border-radius: 14px;
+  padding: 2rem;
 }
 </style>

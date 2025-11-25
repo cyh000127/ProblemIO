@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <div class="flex align-items-center justify-content-center min-h-screen px-4">
+    <div class="flex items-center justify-center min-h-screen px-4">
       <Card class="w-full max-w-md shadow-5">
         <template #header>
           <div class="p-6 text-center">
@@ -10,51 +10,29 @@
           </div>
         </template>
         <template #content>
-          <div class="flex flex-column gap-4">
+          <div class="flex flex-col gap-4">
             <div>
               <h2 class="text-2xl font-bold mb-2">Welcome Back</h2>
               <p class="text-color-secondary mb-4">Sign in to your account to continue</p>
             </div>
 
-            <form @submit.prevent="handleLogin" class="flex flex-column gap-4">
-              <div class="flex flex-column gap-2">
+            <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
                 <label for="email" class="text-sm font-medium">Email</label>
-                <InputText
-                  id="email"
-                  v-model="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  class="w-full"
-                />
+                <InputText id="email" v-model="email" type="email" placeholder="you@example.com" required class="w-full" />
               </div>
-              <div class="flex flex-column gap-2">
+              <div class="flex flex-col gap-2">
                 <label for="password" class="text-sm font-medium">Password</label>
-                <Password
-                  id="password"
-                  v-model="password"
-                  toggleMask
-                  placeholder="••••••••"
-                  required
-                  class="w-full"
-                />
+                <Password id="password" v-model="password" toggleMask placeholder="••••••••" required class="w-full" />
               </div>
-              <Button
-                type="submit"
-                label="Sign In"
-                :loading="loading"
-                class="w-full"
-                size="large"
-              />
+              <Button type="submit" label="Sign In" :loading="loading" class="w-full" size="large" />
             </form>
 
             <Divider />
 
             <div class="text-center text-sm">
-              <span class="text-color-secondary">Don't have an account? </span>
-              <router-link to="/signup" class="text-primary font-semibold no-underline">
-                Sign up
-              </router-link>
+              <span class="text-color-secondary">Don't have an account?</span>
+              <router-link to="/signup" class="text-primary font-semibold no-underline">Sign up</router-link>
             </div>
           </div>
         </template>
@@ -64,39 +42,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
-import { useAuthStore } from '@/stores/auth'
+import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { useAuthStore } from "@/stores/auth";
 
-const router = useRouter()
-const route = useRoute()
-const toast = useToast()
-const authStore = useAuthStore()
+const router = useRouter();
+const route = useRoute();
+const toast = useToast();
+const authStore = useAuthStore();
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
+const email = ref("");
+const password = ref("");
+const loading = ref(false);
 
 const handleLogin = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    await authStore.loginUser(email.value, password.value)
-    toast.add({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 })
-    
-    const redirect = route.query.redirect as string || '/'
-    router.push(redirect)
+    await authStore.loginUser(email.value, password.value);
+    toast.add({ severity: "success", summary: "Success", detail: "Logged in successfully", life: 3000 });
+
+    const redirect = (route.query.redirect as string) || "/";
+    router.push(redirect);
   } catch (error: any) {
     toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: error.response?.data?.message || 'Login failed',
+      severity: "error",
+      summary: "Error",
+      detail: error.response?.data?.message || "Login failed",
       life: 3000,
-    })
+    });
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -114,7 +92,7 @@ const handleLogin = async () => {
 }
 
 .min-h-screen {
-  min-height: 100vh;
+  min-height: 50vh;
 }
 
 .px-4 {
@@ -170,7 +148,6 @@ const handleLogin = async () => {
 }
 
 .shadow-5 {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 </style>

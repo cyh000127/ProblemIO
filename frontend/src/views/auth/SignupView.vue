@@ -1,7 +1,7 @@
 <template>
     <div class="signup-container">
       <Toast />
-      <div class="flex align-items-center justify-content-center min-h-screen px-4">
+      <div class="flex items-center justify-center min-h-screen px-4">
         <Card class="w-full max-w-md shadow-5">
           <template #header>
             <div class="p-6 text-center">
@@ -11,15 +11,15 @@
             </div>
           </template>
           <template #content>
-            <div class="flex flex-column gap-4">
+            <div class="flex flex-col gap-4">
               <div>
                 <h2 class="text-2xl font-bold mb-2">Create Account</h2>
                 <p class="text-color-secondary mb-4">Join thousands of learners creating image quizzes</p>
               </div>
   
-              <form @submit.prevent="handleSignup" class="flex flex-column gap-4">
+              <form @submit.prevent="handleSignup" class="flex flex-col gap-4">
                 <!-- 이메일 입력 및 인증 -->
-                <div class="flex flex-column gap-2">
+                <div class="flex flex-col gap-2">
                   <label for="email" class="text-sm font-medium">Email (Username)</label>
                   <div class="flex gap-2">
                     <InputText
@@ -51,7 +51,7 @@
                 </div>
   
                 <!-- 인증번호 입력 (인증번호 전송 후 표시) -->
-                <div v-if="emailState.codeSent && !emailState.isVerified" class="flex flex-column gap-2">
+                <div v-if="emailState.codeSent && !emailState.isVerified" class="flex flex-col gap-2">
                   <label for="verificationCode" class="text-sm font-medium">인증번호</label>
                   <div class="flex gap-2">
                     <InputText
@@ -78,7 +78,7 @@
                 </div>
   
                 <!-- 닉네임 입력 -->
-                <div class="flex flex-column gap-2">
+                <div class="flex flex-col gap-2">
                   <label for="nickname" class="text-sm font-medium">Nickname</label>
                   <InputText
                     id="nickname"
@@ -95,7 +95,7 @@
                 </div>
   
                 <!-- 비밀번호 입력 -->
-                <div class="flex flex-column gap-2">
+                <div class="flex flex-col gap-2">
                   <label for="password" class="text-sm font-medium">Password</label>
                   <Password
                     id="password"
@@ -115,7 +115,7 @@
                 </div>
   
                 <!-- 비밀번호 확인 -->
-                <div class="flex flex-column gap-2">
+                <div class="flex flex-col gap-2">
                   <label for="confirmPassword" class="text-sm font-medium">Confirm Password</label>
                   <Password
                     id="confirmPassword"
