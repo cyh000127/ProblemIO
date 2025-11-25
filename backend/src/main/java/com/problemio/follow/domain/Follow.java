@@ -15,13 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Follow {
-
-    // DB: follower_id
     private Long followerId;
-
-    // DB: following_id
     private Long followingId;
-
-    // DB: created_at
     private LocalDateTime createdAt;
 }

@@ -13,7 +13,6 @@ const QuizCreateView = () => import('@/views/quiz/QuizCreateView.vue')
 const QuizEditView = () => import('@/views/quiz/QuizEditView.vue')
 const UserProfileView = () => import('@/views/user/UserProfileView.vue')
 const MyPageView = () => import('@/views/user/MyPageView.vue')
-const MyQuizListView = () => import('@/views/user/MyQuizListView.vue')
 const ProfileEditView = () => import('@/views/user/ProfileEditView.vue')
 
 const router = createRouter({
@@ -92,12 +91,6 @@ const router = createRouter({
       path: '/mypage',
       name: 'mypage',
       component: MyPageView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/mypage/quizzes',
-      name: 'my-quizzes',
-      component: MyQuizListView,
       meta: { requiresAuth: true },
     },
     {

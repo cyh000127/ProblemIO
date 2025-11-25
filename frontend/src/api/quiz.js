@@ -98,7 +98,7 @@ export const unlikeQuiz = async (quizId) => {
 
 // 내가 만든 퀴즈 목록
 export const getMyQuizzes = async () => {
-  const response = await apiClient.get('/users/me/quizzes')
+  const response = await apiClient.get('/quizzes/me')
   return response.data.data.map((quiz) => ({
     ...quiz,
     thumbnailUrl: resolveImageUrl(quiz.thumbnailUrl),
