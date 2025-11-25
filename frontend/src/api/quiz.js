@@ -1,4 +1,5 @@
 import apiClient from './axios'
+import { resolveImageUrl, resolveQuizImages } from '@/lib/image'
 
 const BASE_URL = '/quizzes'
 
@@ -20,13 +21,20 @@ export const getQuizzes = async (params = {}) => {
   }
   
   const response = await apiClient.get(`${BASE_URL}?${queryParams.toString()}`)
-  return response.data.data
+  const data = response.data.data
+  if (data?.content) {
+    data.content = data.content.map((quiz) => ({
+      ...quiz,
+      thumbnailUrl: resolveImageUrl(quiz.thumbnailUrl),
+    }))
+  }
+  return data
 }
 
 // 퀴즈 상세 조회
 export const getQuiz = async (quizId) => {
   const response = await apiClient.get(`${BASE_URL}/${quizId}`)
-  return response.data.data
+  return resolveQuizImages(response.data.data)
 }
 
 // 퀴즈 생성
@@ -46,7 +54,7 @@ export const createQuiz = async (data) => {
       })),
     })),
   })
-  return response.data.data
+  return resolveQuizImages(response.data.data)
 }
 
 // 퀴즈 수정
@@ -68,7 +76,7 @@ export const updateQuiz = async (quizId, data) => {
       })),
     })),
   })
-  return response.data.data
+  return resolveQuizImages(response.data.data)
 }
 
 // 퀴즈 삭제
@@ -91,6 +99,9 @@ export const unlikeQuiz = async (quizId) => {
 // 내가 만든 퀴즈 목록
 export const getMyQuizzes = async () => {
   const response = await apiClient.get('/users/me/quizzes')
-  return response.data.data
+  return response.data.data.map((quiz) => ({
+    ...quiz,
+    thumbnailUrl: resolveImageUrl(quiz.thumbnailUrl),
+  }))
 }
 

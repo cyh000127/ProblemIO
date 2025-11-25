@@ -33,12 +33,37 @@
               </div>
 
               <div class="flex flex-column gap-2">
-                <label class="text-sm font-medium">Thumbnail URL</label>
+                <label class="text-sm font-medium">Thumbnail Image</label>
+                <small class="text-color-secondary">Uploading an image file will auto-fill the URL. You can still paste a URL if you already have one.</small>
+                <div class="flex align-items-center gap-3 flex-wrap">
+                  <FileUpload
+                    mode="basic"
+                    name="file"
+                    accept="image/*"
+                    :auto="false"
+                    :maxFileSize="5000000"
+                    chooseLabel="Upload"
+                    chooseIcon="pi pi-upload"
+                    :disabled="thumbnailUploading"
+                    @select="handleThumbnailFile"
+                  />
+                  <Button
+                    v-if="quizForm.thumbnailUrl"
+                    label="Remove"
+                    severity="secondary"
+                    text
+                    icon="pi pi-times"
+                    @click="clearThumbnail"
+                  />
+                </div>
                 <InputText
                   v-model="quizForm.thumbnailUrl"
                   placeholder="https://example.com/image.jpg"
                   class="w-full"
                 />
+                <div v-if="thumbnailPreview" class="image-preview">
+                  <img :src="thumbnailPreview" alt="Thumbnail preview" />
+                </div>
               </div>
             </div>
 
@@ -89,12 +114,37 @@
                     </div>
 
                     <div class="flex flex-column gap-2">
-                      <label class="text-sm font-medium">Image URL</label>
+                      <label class="text-sm font-medium">Image</label>
+                      <small class="text-color-secondary">Uploading a file will auto-fill the URL field below.</small>
+                      <div class="flex align-items-center gap-3 flex-wrap">
+                        <FileUpload
+                          mode="basic"
+                          name="file"
+                          accept="image/*"
+                          :auto="false"
+                          :maxFileSize="5000000"
+                          chooseLabel="Upload"
+                          chooseIcon="pi pi-upload"
+                          :disabled="questionUploadingIndex === index"
+                          @select="(event) => handleQuestionImageFile(index, event)"
+                        />
+                        <Button
+                          v-if="question.imageUrl"
+                          label="Remove"
+                          severity="secondary"
+                          text
+                          icon="pi pi-times"
+                          @click="clearQuestionImage(index)"
+                        />
+                      </div>
                       <InputText
                         v-model="question.imageUrl"
                         placeholder="https://example.com/question-image.jpg"
                         class="w-full"
                       />
+                      <div v-if="getImagePreview(question.imageUrl)" class="image-preview">
+                        <img :src="getImagePreview(question.imageUrl)" alt="Question preview" />
+                      </div>
                     </div>
 
                     <div class="flex flex-column gap-2">
@@ -127,7 +177,7 @@
                 label="Complete Creation"
                 icon="pi pi-check"
                 :loading="submitting"
-                :disabled="!isFormValid"
+                :disabled="!isFormValid || thumbnailUploading || questionUploadingIndex !== null"
                 @click="handleSubmit"
               />
             </div>
@@ -144,14 +194,22 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useQuizStore } from '@/stores/quiz'
 import { createQuiz } from '@/api/quiz'
+import { uploadFile } from '@/api/file'
+import { resolveImageUrl } from '@/lib/image'
 
 const router = useRouter()
 const toast = useToast()
 const quizStore = useQuizStore()
 
 const submitting = ref(false)
+const thumbnailUploading = ref(false)
+const questionUploadingIndex = ref<number | null>(null)
 
 const quizForm = computed(() => quizStore.quizForm)
+
+const buildImageUrl = (path?: string) => resolveImageUrl(path)
+
+const thumbnailPreview = computed(() => buildImageUrl(quizForm.value.thumbnailUrl))
 
 const isFormValid = computed(() => {
   if (!quizForm.value.title?.trim()) return false
@@ -178,6 +236,16 @@ const handleCancel = () => {
 }
 
 const handleSubmit = async () => {
+  if (thumbnailUploading.value || questionUploadingIndex.value !== null) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Uploading images',
+      detail: 'Please wait until image uploads are finished.',
+      life: 2500,
+    })
+    return
+  }
+
   if (!isFormValid.value) {
     toast.add({
       severity: 'warn',
@@ -211,6 +279,68 @@ const handleSubmit = async () => {
   }
 }
 
+const handleThumbnailFile = async (event: any) => {
+  const file = event.files?.[0]
+  if (!file) return
+
+  thumbnailUploading.value = true
+  try {
+    const { url } = await uploadFile(file, 'thumbnail')
+    quizForm.value.thumbnailUrl = url
+    toast.add({
+      severity: 'success',
+      summary: 'Upload success',
+      detail: 'Thumbnail image has been set.',
+      life: 2000,
+    })
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Upload failed',
+      detail: error.response?.data?.message || 'Failed to upload image.',
+      life: 3000,
+    })
+  } finally {
+    thumbnailUploading.value = false
+  }
+}
+
+const clearThumbnail = () => {
+  quizForm.value.thumbnailUrl = ''
+}
+
+const handleQuestionImageFile = async (index: number, event: any) => {
+  const file = event.files?.[0]
+  if (!file) return
+
+  questionUploadingIndex.value = index
+  try {
+    const { url } = await uploadFile(file, 'question')
+    quizForm.value.questions[index].imageUrl = url
+    toast.add({
+      severity: 'success',
+      summary: 'Upload success',
+      detail: `Question ${quizForm.value.questions[index].questionOrder} image set.`,
+      life: 2000,
+    })
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Upload failed',
+      detail: error.response?.data?.message || 'Failed to upload image.',
+      life: 3000,
+    })
+  } finally {
+    questionUploadingIndex.value = null
+  }
+}
+
+const clearQuestionImage = (index: number) => {
+  quizForm.value.questions[index].imageUrl = ''
+}
+
+const getImagePreview = (path?: string) => buildImageUrl(path)
+
 onMounted(() => {
   // 초기화 시 첫 번째 질문 추가
   if (quizForm.value.questions.length === 0) {
@@ -231,5 +361,16 @@ onMounted(() => {
 
 .question-card {
   margin-bottom: 1rem;
+}
+
+.image-preview {
+  margin-top: 0.5rem;
+}
+
+.image-preview img {
+  max-width: 320px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-border);
+  object-fit: cover;
 }
 </style>

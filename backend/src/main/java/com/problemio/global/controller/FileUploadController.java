@@ -23,6 +23,8 @@ public class FileUploadController {
 
     // 파일이 저장될 로컬 디렉토리 경로
     private static final String UPLOAD_DIR = "C:/upload";
+    private static final String THUMBNAIL_DIR = "Thumbnail";
+    private static final String QUESTIONS_DIR = "Questions";
 
     /*
      * 단일 파일 업로드 요청을 처리하는 API
@@ -35,7 +37,8 @@ public class FileUploadController {
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse<Map<String, String>>> upload(
-            @RequestParam("file") MultipartFile file
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "category", required = false) String category
     ) {
 
         // 업로드된 파일이 비어있는지 확인
@@ -58,8 +61,9 @@ public class FileUploadController {
         String filename = UUID.randomUUID() + extension;
 
         try {
+            String subDir = resolveSubDirectory(category);
             // 저장할 디렉토리 생성 (존재하지 않으면)
-            Path uploadPath = Paths.get(UPLOAD_DIR);
+            Path uploadPath = Paths.get(UPLOAD_DIR, subDir);
             Files.createDirectories(uploadPath);
 
             // 실제 저장 대상 경로
@@ -75,12 +79,31 @@ public class FileUploadController {
         }
 
         // 프론트에서 접근 가능한 형태의 URL 반환
-        String url = "/uploads/" + filename;
+        String subPath = resolveSubDirectory(category);
+        String prefix = subPath.isEmpty() ? "" : subPath + "/";
+        String url = "/uploads/" + prefix + filename;
 
         // 성공 응답: 저장된 파일의 URL과 파일명 반환
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "url", url,
                 "filename", filename
         )));
+    }
+
+    /**
+     * 업로드 카테고리에 따라 하위 폴더를 결정한다.
+     * 허용된 값 이외에는 루트에 저장한다.
+     */
+    private String resolveSubDirectory(String category) {
+        if (category == null || category.isBlank()) {
+            return "";
+        }
+
+        String normalized = category.trim().toLowerCase();
+        return switch (normalized) {
+            case "thumbnail", "thumbnails" -> THUMBNAIL_DIR;
+            case "question", "questions" -> QUESTIONS_DIR;
+            default -> "";
+        };
     }
 }
