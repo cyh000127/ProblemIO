@@ -10,4 +10,5 @@ public class QuizSubmissionResponse {
     private Long submissionId;
     private int totalQuestions;
     private int correctCount;
+    private int answeredCount;
 }

@@ -2,6 +2,43 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.problemio.submission.mapper.SubmissionMapper">
+<mapper namespace="com.problemio.submission.mapper.SubmissionDetailMapper">
+
+    <resultMap id="SubmissionDetailResultMap" type="com.problemio.submission.domain.SubmissionDetail">
+        <id property="id" column="id"/>
+        <result property="submissionId" column="submission_id"/>
+        <result property="questionId" column="question_id"/>
+        <result property="userAnswer" column="user_answer"/>
+        <result property="correct" column="is_correct"/>
+    </resultMap>
+
+    <insert id="insertSubmissionDetail" parameterType="com.problemio.submission.domain.SubmissionDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO submission_details (submission_id, question_id, user_answer, is_correct)
+        VALUES (#{submissionId}, #{questionId}, #{userAnswer}, #{correct})
+    </insert>
+
+    <insert id="insertSubmissionDetails">
+        INSERT INTO submission_details (submission_id, question_id, user_answer, is_correct)
+        VALUES
+        <foreach collection="details" item="d" separator=",">
+            (#{d.submissionId}, #{d.questionId}, #{d.userAnswer}, #{d.correct})
+        </foreach>
+    </insert>
+
+    <select id="findBySubmissionId" resultMap="SubmissionDetailResultMap">
+        SELECT * FROM submission_details WHERE submission_id = #{submissionId}
+    </select>
+
+    <select id="countBySubmissionId" resultType="int">
+        SELECT COUNT(*) FROM submission_details WHERE submission_id = #{submissionId}
+    </select>
+
+    <select id="findBySubmissionIdAndQuestionId" resultMap="SubmissionDetailResultMap">
+        SELECT * FROM submission_details WHERE submission_id = #{submissionId} AND question_id = #{questionId}
+    </select>
+
+    <delete id="deleteBySubmissionIdAndQuestionId">
+        DELETE FROM submission_details WHERE submission_id = #{submissionId} AND question_id = #{questionId}
+    </delete>
 
 </mapper>

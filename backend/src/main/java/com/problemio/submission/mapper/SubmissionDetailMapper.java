@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface SubmissionDetailMapper {
@@ -14,4 +15,12 @@ public interface SubmissionDetailMapper {
     void insertSubmissionDetails(@Param("details") List<SubmissionDetail> details);
 
     List<SubmissionDetail> findBySubmissionId(@Param("submissionId") Long submissionId);
+
+    int countBySubmissionId(@Param("submissionId") Long submissionId);
+
+    Optional<SubmissionDetail> findBySubmissionIdAndQuestionId(@Param("submissionId") Long submissionId,
+                                                               @Param("questionId") Long questionId);
+
+    void deleteBySubmissionIdAndQuestionId(@Param("submissionId") Long submissionId,
+                                           @Param("questionId") Long questionId);
 }

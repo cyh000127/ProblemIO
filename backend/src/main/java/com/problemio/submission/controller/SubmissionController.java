@@ -1,6 +1,8 @@
 package com.problemio.submission.controller;
 
+import com.problemio.global.auth.CustomUserDetails;
 import com.problemio.global.common.ApiResponse;
+import com.problemio.submission.dto.QuizAnswerResponse;
 import com.problemio.submission.dto.QuizSubmissionRequest;
 import com.problemio.submission.dto.QuizSubmissionResponse;
 import com.problemio.submission.service.SubmissionService;
@@ -8,8 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,19 +23,23 @@ public class SubmissionController {
     private final SubmissionService submissionService;
 
     @PostMapping("/api/quizzes/{quizId}/submissions")
-    public ResponseEntity<ApiResponse<QuizSubmissionResponse>> submitQuiz(
+    public ResponseEntity<ApiResponse<QuizAnswerResponse>> submitQuiz(
             @PathVariable Long quizId,
             @RequestBody @Valid QuizSubmissionRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // TODO: userIdOrNull은 인증정보에서 가져오거나 null (비회원 가능)
-        return ResponseEntity.ok(ApiResponse.success(null));
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userIdOrNull = userDetails != null ? userDetails.getUser().getId() : null;
+        return ResponseEntity.ok(
+                ApiResponse.success(submissionService.submitQuiz(quizId, userIdOrNull, request))
+        );
     }
 
     @GetMapping("/api/submissions/{submissionId}")
     public ResponseEntity<ApiResponse<QuizSubmissionResponse>> getSubmissionResult(
-            @PathVariable Long submissionId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // TODO: 엔드포인트 경로 수정
-        return ResponseEntity.ok(ApiResponse.success(null));
+            @PathVariable Long submissionId) {
+
+        return ResponseEntity.ok(
+                ApiResponse.success(submissionService.getSubmissionResult(submissionId))
+        );
     }
 }

@@ -4,4 +4,36 @@
 
 <mapper namespace="com.problemio.submission.mapper.SubmissionMapper">
 
+    <resultMap id="SubmissionResultMap" type="com.problemio.submission.domain.Submission">
+        <id property="id" column="id"/>
+        <result property="quizId" column="quiz_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="totalQuestions" column="total_questions"/>
+        <result property="correctCount" column="correct_count"/>
+        <result property="submittedAt" column="submitted_at"/>
+    </resultMap>
+
+    <insert id="insertSubmission" parameterType="com.problemio.submission.domain.Submission" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO submissions (quiz_id, user_id, total_questions, correct_count, submitted_at)
+        VALUES (#{quizId}, #{userId}, #{totalQuestions}, #{correctCount}, NOW())
+    </insert>
+
+    <update id="updateCorrectCount">
+        UPDATE submissions
+        SET correct_count = #{correctCount}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultMap="SubmissionResultMap">
+        SELECT * FROM submissions WHERE id = #{id}
+    </select>
+
+    <select id="findByQuizId" resultMap="SubmissionResultMap">
+        SELECT * FROM submissions WHERE quiz_id = #{quizId}
+    </select>
+
+    <select id="findByUserId" resultMap="SubmissionResultMap">
+        SELECT * FROM submissions WHERE user_id = #{userId}
+    </select>
+
 </mapper>

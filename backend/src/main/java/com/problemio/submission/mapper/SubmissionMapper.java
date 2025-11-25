@@ -12,6 +12,8 @@ public interface SubmissionMapper {
 
     void insertSubmission(Submission submission);
 
+    void updateCorrectCount(@Param("id") Long id, @Param("correctCount") int correctCount);
+
     Optional<Submission> findById(@Param("id") Long id);
 
     List<Submission> findByQuizId(@Param("quizId") Long quizId);
