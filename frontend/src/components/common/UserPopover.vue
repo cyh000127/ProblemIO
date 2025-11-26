@@ -11,12 +11,12 @@
       <!-- 상단: 아바타 + 닉네임 + 버튼 -->
       <div class="flex items-center gap-4">
         <Avatar
-          :image="avatarSrc || undefined"
-          :label="!avatarSrc && profile.nickname ? profile.nickname.charAt(0).toUpperCase() : ''"
-          :icon="!avatarSrc && !profile.nickname ? 'pi pi-user' : undefined"
+          :image="avatarUrl"
+          :label="!profile.profileImageUrl && profile.nickname ? profile.nickname.charAt(0).toUpperCase() : ''"
+          :icon="!profile.profileImageUrl && !profile.nickname ? 'pi pi-user' : ''"
           shape="circle"
           size="xlarge"
-          class="border border-gray-200"
+          class="w-32 h-32 border border-gray-200"
         />
 
         <div class="flex-1 min-w-0">
@@ -78,6 +78,18 @@ const profile = reactive({
   me: false, // 나 자신인지
   followerCount: 0,
   followingCount: 0,
+});
+
+const avatarUrl = computed(() => {
+  if (!profile.profileImageUrl) return null;
+
+  // 이미 절대 경로라면 그대로 사용
+  if (profile.profileImageUrl.startsWith("http")) {
+    return profile.profileImageUrl;
+  }
+
+  // 서버에서 "/uploads/..." 처럼 내려온다고 가정
+  return `http://localhost:8080${profile.profileImageUrl}`;
 });
 
 // 업로드 경로 보정: DB에 파일명만 있으면 /upload/profile/ 붙여줌

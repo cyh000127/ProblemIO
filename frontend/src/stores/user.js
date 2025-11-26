@@ -28,9 +28,6 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  /**
-   * (참고) 로그인 후 유저 정보를 세팅하는 로직이 필요하다면 추가
-   */
   const setUserInfo = (user) => {
     userInfo.value = user;
   };
