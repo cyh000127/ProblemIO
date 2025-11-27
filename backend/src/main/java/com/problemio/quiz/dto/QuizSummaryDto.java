@@ -1,9 +1,11 @@
 package com.problemio.quiz.dto;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class QuizSummaryDto {
 

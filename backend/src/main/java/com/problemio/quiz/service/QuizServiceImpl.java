@@ -439,4 +439,19 @@ public class QuizServiceImpl implements QuizService {
         like.setQuizId(quizId);
         return like;
     }
+
+    /*
+     * 마이 페이지 내 좋아요한 퀴즈, 유저가 팔로우하는 유저의 퀴즈 목록 조회 위한 메서드
+     */
+    @Override
+    public List<QuizSummaryDto> getQuizzesOfFollowings(Long userId, int page, int size) {
+        int offset = (page - 1) * size;
+        return quizMapper.findQuizzesOfFollowings(userId, offset, size);
+    }
+
+    @Override
+    public List<QuizSummaryDto> getLikedQuizzes(Long userId, int page, int size) {
+        int offset = (page - 1) * size;
+        return quizMapper.findLikedQuizzesByUser(userId, offset, size);
+    }
 }

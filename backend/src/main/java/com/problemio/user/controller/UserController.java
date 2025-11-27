@@ -3,6 +3,7 @@ package com.problemio.user.controller;
 import com.problemio.global.auth.CustomUserDetails;
 import com.problemio.global.common.ApiResponse;
 import com.problemio.quiz.dto.QuizSummaryDto;
+import com.problemio.quiz.service.QuizService;
 import com.problemio.user.dto.UserPopoverResponse;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.dto.UserSummaryDto;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final QuizService quizService;
 
     // 특정 유저 조회
     @GetMapping("/{userId}")
@@ -97,5 +99,30 @@ public class UserController {
         Long viewerId = userDetails.getUser().getId();  // 현재 로그인한 나
         UserPopoverResponse res = userService.getUserPopover(userId, viewerId);
         return ResponseEntity.ok(ApiResponse.success(res));
+    }
+
+    // 마이 페이지 내 좋아요한 퀴즈, 팔로우한 유저의 퀴즈 조회
+    // 내가 팔로우한 유저들의 퀴즈 목록
+    @GetMapping("/me/quizzes/followings")
+    public ResponseEntity<ApiResponse<java.util.List<QuizSummaryDto>>> getQuizzesOfFollowings(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
+        var data = quizService.getQuizzesOfFollowings(userId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    // 내가 좋아요한 퀴즈 목록
+    @GetMapping("/me/quizzes/liked")
+    public ResponseEntity<ApiResponse<java.util.List<QuizSummaryDto>>> getLikedQuizzes(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails.getUser().getId();
+        var data = quizService.getLikedQuizzes(userId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(data));
     }
 }

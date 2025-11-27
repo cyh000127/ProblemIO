@@ -24,4 +24,7 @@ public interface QuizService {
     void likeQuiz(Long userId, Long quizId);
 
     void unlikeQuiz(Long userId, Long quizId);
+
+    List<QuizSummaryDto> getQuizzesOfFollowings(Long userId, int page, int size);
+    List<QuizSummaryDto> getLikedQuizzes(Long userId, int page, int size);
 }

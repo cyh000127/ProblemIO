@@ -1,4 +1,5 @@
 import apiClient from "./axios";
+import { resolveImageUrl } from "@/lib/image";
 
 // 유저 공개 프로필 조회
 export const getUserProfile = async (userId) => {
@@ -64,14 +65,20 @@ export const getMySummary = async () => {
 
 // 내가 좋아요한 퀴즈 목록
 export const getMyLikedQuizzes = async () => {
-  const response = await apiClient.get("/users/me/liked-quizzes");
-  return response.data.data;
+  const response = await apiClient.get("/users/me/quizzes/liked");
+  return response.data.data.map((quiz) => ({
+    ...quiz,
+    thumbnailUrl: resolveImageUrl(quiz.thumbnailUrl),
+  }));
 };
 
 // 팔로잉 유저들의 퀴즈 목록
 export const getFollowingQuizzes = async (sort = "latest") => {
-  const response = await apiClient.get(`/users/me/following-quizzes?sort=${sort}`);
-  return response.data.data;
+  const response = await apiClient.get(`/users/me/quizzes/followings?sort=${sort}`);
+  return response.data.data.map((quiz) => ({
+    ...quiz,
+    thumbnailUrl: resolveImageUrl(quiz.thumbnailUrl),
+  }));
 };
 
 // 내 정보 조회

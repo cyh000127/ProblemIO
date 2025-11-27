@@ -98,4 +98,42 @@
         FROM quizzes
         WHERE id = #{id}
     </select>
+
+    <!-- 내가 팔로우한 유저들 퀴즈 목록 조회용 -->
+    <select id="findQuizzesOfFollowings"
+            parameterType="map"
+            resultType="com.problemio.quiz.dto.QuizSummaryDto">
+        SELECT
+        q.id            AS id,
+        q.title         AS title,
+        q.thumbnail_url AS thumbnailUrl,
+        q.like_count    AS likeCount,
+        q.play_count    AS playCount
+        FROM quizzes q
+        JOIN follows f
+        ON f.following_id = q.user_id   <!-- 내가 팔로우한 사람 = 퀴즈 작성자 -->
+        WHERE f.follower_id = #{userId}
+        AND q.is_public = TRUE
+        ORDER BY q.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 내가 좋아요한 퀴즈 목록 -->
+    <select id="findLikedQuizzesByUser"
+            parameterType="map"
+            resultType="com.problemio.quiz.dto.QuizSummaryDto">
+        SELECT
+            q.id            AS id,
+            q.title         AS title,
+            q.thumbnail_url AS thumbnailUrl,
+            q.like_count    AS likeCount,
+            q.play_count    AS playCount
+        FROM quiz_likes l
+                 JOIN quizzes q
+                      ON q.id = l.quiz_id
+        WHERE l.user_id = #{userId}
+          AND q.is_public = TRUE
+        ORDER BY l.created_at DESC
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
 </mapper>
