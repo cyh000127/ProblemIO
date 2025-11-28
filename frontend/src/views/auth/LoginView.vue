@@ -60,8 +60,8 @@ const handleLogin = async () => {
   } catch (error: any) {
     toast.add({
       severity: "error",
-      summary: "Error",
-      detail: error.response?.data?.message || "Login failed",
+      summary: "실패",
+      detail: error.response?.data?.message || "로그인에 실패했습니다.",
       life: 3000,
     });
   } finally {

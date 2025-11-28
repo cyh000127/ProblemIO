@@ -38,20 +38,20 @@
               </div>
 
               <!-- 통계 영역 -->
-              <div class="flex justify-center md:justify-start gap-8 mt-2">
-                <div class="text-center">
-                  <p class="text-2xl font-bold m-0">{{ me?.quizCount ?? 0 }}</p>
-                  <p class="text-sm text-color-secondary m-0">Quizzes</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-2xl font-bold m-0">{{ me?.followerCount ?? 0 }}</p>
-                  <p class="text-sm text-color-secondary m-0">Followers</p>
-                </div>
-                <div class="text-center">
-                  <p class="text-2xl font-bold m-0">{{ me?.followingCount ?? 0 }}</p>
-                  <p class="text-sm text-color-secondary m-0">Following</p>
-                </div>
-              </div>
+<div class="flex justify-center md:justify-start gap-8 mt-2">
+  <div class="stat-box">
+    <p class="text-2xl font-bold m-0">{{ me?.quizCount ?? 0 }}</p>
+    <p class="text-sm text-color-secondary m-0">만든 퀴즈</p>
+  </div>
+  <div class="stat-box">
+    <p class="text-2xl font-bold m-0">{{ me?.followerCount ?? 0 }}</p>
+    <p class="text-sm text-color-secondary m-0">팔로워</p>
+  </div>
+  <div class="stat-box">
+    <p class="text-2xl font-bold m-0">{{ me?.followingCount ?? 0 }}</p>
+    <p class="text-sm text-color-secondary m-0">팔로잉</p>
+  </div>
+</div>
             </div>
           </div>
         </template>
@@ -70,31 +70,57 @@
           <i class="pi pi-spin pi-spinner text-4xl"></i>
         </div>
 
-        <div v-else-if="myQuizzes.length === 0" class="text-center py-8 text-color-secondary">
-          <p class="text-xl mb-4">아직 퀴즈가 없네요! 퀴즈를 만들어 친구들과 공유해보세요.</p>
-          <Button label="퀴즈 만들기" icon="pi pi-plus" @click="goToCreateQuiz" />
-        </div>
+         <div v-else-if="myQuizzes.length === 0" class="text-center py-8 text-color-secondary">
+    <p class="text-xl mb-4">아직 퀴즈가 없네요! 퀴즈를 만들어 친구들과 공유해보세요.</p>
+    <Button label="퀴즈 만들기" icon="pi pi-plus" @click="goToCreateQuiz" />
+  </div>
 
-        <div v-else class="quiz-grid-container">
-          <div v-for="quiz in myQuizzes" :key="quiz.id" class="quiz-card">
-            <div class="quiz-thumbnail">
-              <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="quiz-thumbnail-img" />
-            </div>
-            <div class="quiz-meta">
-              <h3 class="quiz-title">{{ quiz.title }}</h3>
-              <div class="quiz-stat">
-                <i class="pi pi-heart text-xs"></i>
-                <span>{{ quiz.likeCount || 0 }}</span>
-              </div>
-            </div>
-            <div class="quiz-actions">
-              <Button label="View" icon="pi pi-eye" severity="secondary" outlined size="small" class="flex-1 text-xs" @click="goToQuiz(quiz.id)" />
-              <Button label="Edit" icon="pi pi-pencil" severity="secondary" outlined size="small" class="flex-1 text-xs" @click="goToEdit(quiz.id)" />
-              <Button label="Del" icon="pi pi-trash" severity="danger" outlined size="small" class="text-xs" @click="handleDelete(quiz.id)" />
-            </div>
-          </div>
+  <div v-else class="quiz-grid-container">
+    <div
+      v-for="quiz in myQuizzes"
+      :key="quiz.id"
+      class="quiz-card cursor-pointer"
+      @click="goToQuiz(quiz.id)" 
+    >
+      <div class="quiz-thumbnail">
+        <img
+          :src="quiz.thumbnailUrl || '/placeholder.svg'"
+          :alt="quiz.title"
+          class="quiz-thumbnail-img"
+        />
+      </div>
+      <div class="quiz-meta">
+        <h3 class="quiz-title">{{ quiz.title }}</h3>
+        <div class="quiz-stat">
+          <i class="pi pi-heart text-xs"></i>
+          <span>{{ quiz.likeCount || 0 }}</span>
         </div>
       </div>
+
+      <!-- 버튼 클릭 시에는 카드 클릭 이벤트 안 타게 stop -->
+      <div class="quiz-actions" @click.stop>
+        <Button
+          label="수정"
+          icon="pi pi-pencil"
+          severity="secondary"
+          outlined
+          size="small"
+          class="flex-1 text-xs"
+          @click="goToEdit(quiz.id)"
+        />
+        <Button
+          label="삭제"
+          icon="pi pi-trash"
+          severity="danger"
+          outlined
+          size="small"
+          class="text-xs"
+          @click="handleDelete(quiz.id)"
+        />
+      </div>
+    </div>
+  </div>
+</div>
 
       <!-- 팔로우한 유저들의 퀴즈 탭 -->
       <div v-show="activeTab === 'following'" class="tab-content">
@@ -257,8 +283,8 @@ const goToCreateQuiz = () => {
 
 const handleDelete = (quizId: number) => {
   confirm.require({
-    message: "Are you sure you want to delete this quiz?",
-    header: "Delete Quiz",
+    message: "한번 지우면 되돌릴 수 없어요!!",
+    header: "진짜 퀴즈를 지울거에요? ",
     icon: "pi pi-exclamation-triangle",
     accept: async () => {
       try {
@@ -266,7 +292,7 @@ const handleDelete = (quizId: number) => {
         toast.add({
           severity: "success",
           summary: "Success",
-          detail: "Quiz deleted successfully",
+          detail: "퀴즈가 삭제되었습니다",
           life: 3000,
         });
         loadMyQuizzes();
@@ -274,7 +300,7 @@ const handleDelete = (quizId: number) => {
         toast.add({
           severity: "error",
           summary: "Error",
-          detail: "Failed to delete quiz",
+          detail: "퀴즈 삭제에 실패했습니다",
           life: 3000,
         });
       }
@@ -296,6 +322,12 @@ onMounted(() => {
 
 
 <style scoped>
+/* 통계 부분 */
+.stat-box {
+  width: 60px;          
+  text-align: center;
+}
+
 .mypage-container {
   min-height: calc(100vh - 200px);
   padding: 1rem 0 3rem;

@@ -29,7 +29,7 @@
             <span class="text-color">{{ authStore.user?.nickname || "User" }}</span>
           </Button>
 
-          <Button label="Logout" icon="pi pi-sign-out" severity="danger" text @click="handleLogout" />
+          <Button label="로그아웃" icon="pi pi-sign-out" severity="danger" text @click="handleLogout" />
         </template>
       </div>
     </template>
@@ -64,8 +64,8 @@ const handleCreateQuiz = () => {
 // 공통: 로그인 리다이렉트 확인창
 const confirmLoginRedirect = () => {
   confirm.require({
-    message: "Login is required. Would you like to go to the login page?",
-    header: "Login Required",
+    message: "로그인 창으로 이동하시겠습니까?",
+    header: "로그인이 필요한 서비스입니다.    ",
     icon: "pi pi-exclamation-triangle",
     accept: () => {
       router.push("/login");
@@ -81,7 +81,7 @@ const goToMyPage = () => router.push("/mypage");
 // 로그아웃 핸들러
 const handleLogout = () => {
   confirm.require({
-    message: "Are you sure you want to logout?",
+    message: "로그아웃 하시겠습니까?",
     header: "Logout",
     icon: "pi pi-sign-out",
     acceptClass: "p-button-danger",
@@ -89,8 +89,8 @@ const handleLogout = () => {
       authStore.logoutUser();
       toast.add({
         severity: "success",
-        summary: "Success",
-        detail: "Logged out successfully.",
+        summary: "로그아웃",
+        detail: "로그아웃 되었습니다",
         life: 3000,
       });
       router.push("/"); // 로그아웃 후 메인으로 이동
