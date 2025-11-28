@@ -11,7 +11,7 @@ const QuizPlayView = () => import('@/views/quiz/QuizPlayView.vue')
 const QuizResultView = () => import('@/views/quiz/QuizResultView.vue')
 const QuizCreateView = () => import('@/views/quiz/QuizCreateView.vue')
 const QuizEditView = () => import('@/views/quiz/QuizEditView.vue')
-const UserProfileView = () => import('@/views/user/UserProfileView.vue')
+const UserPageView = () => import('@/views/user/UserPageView.vue')
 const MyPageView = () => import('@/views/user/MyPageView.vue')
 const ProfileEditView = () => import('@/views/user/ProfileEditView.vue')
 
@@ -83,7 +83,7 @@ const router = createRouter({
     {
       path: '/users/:id',
       name: 'user-profile',
-      component: UserProfileView,
+      component: UserPageView,
       meta: { requiresAuth: false },
       props: true,
     },

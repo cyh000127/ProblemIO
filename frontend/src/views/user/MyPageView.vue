@@ -1,6 +1,62 @@
 <template>
   <div class="mypage-container">
     <div class="container mx-auto px-4">
+      <!-- 프로필 헤더 -->
+             <Card class="mb-8">
+        <template #content>
+          <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+              <Avatar
+                :image="authStore.user?.profileImageUrl ? `http://localhost:8080${authStore.user.profileImageUrl}` : null"
+                :label="!authStore.user?.profileImageUrl && authStore.user?.nickname ? authStore.user.nickname.charAt(0).toUpperCase() : ''"
+                :icon="!authStore.user?.profileImageUrl && !authStore.user?.nickname ? 'pi pi-user' : ''"
+                shape="circle"
+                size="xlarge"
+                class="w-32 h-32"
+              />
+
+            <div class="flex-1 text-center md:text-left">
+              <!-- 닉네임 / 상태메시지 + 우측 상단 설정 버튼 -->
+              <div class="flex justify-between items-start">
+                <div>
+                  <h1 class="text-3xl font-bold mb-2">{{ me?.nickname }}</h1>
+                  <p
+                    v-if="me?.statusMessage"
+                    class="text-lg text-color-secondary mb-4"
+                  >
+                    {{ me.statusMessage }}
+                  </p>
+                </div>
+
+                <!-- 설정 버튼 (/mypage/edit 이동) -->
+                <Button
+                  icon="pi pi-cog"
+                  rounded
+                  outlined
+                  @click="goToEditProfile"
+                  aria-label="프로필 설정"
+                />
+              </div>
+
+              <!-- 통계 영역 -->
+              <div class="flex justify-center md:justify-start gap-8 mt-2">
+                <div class="text-center">
+                  <p class="text-2xl font-bold m-0">{{ me?.quizCount ?? 0 }}</p>
+                  <p class="text-sm text-color-secondary m-0">Quizzes</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-2xl font-bold m-0">{{ me?.followerCount ?? 0 }}</p>
+                  <p class="text-sm text-color-secondary m-0">Followers</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-2xl font-bold m-0">{{ me?.followingCount ?? 0 }}</p>
+                  <p class="text-sm text-color-secondary m-0">Following</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </Card>
+
       <!-- Navbar 스타일의 탭 네비게이션 -->
       <div class="tab-navbar">
         <button :class="['tab-button', { active: activeTab === 'my' }]" @click="activeTab = 'my'">내 퀴즈 목록</button>
@@ -97,16 +153,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
+import { useAuthStore } from "@/stores/auth";
 import { getFollowingQuizzes, getMyLikedQuizzes } from "@/api/user";
 import { getMyQuizzes, deleteQuiz } from "@/api/quiz";
 
 const router = useRouter();
 const toast = useToast();
 const confirm = useConfirm();
+const authStore = useAuthStore();  
+const me = computed(() => authStore.user);
+
+
+const goToEditProfile = () => {
+  router.push("/mypage/edit"); 
+};
 
 // 활성 탭 상태
 const activeTab = ref("my");
@@ -228,6 +292,8 @@ onMounted(() => {
   loadAllData();
 });
 </script>
+
+
 
 <style scoped>
 .mypage-container {

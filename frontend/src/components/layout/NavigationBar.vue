@@ -42,8 +42,6 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-// PrimeVue 컴포넌트들이 자동 import 설정되어 있다고 가정합니다.
-// 만약 아니라면 아래 주석을 해제하세요.
 // import Avatar from 'primevue/avatar';
 
 const router = useRouter();
@@ -53,13 +51,6 @@ const confirm = useConfirm();
 
 const searchKeyword = ref("");
 const menuItems = ref([]); // 빈 배열이라도 ref로 감싸는 것이 안전함
-
-// 검색 핸들러
-const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    router.push({ name: "search", query: { q: searchKeyword.value } });
-  }
-};
 
 // [비로그인용] 퀴즈 생성 클릭 시 → 로그인 유도
 const handleCreateQuiz = () => {
@@ -84,7 +75,6 @@ const confirmLoginRedirect = () => {
 
 // 단순 이동 함수들
 const goToLogin = () => router.push("/login");
-const goToSignup = () => router.push("/signup");
 const goToCreateQuiz = () => router.push("/quiz/create");
 const goToMyPage = () => router.push("/mypage");
 

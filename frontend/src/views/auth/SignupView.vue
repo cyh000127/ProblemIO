@@ -43,7 +43,7 @@
                   />
                 </div>
                 <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
-                <small v-else-if="emailState.isVerified" class="text-green-500">✓ 이메일 인증이 완료되었습니다.</small>
+                <small v-else-if="emailState.isVerified" class="text-green-500"> 이메일 인증이 완료되었습니다.</small>
                 <small v-else class="text-color-secondary">이메일을 입력하고 인증번호를 받아주세요.</small>
               </div>
 
