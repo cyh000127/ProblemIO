@@ -199,6 +199,8 @@
             v-model="questionForm.answers"
             placeholder="정답을 입력하고 Enter"
             class="w-full"
+            :allow-duplicate="false"
+            @add="handleAnswerAdd"
           />
         </div>
 
@@ -212,7 +214,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useQuizStore } from "@/stores/quiz";
@@ -249,6 +251,63 @@ const questionForm = reactive({
   description: "",
   answers: [] as string[],
 });
+
+// ==== 정답 칩 정규화 로직 ====
+
+// 1) 배열 정리하는 순수 함수
+const normalizeAnswers = (arr: string[]): string[] => {
+  // 1-1) 공백 제거 + 빈 문자열 제거
+  let normalized = arr.map((v) => v.trim()).filter((v) => v.length > 0);
+
+  // 1-2) 한글 꼬리 글자 칩 제거
+  if (normalized.length >= 2) {
+    const last = normalized[normalized.length - 1];   // 마지막 값
+    const prev = normalized[normalized.length - 2];   // 바로 앞 값
+
+    // 직전 값이 마지막 값으로 끝나고, 마지막 값이 1~2글자 정도면
+    // → IME 꼬리 글자로 판단
+    if (last.length <= 2 && prev.endsWith(last)) {
+      normalized = normalized.slice(0, -1); // 마지막 칩 제거
+    }
+  }
+
+  // 1-3) 중복 제거 (같은 정답 두 번 방지)
+  normalized = normalized.filter(
+    (v, idx, self) => self.indexOf(v) === idx
+  );
+
+  return normalized;
+};
+
+// 2) 실제로 questionForm.answers에 반영하는 함수
+const applyAnswerNormalization = () => {
+  const current = questionForm.answers;
+  const normalized = normalizeAnswers(current);
+
+  // 내용이 바뀐 경우에만 반영 (불필요한 재할당/루프 방지)
+  if (
+    normalized.length !== current.length ||
+    normalized.some((v, i) => v !== current[i])
+  ) {
+    questionForm.answers = [...normalized];
+  }
+};
+
+// 3) Chips @add 에서 호출되는 핸들러
+const handleAnswerAdd = (event: any) => {
+  // event.value 안 써도 됨. 실제 소스는 questionForm.answers를 기준으로 정리
+  applyAnswerNormalization();
+};
+
+// 4) answers 배열이 어떤 방식으로든 변경될 때마다 한 번 더 정리
+watch(
+  () => questionForm.answers,
+  () => {
+    applyAnswerNormalization();
+  },
+  { deep: true }
+);
+
 
 // 현재 편집 중인 문제 객체
 const currentQuestion = computed(() => {
