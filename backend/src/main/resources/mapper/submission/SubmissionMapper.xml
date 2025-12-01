@@ -36,4 +36,8 @@
         SELECT * FROM submissions WHERE user_id = #{userId}
     </select>
 
+    <delete id="deleteByQuizId">
+        DELETE FROM submissions WHERE quiz_id = #{quizId}
+    </delete>
+
 </mapper>

@@ -42,7 +42,11 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
 
                         // Public quiz and submission endpoints
-                        .requestMatchers("/api/quizzes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/quizzes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/quizzes/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/quizzes/**").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/quizzes/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/quizzes/**").authenticated()
                         .requestMatchers("/api/submissions/**").permitAll()
 
                         // User lookups available to guests

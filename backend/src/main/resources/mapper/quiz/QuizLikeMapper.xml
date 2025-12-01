@@ -14,6 +14,10 @@
         DELETE FROM quiz_likes WHERE user_id = #{userId} AND quiz_id = #{quizId}
     </delete>
 
+    <delete id="deleteByQuizId">
+        DELETE FROM quiz_likes WHERE quiz_id = #{quizId}
+    </delete>
+
     <select id="findByUserIdAndQuizId" resultType="com.problemio.quiz.domain.QuizLike">
         SELECT user_id AS userId, quiz_id AS quizId, created_at AS createdAt
         FROM quiz_likes

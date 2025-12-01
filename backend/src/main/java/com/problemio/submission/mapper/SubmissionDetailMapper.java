@@ -23,4 +23,6 @@ public interface SubmissionDetailMapper {
 
     void deleteBySubmissionIdAndQuestionId(@Param("submissionId") Long submissionId,
                                            @Param("questionId") Long questionId);
+
+    void deleteByQuestionIds(@Param("questionIds") List<Long> questionIds);
 }

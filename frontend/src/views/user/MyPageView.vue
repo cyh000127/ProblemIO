@@ -32,7 +32,7 @@
               <!-- 통계 영역 -->
 <div class="flex justify-center md:justify-start gap-8 mt-2">
   <div class="stat-box">
-    <p class="text-2xl font-bold m-0">{{ me?.quizCount ?? 0 }}</p>
+    <p class="text-2xl font-bold m-0">{{ myQuizCount }}</p>
     <p class="text-sm text-color-secondary m-0">만든 퀴즈</p>
   </div>
   <div class="stat-box">
@@ -196,6 +196,7 @@ const activeTab = ref("my");
 
 // 내 퀴즈 목록
 const myQuizzes = ref([]);
+const myQuizCount = computed(() => myQuizzes.value.length);
 const myQuizzesLoading = ref(false);
 
 // 팔로우한 유저들의 퀴즈들
@@ -288,7 +289,7 @@ const handleDelete = (quizId: number) => {
           detail: "퀴즈가 삭제되었습니다",
           life: 3000,
         });
-        loadMyQuizzes();
+        await Promise.all([loadMyQuizzes(), authStore.refreshUser()]);
       } catch (error: any) {
         toast.add({
           severity: "error",

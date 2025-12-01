@@ -18,6 +18,8 @@ import com.problemio.quiz.dto.QuizSummaryDto;
 import com.problemio.quiz.dto.QuizUpdateRequest;
 import com.problemio.quiz.mapper.QuizLikeMapper;
 import com.problemio.quiz.mapper.QuizMapper;
+import com.problemio.submission.mapper.SubmissionDetailMapper;
+import com.problemio.submission.mapper.SubmissionMapper;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,10 @@ public class QuizServiceImpl implements QuizService {
     private final UserMapper userMapper;
     // 팔로우 관계 조회 매퍼
     private final FollowMapper followMapper;
+    // 제출(Submission) 관련 매퍼
+    private final SubmissionMapper submissionMapper;
+    // 제출 상세(SubmissionDetail) 관련 매퍼
+    private final SubmissionDetailMapper submissionDetailMapper;
 
     /**
      * 퀴즈 목록 조회 (페이징 + 정렬 + 검색)
@@ -171,8 +177,20 @@ public class QuizServiceImpl implements QuizService {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
         }
 
-        // 하위 질문/정답 삭제
+        // 관련 좋아요 제거
+        quizLikeMapper.deleteByQuizId(quizId);
+
+        // 제출 기록 선삭제 (FK 충돌 방지)
         List<Question> questions = questionMapper.findByQuizId(quizId);
+        List<Long> questionIds = questions.stream()
+                .map(Question::getId)
+                .collect(Collectors.toList());
+        if (!questionIds.isEmpty()) {
+            submissionDetailMapper.deleteByQuestionIds(questionIds);
+        }
+        submissionMapper.deleteByQuizId(quizId);
+
+        // 하위 질문/정답 삭제
         for (Question question : questions) {
             questionAnswerMapper.deleteByQuestionId(question.getId());
         }

@@ -13,6 +13,8 @@ public interface QuizLikeMapper {
 
     void deleteQuizLike(@Param("userId") Long userId, @Param("quizId") Long quizId);
 
+    void deleteByQuizId(@Param("quizId") Long quizId);
+
     Optional<QuizLike> findByUserIdAndQuizId(@Param("userId") Long userId, @Param("quizId") Long quizId);
 
     int countByQuizId(@Param("quizId") Long quizId);
