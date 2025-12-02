@@ -1,15 +1,16 @@
 package com.problemio.comment.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 public class CommentLike {
 
     private Long userId;
     private Long commentId;
+
     private LocalDateTime createdAt;
 }

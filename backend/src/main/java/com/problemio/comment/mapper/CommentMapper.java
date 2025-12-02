@@ -5,7 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper
 public interface CommentMapper {
@@ -16,7 +15,17 @@ public interface CommentMapper {
 
     void softDeleteComment(@Param("id") Long id);
 
-    Optional<Comment> findById(@Param("id") Long id);
+    Comment findById(@Param("id") Long id);
 
-    List<Comment> findByQuizId(@Param("quizId") Long quizId);
+    List<Comment> findCommentsByQuizId(
+            @Param("quizId") Long quizId,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
+
+    int countCommentsByQuizId(@Param("quizId") Long quizId);
+
+    void increaseLikeCount(@Param("commentId") Long commentId);
+
+    void decreaseLikeCount(@Param("commentId") Long commentId);
 }

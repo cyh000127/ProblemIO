@@ -1,20 +1,24 @@
 package com.problemio.comment.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 public class Comment {
-
     private Long id;
     private Long quizId;
-    private Long userId;
+
+    private Long userId;              // 회원이면 값, 게스트면 null
+    private String guestNickname;     // 게스트면 값, 회원이면 null
+    private String guestPasswordHash; // 절대 응답으로 노출 X
+    private String writerIp;
+
     private String content;
-    private int likeCount;
-    private boolean isDeleted;
+    private Integer likeCount;
+
+    private boolean deleted;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

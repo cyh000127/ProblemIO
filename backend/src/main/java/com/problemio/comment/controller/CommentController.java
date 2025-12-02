@@ -1,80 +1,76 @@
 package com.problemio.comment.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.problemio.comment.dto.CommentCreateRequest;
+import com.problemio.comment.dto.CommentDeleteRequest;
 import com.problemio.comment.dto.CommentResponse;
+import com.problemio.comment.dto.CommentUpdateRequest;
 import com.problemio.comment.service.CommentService;
-import com.problemio.global.common.ApiResponse;
+import com.problemio.global.auth.CustomUserDetails;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/quizzes/{quizId}/comments")
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<CommentResponse>> createComment(
+    @PostMapping("/quizzes/{quizId}/comments")
+    public void createComment(
             @PathVariable Long quizId,
-            @RequestBody @Valid CommentCreateRequest request) {
-        // TODO: userId는 인증정보에서
-        return null;
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody CommentCreateRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        commentService.createComment(quizId, userId, request, httpRequest.getRemoteAddr());
     }
 
-    @PatchMapping("/{commentId}")
-    public ResponseEntity<ApiResponse<CommentResponse>> updateComment(
-            @PathVariable Long quizId,
+    @PatchMapping("/comments/{commentId}")
+    public void updateComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentCreateRequest request) {
-        // TODO
-        return null;
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody CommentUpdateRequest request
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        commentService.updateComment(commentId, userId, request);
     }
 
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<ApiResponse<Void>> deleteComment(
-            @PathVariable Long quizId,
-            @PathVariable Long commentId) {
-        // TODO
-        return null;
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(@PathVariable Long quizId) {
-        // TODO
-        return null;
-    }
-
-    @PostMapping("/{commentId}/like")
-    public ResponseEntity<ApiResponse<Void>> likeComment(
-            @PathVariable Long quizId,
+    @DeleteMapping("/comments/{commentId}")
+    public void deleteComment(
             @PathVariable Long commentId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // TODO
-        return ResponseEntity.ok(ApiResponse.success(null));
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody(required = false) CommentDeleteRequest request
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        String guestPassword = request != null ? request.getPassword() : null;
+        commentService.deleteComment(commentId, userId, guestPassword);
     }
 
-    @DeleteMapping("/{commentId}/like")
-    public ResponseEntity<ApiResponse<Void>> unlikeComment(
+    @GetMapping("/quizzes/{quizId}/comments")
+    public List<CommentResponse> getComments(
             @PathVariable Long quizId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        return commentService.getComments(quizId, userId, page, size);
+    }
+
+    @PostMapping("/comments/{commentId}/likes")
+    public void toggleLike(
             @PathVariable Long commentId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // TODO
-        return ResponseEntity.ok(ApiResponse.success(null));
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        commentService.toggleLike(commentId, userId);
     }
 }

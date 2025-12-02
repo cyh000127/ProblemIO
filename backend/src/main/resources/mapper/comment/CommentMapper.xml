@@ -1,7 +1,125 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.problemio.comment.mapper.CommentMapper">
+
+    <resultMap id="commentResult" type="com.problemio.comment.domain.Comment">
+        <id property="id" column="id"/>
+        <result property="quizId" column="quiz_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="guestNickname" column="guest_nickname"/>
+        <result property="guestPasswordHash" column="guest_password_hash"/>
+        <result property="writerIp" column="writer_ip"/>
+        <result property="content" column="content" jdbcType="LONGVARCHAR"/>
+        <result property="likeCount" column="like_count"/>
+        <!-- Lombok이 만들어주는 세터 이름 때문에 property 이름 수정-->
+        <result property="deleted" column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- INSERT -->
+    <insert id="insertComment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comments (
+            quiz_id,
+            user_id,
+            guest_nickname,
+            guest_password_hash,
+            writer_ip,
+            content,
+            like_count
+        ) VALUES (
+                     #{quizId},
+                     #{userId},
+                     #{guestNickname},
+                     #{guestPasswordHash},
+                     #{writerIp},
+                     #{content, jdbcType=LONGVARCHAR},
+                     #{likeCount}
+                 )
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updateComment">
+        UPDATE comments
+        SET content = #{content, jdbcType=LONGVARCHAR},
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND is_deleted = 0
+    </update>
+
+    <!-- SOFT DELETE -->
+    <update id="softDeleteComment">
+        UPDATE comments
+        SET is_deleted = 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+            AND is_deleted = 0 <!-- 이미 삭제된 댓글에 대해 불필요한 업데이트 방지-->
+    </update>
+
+    <!-- FIND ONE -->
+    <select id="findById" resultMap="commentResult">
+        SELECT
+            id,
+            quiz_id,
+            user_id,
+            guest_nickname,
+            guest_password_hash,
+            writer_ip,
+            content,
+            like_count,
+            is_deleted,
+            created_at,
+            updated_at
+        FROM comments
+        WHERE id = #{id}
+    </select>
+
+    <!-- LIST -->
+    <select id="findCommentsByQuizId" resultMap="commentResult">
+        SELECT
+            id,
+            quiz_id,
+            user_id,
+            guest_nickname,
+            guest_password_hash,
+            writer_ip,
+            content,
+            like_count,
+            is_deleted,
+            created_at,
+            updated_at
+        FROM comments
+        WHERE quiz_id = #{quizId}
+          AND is_deleted = 0
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+        OFFSET #{offset}
+    </select>
+
+    <select id="countCommentsByQuizId" resultType="int">
+        SELECT COUNT(*)
+        FROM comments
+        WHERE quiz_id = #{quizId}
+          AND is_deleted = 0
+    </select>
+
+    <!-- LIKE COUNT -->
+    <update id="increaseLikeCount">
+        UPDATE comments
+        SET like_count = like_count + 1
+        WHERE id = #{commentId}
+          AND is_deleted = 0
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE comments
+        SET like_count = like_count - 1
+        WHERE id = #{commentId}
+          AND like_count > 0
+          AND is_deleted = 0
+    </update>
 
 </mapper>

@@ -52,6 +52,19 @@
             </div>
           </template>
         </Card>
+
+        <!-- 댓글 섹션 (결과 화면에서 노출) -->
+        <Card>
+          <template #content>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-xl font-bold m-0">댓글</h3>
+              <span class="text-sm text-color-secondary"
+                >결과를 공유하고 피드백을 남겨보세요</span
+              >
+            </div>
+            <CommentSection :quiz-id="quizId" />
+          </template>
+        </Card>
       </div>
     </div>
   </div>
@@ -63,10 +76,12 @@ import { useRouter, useRoute } from 'vue-router'
 import { useQuizStore } from '@/stores/quiz'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
+import CommentSection from '@/components/comment/CommentSection.vue'
 
 const quizStore = useQuizStore()
 const router = useRouter()
 const route = useRoute()
+const quizId = computed(() => Number(route.params.id))
 
 onMounted(() => {
   // 결과 없으면 플레이 화면으로 되돌리기

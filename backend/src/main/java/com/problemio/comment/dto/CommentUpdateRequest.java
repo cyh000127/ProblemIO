@@ -2,20 +2,19 @@ package com.problemio.comment.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class CommentUpdateRequest {
 
-
-@Data
-public class CommentCreateRequest {
     @NotBlank
     @Size(max = 500)
     private String content;
 
-    // 게스트용 필드 (회원일 때는 무시)
-    @Size(max = 50)
-    private String nickname;
-
+    // 게스트일 경우 필요
     @Size(min = 4, max = 100)
     private String password;
 }

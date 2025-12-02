@@ -59,6 +59,19 @@
           </template>
         </Card>
 
+        <!-- 댓글 섹션 (퀴즈 시작 화면에서 노출) -->
+        <Card>
+          <template #content>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-xl font-bold m-0">댓글</h3>
+              <span class="text-sm text-color-secondary"
+                >퀴즈 시작 전에 자유롭게 소통하세요</span
+              >
+            </div>
+            <CommentSection :quiz-id="quizId" />
+          </template>
+        </Card>
+
         <!-- ✅ 유저 팝오버 컴포넌트 -->
         <UserPopover ref="userPopoverRef" />
       </div>
@@ -77,6 +90,7 @@ import { getQuiz, likeQuiz, unlikeQuiz } from "@/api/quiz";
 import { followUser, unfollowUser } from "@/api/user";
 import UserPopover from "@/components/common/UserPopover.vue";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import CommentSection from "@/components/comment/CommentSection.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -89,6 +103,7 @@ const quiz = ref<any | null>(null);
 const loading = ref(false);
 const isLiked = ref(false);
 const isFollowed = ref(false);
+const quizId = computed(() => Number(route.params.id));
 
 // 팝오버 ref
 const userPopoverRef = ref<any | null>(null);

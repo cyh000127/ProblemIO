@@ -41,6 +41,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/files/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
 
+                        // Comments: 조회/작성/수정/삭제는 게스트 허용, 좋아요는 로그인 필요
+                        .requestMatchers(HttpMethod.GET, "/api/quizzes/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/quizzes/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/comments/*/likes").authenticated()
+
                         // Public quiz and submission endpoints
                         .requestMatchers(HttpMethod.GET, "/api/quizzes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quizzes/**").authenticated()

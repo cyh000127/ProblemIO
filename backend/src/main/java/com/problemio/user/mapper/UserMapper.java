@@ -5,6 +5,7 @@ import com.problemio.user.dto.UserResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -12,6 +13,8 @@ public interface UserMapper {
 
     // 1. 마이페이지/상대방 프로필 조회 (비밀번호 제외된 DTO)
     Optional<UserResponse> findById(Long id);
+
+    List<UserResponse> findByIds(@Param("ids") List<Long> ids);
 
     // 2. 프로필 수정 (닉네임, 이미지, 상태메시지)
     void updateProfile(UserResponse user);
