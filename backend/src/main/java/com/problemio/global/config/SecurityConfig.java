@@ -50,6 +50,7 @@ public class SecurityConfig {
 
                         // Public quiz and submission endpoints
                         .requestMatchers(HttpMethod.GET, "/api/quizzes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/quizzes/*/submissions").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quizzes/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/quizzes/**").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/quizzes/**").authenticated()
