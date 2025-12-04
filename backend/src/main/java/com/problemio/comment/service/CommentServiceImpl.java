@@ -7,6 +7,8 @@ import com.problemio.comment.dto.CommentResponse;
 import com.problemio.comment.dto.CommentUpdateRequest;
 import com.problemio.comment.mapper.CommentLikeMapper;
 import com.problemio.comment.mapper.CommentMapper;
+import com.problemio.global.exception.BusinessException;
+import com.problemio.global.exception.ErrorCode;
 import com.problemio.quiz.mapper.QuizMapper;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.mapper.UserMapper;
@@ -34,11 +36,11 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void createComment(Long quizId, Long userId, CommentCreateRequest request, String writerIp) {
         if (quizMapper.findById(quizId).isEmpty()) {
-            throw new IllegalArgumentException("존재하지 않는 퀴즈입니다.");
+            throw new BusinessException(ErrorCode.QUIZ_NOT_FOUND);
         }
 
         if (request.getContent() == null || request.getContent().isBlank()) {
-            throw new IllegalArgumentException("댓글 내용을 입력하세요.");
+            throw new BusinessException(ErrorCode.COMMENT_CONTENT_REQUIRED);
         }
 
         Comment comment = new Comment();
@@ -47,10 +49,10 @@ public class CommentServiceImpl implements CommentService {
 
         if (userId == null) {
             if (request.getNickname() == null || request.getNickname().isBlank()) {
-                throw new IllegalArgumentException("닉네임을 입력하세요.");
+                throw new BusinessException(ErrorCode.COMMENT_NICKNAME_REQUIRED);
             }
             if (request.getPassword() == null || request.getPassword().isBlank()) {
-                throw new IllegalArgumentException("비밀번호를 입력하세요.");
+                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_REQUIRED);
             }
 
             comment.setGuestNickname(request.getNickname());
@@ -70,20 +72,20 @@ public class CommentServiceImpl implements CommentService {
     public void updateComment(Long commentId, Long userId, CommentUpdateRequest request) {
         Comment existing = commentMapper.findById(commentId);
         if (existing == null || existing.isDeleted()) {
-            throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+            throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         if (existing.getUserId() != null) {
             if (userId == null || !existing.getUserId().equals(userId)) {
-                throw new IllegalStateException("본인 댓글만 수정할 수 있습니다.");
+                throw new BusinessException(ErrorCode.COMMENT_FORBIDDEN);
             }
         } else {
             // 게스트 댓글
             if (request.getPassword() == null || request.getPassword().isBlank()) {
-                throw new IllegalArgumentException("비밀번호를 입력하세요.");
+                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_REQUIRED);
             }
             if (!passwordEncoder.matches(request.getPassword(), existing.getGuestPasswordHash())) {
-                throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_MISMATCH);
             }
         }
 
@@ -96,19 +98,19 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Long commentId, Long userId, String guestPassword) {
         Comment existing = commentMapper.findById(commentId);
         if (existing == null || existing.isDeleted()) {
-            throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+            throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         if (existing.getUserId() != null) {
             if (userId == null || !existing.getUserId().equals(userId)) {
-                throw new IllegalStateException("본인 댓글만 삭제할 수 있습니다.");
+                throw new BusinessException(ErrorCode.COMMENT_FORBIDDEN);
             }
         } else {
             if (guestPassword == null || guestPassword.isBlank()) {
-                throw new IllegalArgumentException("비밀번호를 입력하세요.");
+                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_REQUIRED);
             }
             if (!passwordEncoder.matches(guestPassword, existing.getGuestPasswordHash())) {
-                throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_MISMATCH);
             }
         }
 
@@ -181,12 +183,12 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void toggleLike(Long commentId, Long userId) {
         if (userId == null) {
-            throw new IllegalStateException("로그인 후 이용해주세요.");
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
 
         Comment comment = commentMapper.findById(commentId);
         if (comment == null || comment.isDeleted()) {
-            throw new IllegalArgumentException("존재하지 않는 댓글입니다.");
+            throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         boolean alreadyLiked = commentLikeMapper.exists(userId, commentId);
