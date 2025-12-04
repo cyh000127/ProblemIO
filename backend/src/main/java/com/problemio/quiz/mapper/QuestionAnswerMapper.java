@@ -1,6 +1,6 @@
-package com.problemio.question.mapper;
+package com.problemio.quiz.mapper;
 
-import com.problemio.question.domain.QuestionAnswer;
+import com.problemio.quiz.domain.QuestionAnswer;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

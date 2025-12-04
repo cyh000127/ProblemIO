@@ -1,4 +1,4 @@
-package com.problemio.question.dto;
+package com.problemio.quiz.dto;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.problemio.quiz.dto;
 
-import com.problemio.question.dto.QuestionCreateRequest;
+import com.problemio.quiz.dto.QuestionCreateRequest;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

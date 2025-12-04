@@ -1,4 +1,4 @@
-package com.problemio.question.dto;
+package com.problemio.quiz.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonAlias;

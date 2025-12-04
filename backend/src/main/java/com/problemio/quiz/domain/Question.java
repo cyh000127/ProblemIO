@@ -1,4 +1,4 @@
-package com.problemio.question.domain;
+package com.problemio.quiz.domain;
 
 import lombok.Getter;
 import lombok.Setter;

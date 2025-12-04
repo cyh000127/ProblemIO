@@ -3,14 +3,14 @@ package com.problemio.quiz.service;
 import com.problemio.follow.mapper.FollowMapper;
 import com.problemio.global.exception.BusinessException;
 import com.problemio.global.exception.ErrorCode;
-import com.problemio.question.domain.Question;
-import com.problemio.question.domain.QuestionAnswer;
-import com.problemio.question.dto.AnswerCreateRequest;
-import com.problemio.question.dto.QuestionAnswerDto;
-import com.problemio.question.dto.QuestionCreateRequest;
-import com.problemio.question.dto.QuestionResponse;
-import com.problemio.question.mapper.QuestionAnswerMapper;
-import com.problemio.question.mapper.QuestionMapper;
+import com.problemio.quiz.domain.Question;
+import com.problemio.quiz.domain.QuestionAnswer;
+import com.problemio.quiz.dto.AnswerCreateRequest;
+import com.problemio.quiz.dto.QuestionAnswerDto;
+import com.problemio.quiz.dto.QuestionCreateRequest;
+import com.problemio.quiz.dto.QuestionResponse;
+import com.problemio.quiz.mapper.QuestionAnswerMapper;
+import com.problemio.quiz.mapper.QuestionMapper;
 import com.problemio.quiz.domain.Quiz;
 import com.problemio.quiz.dto.QuizCreateRequest;
 import com.problemio.quiz.dto.QuizResponse;
@@ -36,13 +36,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class QuizServiceImpl implements QuizService {
 
+    // ===== Repositories / collaborators =====
     // 퀴즈 기본 정보 CRUD 및 검색을 담당하는 매퍼
     private final QuizMapper quizMapper;
     // 퀴즈 좋아요(Like) 관련 매퍼
     private final QuizLikeMapper quizLikeMapper;
-    // 문제(Question) 관련 매퍼
+    // 문제(Question) 관련 매퍼 - 퀴즈 내부 질문을 다룸
     private final QuestionMapper questionMapper;
-    // 문제 정답(QuestionAnswer) 관련 매퍼
+    // 문제 정답(QuestionAnswer) 관련 매퍼 - 퀴즈 내부 보기/정답을 다룸
     private final QuestionAnswerMapper questionAnswerMapper;
     // 유저 정보 조회 매퍼
     private final UserMapper userMapper;
@@ -66,7 +67,7 @@ public class QuizServiceImpl implements QuizService {
         int safeSize = Math.max(size, 1);   // 최소 1건 이상 보장
         int offset = (safePage - 1) * safeSize;
 
-        // 조건에 맞는 퀴즈 목록 조회
+        // 조건에 맞는 퀴즈 목록 조회 (Question/Answer는 포함하지 않음)
         List<Quiz> quizzes = quizMapper.searchQuizzes(offset, safeSize, sort, keyword);
         // 전체 개수 조회
         int total = quizMapper.countQuizzes(keyword);
@@ -86,12 +87,7 @@ public class QuizServiceImpl implements QuizService {
         );
     }
 
-    /**
-     * 퀴즈 생성
-     * - QuizCreateRequest로부터 Quiz 엔티티 생성
-     * - 기본값(좋아요 수, 플레이 수) 0으로 초기화
-     * - 퀴즈 저장 후 관련 문제/정답까지 함께 저장
-     */
+    // ===== Quiz 생성/수정/삭제 (퀴즈 + 하위 질문/정답까지 한 번에 처리) =====
     @Override
     public QuizResponse createQuiz(Long userId, QuizCreateRequest request) {
         Quiz quiz = new Quiz();
@@ -112,12 +108,6 @@ public class QuizServiceImpl implements QuizService {
         return buildQuizResponse(quiz, null, null, null);
     }
 
-    /**
-     * 퀴즈 수정 (전체/부분 공용)
-     * - 작성자 본인인지 검증
-     * - 요청에 들어온 필드만 업데이트
-     * - 질문 정보가 들어온 경우, 기존 질문/정답 전체 삭제 후 재생성
-     */
     @Override
     public QuizResponse updateQuiz(Long userId, Long quizId, QuizUpdateRequest request) {
         Quiz quiz = quizMapper.findById(quizId)
@@ -162,11 +152,6 @@ public class QuizServiceImpl implements QuizService {
         return buildQuizResponse(quiz, loadQuestions(quizId), findAuthor(quiz.getUserId()), null);
     }
 
-    /**
-     * 퀴즈 삭제
-     * - 작성자 본인인지 확인
-     * - 퀴즈에 속한 모든 질문/정답 삭제 후 퀴즈 삭제
-     */
     @Override
     public void deleteQuiz(Long userId, Long quizId) {
         Quiz quiz = quizMapper.findById(quizId)
@@ -200,14 +185,7 @@ public class QuizServiceImpl implements QuizService {
         quizMapper.deleteQuiz(quizId);
     }
 
-    /**
-     * 퀴즈 단건 조회
-     * - 퀴즈 정보 + 질문/정답 목록 + 작성자 정보 조회
-     * - viewerId가 있는 경우
-     *   - 내가 좋아요를 눌렀는지
-     *   - 내가 작성자를 팔로우하고 있는지
-     *   여부를 함께 반환
-     */
+    // ===== Quiz 조회 (퀴즈 + 질문/정답 + 작성자 + 좋아요/팔로우 상태) =====
     @Override
     @Transactional
     public QuizResponse getQuiz(Long quizId, Long viewerId) {
@@ -233,11 +211,7 @@ public class QuizServiceImpl implements QuizService {
         return buildQuizResponse(quiz, questions, author, isLikedByMe, isFollowedByMe);
     }
 
-    /**
-     * 공개 퀴즈 목록 조회
-     * - 공개 상태인 퀴즈만 조회
-     * - 목록용 요약 DTO로 변환
-     */
+    // ===== 조회 전용 목록 =====
     @Override
     @Transactional(readOnly = true)
     public List<QuizSummaryDto> getPublicQuizzes() {
@@ -300,9 +274,7 @@ public class QuizServiceImpl implements QuizService {
         quizMapper.decrementLikeCount(quizId);
     }
 
-    /**
-     * Quiz 엔티티 → QuizSummaryDto 변환 공통 헬퍼
-     */
+    // ===== 내부 헬퍼: Quiz → DTO =====
     private QuizSummaryDto toSummaryDto(Quiz quiz) {
         return QuizSummaryDto.builder()
                 .id(quiz.getId())
@@ -348,10 +320,7 @@ public class QuizServiceImpl implements QuizService {
                 .build();
     }
 
-    /**
-     * 퀴즈에 속한 질문/정답들을 저장하는 헬퍼 메서드
-     * - 질문 순서(order)가 없으면 index 기반으로 자동 부여
-     */
+    // ===== 내부 헬퍼: Quiz 하위 Question/Answer 저장/로딩 =====
     private void saveQuestions(Long quizId, List<QuestionCreateRequest> questions) {
         if (questions == null || questions.isEmpty()) {
             return;
@@ -376,11 +345,6 @@ public class QuizServiceImpl implements QuizService {
         }
     }
 
-    /**
-     * 하나의 질문에 대한 정답 목록 저장 헬퍼 메서드
-     * - answerText가 비어있으면 저장하지 않음
-     * - 정렬 순서(sortOrder)가 없으면 idx 기반으로 자동 부여
-     */
     private void saveAnswers(Long questionId, List<AnswerCreateRequest> answers) {
         if (answers == null || answers.isEmpty()) {
             return;
@@ -405,10 +369,6 @@ public class QuizServiceImpl implements QuizService {
         }
     }
 
-    /**
-     * 퀴즈에 연결된 질문/정답 전체를 로드하는 헬퍼 메서드
-     * - Question 엔티티 리스트를 QuestionResponse DTO 리스트로 변환
-     */
     private List<QuestionResponse> loadQuestions(Long quizId) {
         List<Question> questions = questionMapper.findByQuizId(quizId);
         return questions.stream()
@@ -422,10 +382,6 @@ public class QuizServiceImpl implements QuizService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 하나의 질문에 대한 정답 목록을 로드하는 헬퍼 메서드
-     * - QuestionAnswer 엔티티를 QuestionAnswerDto로 변환
-     */
     private List<QuestionAnswerDto> loadAnswers(Long questionId) {
         List<QuestionAnswer> answers = questionAnswerMapper.findByQuestionId(questionId);
         return answers.stream()
@@ -439,10 +395,6 @@ public class QuizServiceImpl implements QuizService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 작성자 정보(UserResponse)를 조회하는 헬퍼 메서드
-     * - 없으면 null 반환
-     */
     private UserResponse findAuthor(Long userId) {
         return userMapper.findById(userId).orElse(null);
     }

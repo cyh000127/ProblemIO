@@ -2,10 +2,10 @@ package com.problemio.submission.service;
 
 import com.problemio.global.exception.BusinessException;
 import com.problemio.global.exception.ErrorCode;
-import com.problemio.question.domain.Question;
-import com.problemio.question.domain.QuestionAnswer;
-import com.problemio.question.mapper.QuestionAnswerMapper;
-import com.problemio.question.mapper.QuestionMapper;
+import com.problemio.quiz.domain.Question;
+import com.problemio.quiz.domain.QuestionAnswer;
+import com.problemio.quiz.mapper.QuestionAnswerMapper;
+import com.problemio.quiz.mapper.QuestionMapper;
 import com.problemio.quiz.mapper.QuizMapper;
 import com.problemio.submission.domain.Submission;
 import com.problemio.submission.domain.SubmissionDetail;

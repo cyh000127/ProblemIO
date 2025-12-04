@@ -1,6 +1,6 @@
 package com.problemio.quiz.dto;
 
-import com.problemio.question.dto.QuestionResponse;
+import com.problemio.quiz.dto.QuestionResponse;
 import com.problemio.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Getter;

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.problemio.question.mapper.QuestionMapper">
+<mapper namespace="com.problemio.quiz.mapper.QuestionMapper">
 
-    <resultMap id="QuestionResultMap" type="com.problemio.question.domain.Question">
+    <resultMap id="QuestionResultMap" type="com.problemio.quiz.domain.Question">
         <id property="id" column="id"/>
         <result property="quizId" column="quiz_id"/>
         <result property="questionOrder" column="question_order"/>
@@ -13,12 +13,12 @@
         <result property="createdAt" column="created_at"/>
     </resultMap>
 
-    <insert id="insertQuestion" parameterType="com.problemio.question.domain.Question" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertQuestion" parameterType="com.problemio.quiz.domain.Question" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO questions (quiz_id, question_order, image_url, description, created_at)
         VALUES (#{quizId}, #{questionOrder}, #{imageUrl}, #{description}, NOW())
     </insert>
 
-    <update id="updateQuestion" parameterType="com.problemio.question.domain.Question">
+    <update id="updateQuestion" parameterType="com.problemio.quiz.domain.Question">
         UPDATE questions
         SET
             question_order = #{questionOrder},
