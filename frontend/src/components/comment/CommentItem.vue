@@ -238,10 +238,10 @@ async function saveEdit() {
 
 <style scoped>
 .comment-item {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 12px;
-  background: #f9fafb;
+  background: var(--color-background-soft);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -256,17 +256,17 @@ async function saveEdit() {
 
 .author {
   font-weight: 700;
-  color: #111827;
+  color: var(--color-heading);
 }
 
 .date {
-  color: #9ca3af;
+  color: var(--color-text);
 }
 
 .content {
   margin: 0;
   white-space: pre-line;
-  color: #111827;
+  color: var(--color-heading);
 }
 
 .actions {
@@ -280,7 +280,7 @@ async function saveEdit() {
   display: inline-flex;
   gap: 4px;
   align-items: center;
-  color: #4b5563;
+  color: var(--color-text);
 }
 
 .edit-area {
@@ -291,11 +291,13 @@ async function saveEdit() {
 
 .edit-textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 10px;
   font-size: 14px;
   resize: vertical;
+  background: var(--color-background-soft);
+  color: var(--color-heading);
 }
 
 .edit-row {
@@ -306,10 +308,12 @@ async function saveEdit() {
 
 .guest-password {
   flex: 1;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 8px 10px;
   font-size: 13px;
+  background: var(--color-background-soft);
+  color: var(--color-heading);
 }
 
 .error-text {

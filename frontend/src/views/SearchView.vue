@@ -177,9 +177,9 @@ watch(sort, () => {
 }
 
 .quiz-card {
-  background: #ffffffee;
+  background: var(--color-background-soft);
   border-radius: 18px;
-  border: 1px solid rgba(55, 65, 81, 0.06);
+  border: 1px solid var(--color-border);
   padding: 0.6rem 0.6rem 0.3rem;
   display: flex;
   flex-direction: column;

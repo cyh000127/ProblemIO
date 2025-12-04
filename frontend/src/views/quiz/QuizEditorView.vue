@@ -599,9 +599,9 @@ onMounted(() => {
 }
 
 .question-card {
-  background: #f8f9fb;
+  background: var(--color-background-soft);
   border-radius: 18px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
@@ -689,12 +689,13 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-heading);
 }
 
 .add-card {
-  background: #f3f4f6;
-  border: 2px dashed #d1d5db;
-  color: #6b7280;
+  background: var(--color-background-soft);
+  border: 2px dashed var(--color-border);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
   justify-content: center;

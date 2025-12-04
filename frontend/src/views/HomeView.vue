@@ -2,14 +2,14 @@
   <div class="home-container">
     <div class="container mx-20 px-4">
       <div class="home-controls mb-6">
-        <div class="flex gap-1">
-          <Button icon="pi pi-heart" :label="'인기'" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
-          <Button icon="pi pi-eye" :label="'조회'" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
-          <Button icon="pi pi-clock" :label="'최신'" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
+        <div class="flex gap-1 filter-group">
+          <Button icon="pi pi-heart" :label="'인기'" class="filter-button" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
+          <Button icon="pi pi-eye" :label="'조회'" class="filter-button" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
+          <Button icon="pi pi-clock" :label="'최신'" class="filter-button" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
         </div>
         <span class="p-input-icon-left home-search">
           <i class="pi pi-search" />
-          <InputText v-model="searchKeyword" placeholder="Search quizzes..." class="w-20rem max-w-full" @keyup.enter="handleSearch" />
+          <InputText v-model="searchKeyword" placeholder="Search quizzes..." class="search-bar" @keyup.enter="handleSearch" />
         </span>
       </div>
 
@@ -124,32 +124,53 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.quiz-grid-container {
+/* Filters + Search in one line */
+.home-controls {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 1rem;
+  padding: 0.5rem 0 1.5rem;
+  width: 100%;
 }
 
-.home-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0 0 1rem;
-  flex-wrap: wrap;
+.filter-group {
+  display: inline-flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.filter-button {
+  color: #111827 !important;
 }
 
 .home-search {
-  margin-left: auto;
+  width: 100%;
 }
 
-.w-20rem {
-  width: 20rem;
+.search-bar {
+  width: 100%;
+  max-width: 720px;
+  min-width: 360px;
+}
+
+/* Grid */
+.quiz-grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 0.5rem;
 }
 
 @media (max-width: 768px) {
+  .home-controls {
+    grid-template-columns: 1fr;
+  }
   .quiz-grid-container {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .search-bar {
+    width: 100%;
   }
 }
 
@@ -180,9 +201,9 @@ onMounted(() => {
 }
 
 .quiz-card {
-  background: #ffffffee;
+  background: var(--color-background-soft);
   border-radius: 18px;
-  border: 1px solid rgba(55, 65, 81, 0.06);
+  border: 1px solid var(--color-border);
   padding: 0.6rem 0.6rem 0.3rem;
   display: flex;
   flex-direction: column;

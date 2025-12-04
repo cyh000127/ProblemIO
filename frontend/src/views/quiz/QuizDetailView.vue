@@ -6,10 +6,10 @@
       </div>
 
       <div v-else-if="quiz" class="flex flex-col gap-6">
-        <Card>
+        <Card class="quiz-card">
           <template #header>
-            <div class="aspect-video bg-surface-100 overflow-hidden">
-              <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="w-full h-full object-cover" />
+            <div class="aspect-video bg-surface-100 overflow-hidden thumbnail-frame">
+              <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="thumbnail-image" />
             </div>
           </template>
           <template #content>
@@ -260,6 +260,37 @@ onMounted(() => {
   aspect-ratio: 16 / 9;
 }
 
+.quiz-card .p-card-header {
+  padding: 0;
+}
+
+.quiz-card .p-card-body {
+  padding: 0;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+}
+
+.quiz-card .p-card-content {
+  padding: 1.25rem;
+  background: var(--color-background-soft);
+  color: var(--color-heading);
+}
+
+:deep(.quiz-card .p-card-title),
+:deep(.quiz-card .p-card-subtitle),
+:deep(.quiz-card p) {
+  color: var(--color-heading);
+}
+
+.thumbnail-frame {
+  background: var(--color-background-soft);
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 .view-chip {
   display: inline-flex;
   align-items: center;
