@@ -553,8 +553,12 @@ onMounted(() => {
 .quiz-editor-page {
   min-height: calc(100vh - 120px);
   padding: 1.5rem 2rem;
-  background: #ffffff;
-  color: #000;
+  background: var(--color-background);
+  color: var(--color-heading);
+}
+
+:global([data-theme="dark"] .quiz-editor-page) {
+  background: #000;
 }
 
 .loading-wrapper {
@@ -573,10 +577,19 @@ onMounted(() => {
 
 /* 문제 카드 리스트 */
 .question-list-wrapper {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
   border-radius: 24px;
   padding: 1.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+:global([data-theme="dark"] .question-list-wrapper) {
+  background: #121212;
+  border: 1px solid #2c2c2c;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 /* 문제 카드 그리드 */
@@ -607,14 +620,29 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #333;
-  transition: 0.15s ease;
+  color: var(--color-heading);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
   padding: 0.6rem 0.6rem 0.3rem;
 }
 
+:global([data-theme="dark"] .question-card) {
+  background: #161616;
+  border: 1px solid #262626;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
 .question-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  background: var(--color-background-mute);
+}
+
+:global([data-theme="dark"] .question-card:hover) {
+  background: #1d1d1d;
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .card-image-wrapper {
@@ -623,13 +651,13 @@ onMounted(() => {
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 14px;
-  background: repeating-linear-gradient(
-    45deg,
-    #f3f4f6,
-    #f3f4f6 10px,
-    #e5e7eb 10px,
-    #e5e7eb 20px
-  );
+  background: var(--color-background-mute);
+  border: 1px dashed var(--color-border);
+}
+
+:global([data-theme="dark"] .card-image-wrapper) {
+  background: #0f0f0f;
+  border-color: #303030;
 }
 
 .card-image-wrapper img {
@@ -642,17 +670,15 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   font-size: 0.85rem;
-  color: #777;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: repeating-linear-gradient(
-    45deg,
-    #f3f4f6,
-    #f3f4f6 10px,
-    #e5e7eb 10px,
-    #e5e7eb 20px
-  );
+  background: var(--color-background-mute);
+}
+
+:global([data-theme="dark"] .no-image) {
+  color: #d1d5db;
 }
 
 .no-image.large {

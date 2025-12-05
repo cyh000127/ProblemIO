@@ -25,7 +25,7 @@
             <span class="text-color">{{ authStore.user?.nickname || "User" }}</span>
           </Button>
 
-          <Button label="로그아웃" icon="pi pi-sign-out" severity="danger" text @click="handleLogout" />
+          <Button label="로그아웃" icon="pi pi-sign-out" severity="danger" text class="logout-btn" @click="handleLogout" />
         </template>
       </div>
     </template>
@@ -120,6 +120,17 @@ const handleLogout = () => {
   border: none !important;
 }
 
+.logout-btn {
+  color: #dc2626 !important;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(220, 38, 38, 0.1) !important;
+  color: #b91c1c !important;
+  transform: translateY(-1px);
+}
+
 .text-dark {
   color: var(--color-heading);
 }
@@ -157,5 +168,15 @@ const handleLogout = () => {
 :global([data-theme="dark"] .nav-ghost:hover) {
   background: rgba(26, 188, 156, 0.12) !important;
   color: var(--color-heading) !important;
+}
+
+:global([data-theme="dark"] .logout-btn) {
+  color: #fca5a5 !important;
+}
+
+:global([data-theme="dark"] .logout-btn:hover) {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #fecdd3 !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
 }
 </style>

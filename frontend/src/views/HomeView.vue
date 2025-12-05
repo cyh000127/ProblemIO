@@ -3,9 +3,9 @@
     <div class="container mx-20 px-4">
       <div class="home-controls mb-6">
         <div class="flex gap-1 filter-group">
-          <Button icon="pi pi-heart" :label="'인기'" class="filter-button" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
-          <Button icon="pi pi-eye" :label="'조회'" class="filter-button" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
-          <Button icon="pi pi-clock" :label="'최신'" class="filter-button" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
+          <Button icon="pi pi-heart" :label="'인기'" :class="['filter-button', { 'is-active': sort === 'popular' }]" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
+          <Button icon="pi pi-eye" :label="'조회'" :class="['filter-button', { 'is-active': sort === 'views' }]" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
+          <Button icon="pi pi-clock" :label="'최신'" :class="['filter-button', { 'is-active': sort === 'latest' }]" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
         </div>
         <span class="p-input-icon-left home-search">
           <i class="pi pi-search" />
@@ -142,6 +142,60 @@ onMounted(() => {
 
 .filter-button {
   color: #111827 !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+:global(.filter-button.is-active) {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="light"] .filter-button.is-active) {
+  background: #16c6b0 !important;
+  border-color: #13b8a3 !important;
+  box-shadow: 0 10px 26px rgba(19, 184, 163, 0.26);
+}
+
+:global([data-theme="dark"] .filter-button.is-active) {
+  background: #0fb397 !important;
+  border-color: #1abc9c !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.35);
+}
+
+:global(.filter-button.is-active:hover) {
+  background: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="light"] .filter-button.is-active:hover) {
+  background: #12b4a1 !important;
+  border-color: #12b4a1 !important;
+}
+
+:global([data-theme="dark"] .filter-button) {
+  color: #e5e7eb !important;
+  border-color: #374151 !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+:global([data-theme="dark"] .filter-button.p-button-outlined) {
+  border-color: #4b5563 !important;
+  color: #e5e7eb !important;
+}
+
+.filter-button:hover {
+  background: rgba(0, 150, 136, 0.1) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-heading) !important;
+}
+
+:global([data-theme="dark"] .filter-button:hover) {
+  background: rgba(26, 188, 156, 0.18) !important;
+  border-color: #34d399 !important;
+  color: #f9fafb !important;
 }
 
 .home-search {
@@ -162,12 +216,21 @@ onMounted(() => {
   padding: 0.5rem;
 }
 
+@media (max-width: 1200px) {
+  .quiz-grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 960px) {
+  .quiz-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .home-controls {
     grid-template-columns: 1fr;
-  }
-  .quiz-grid-container {
-    grid-template-columns: repeat(2, 1fr);
   }
   .search-bar {
     width: 100%;
@@ -191,6 +254,11 @@ onMounted(() => {
   background: linear-gradient(180deg, #eef3f6, #f7ede8);
 }
 
+:global([data-theme="dark"] .quiz-thumbnail) {
+  background: #0f0f0f;
+  border: 1px solid #2d2d2d;
+}
+
 .quiz-thumbnail-img {
   width: 100%;
   height: 100%;
@@ -212,9 +280,24 @@ onMounted(() => {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+:global([data-theme="dark"] .quiz-card) {
+  background: #161616;
+  border: 1px solid #262626;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
 .quiz-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="dark"] .quiz-card:hover) {
+  background: #1e1e1e;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .quiz-card:hover .quiz-thumbnail-img {

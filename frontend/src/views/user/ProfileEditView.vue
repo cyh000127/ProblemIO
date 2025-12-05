@@ -94,12 +94,12 @@
 
             <Divider />
 
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4 danger-section">
               <h2 class="text-2xl font-bold text-red-500">Danger Zone</h2>
-              <div class="p-4 border-round bg-red-50 border-1 border-red-200">
+              <div class="danger-box border-round">
                 <p class="font-semibold mb-2">Delete Account</p>
                 <p class="text-sm text-color-secondary mb-4">Once you delete your account, there is no going back.</p>
-                <Button label="Delete Account" icon="pi pi-trash" severity="danger" outlined @click="handleDeleteAccount" />
+                <Button label="Delete Account" icon="pi pi-trash" class="danger-btn" severity="danger" outlined @click="handleDeleteAccount" />
               </div>
             </div>
           </div>
@@ -378,5 +378,67 @@ onMounted(() => {
    (covers browser default "No file chosen" rendering and PrimeVue variants) */
 :deep(.p-fileupload) span {
   display: none !important;
+}
+
+.danger-section {
+  gap: 0.75rem;
+}
+
+.danger-box {
+  background: #fff5f5;
+  border: 1px solid #fecdd3;
+  padding: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.danger-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(255, 107, 107, 0.12);
+  border-color: #fda4af;
+}
+
+.danger-btn {
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.danger-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(255, 107, 107, 0.22);
+}
+
+:global([data-theme="dark"] .danger-section h2) {
+  color: #fca5a5;
+}
+
+:global([data-theme="dark"] .danger-box) {
+  background: #1b0f0f;
+  border: 1px solid #7f1d1d;
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+:global([data-theme="dark"] .danger-box:hover) {
+  border-color: #b91c1c;
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+:global([data-theme="dark"] .danger-btn) {
+  border-color: #f87171 !important;
+  color: #fca5a5 !important;
+  background: rgba(248, 113, 113, 0.06) !important;
+}
+
+:global([data-theme="dark"] .danger-btn:hover) {
+  border-color: #ef4444 !important;
+  color: #fecaca !important;
+  box-shadow: 0 12px 26px rgba(239, 68, 68, 0.3);
+  background: rgba(248, 113, 113, 0.12) !important;
+}
+
+:global([data-theme="dark"] .danger-btn:active) {
+  transform: translateY(0);
 }
 </style>
