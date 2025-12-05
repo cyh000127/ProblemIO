@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public class Comment {
     private Long id;
     private Long quizId;
+    private Long parentCommentId;
+    private Long rootCommentId;
 
     private Long userId;              // 회원이면 값, 게스트면 null
     private String guestNickname;     // 게스트면 값, 회원이면 null

@@ -46,6 +46,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = new Comment();
         comment.setQuizId(quizId);
         comment.setUserId(userId);
+        comment.setParentCommentId(request.getParentCommentId());
 
         if (userId == null) {
             if (request.getNickname() == null || request.getNickname().isBlank()) {
@@ -59,12 +60,30 @@ public class CommentServiceImpl implements CommentService {
             comment.setGuestPasswordHash(passwordEncoder.encode(request.getPassword()));
         }
 
+        // parent/root 처리
+        if (request.getParentCommentId() != null) {
+            Comment parent = commentMapper.findById(request.getParentCommentId());
+            if (parent == null || parent.isDeleted()) {
+                throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
+            }
+            if (!Objects.equals(parent.getQuizId(), quizId)) {
+                throw new BusinessException(ErrorCode.COMMENT_FORBIDDEN);
+            }
+            Long rootId = parent.getRootCommentId() != null ? parent.getRootCommentId() : parent.getId();
+            comment.setRootCommentId(rootId);
+        }
+
         comment.setContent(request.getContent());
         comment.setLikeCount(0);
         comment.setWriterIp(writerIp);
         comment.setDeleted(false);
 
         commentMapper.insertComment(comment);
+
+        // 루트 댓글이면 root_comment_id 자기 자신으로 설정
+        if (request.getParentCommentId() == null) {
+            commentMapper.updateRootCommentId(comment.getId(), comment.getId());
+        }
     }
 
     @Override
@@ -125,7 +144,7 @@ public class CommentServiceImpl implements CommentService {
         int sizeSafe = Math.max(size, 1);
         int offset = (pageSafe - 1) * sizeSafe;
 
-        List<Comment> comments = commentMapper.findCommentsByQuizId(quizId, sizeSafe, offset);
+        List<Comment> comments = commentMapper.findRootCommentsByQuizId(quizId, sizeSafe, offset);
 
         List<Long> writerIds = comments.stream()
                 .map(Comment::getUserId)
@@ -138,13 +157,18 @@ public class CommentServiceImpl implements CommentService {
                 : userMapper.findByIds(writerIds).stream()
                 .collect(Collectors.toMap(UserResponse::getId, Function.identity()));
 
-        List<Long> commentIds = comments.stream()
+        List<Long> rootIds = comments.stream()
                 .map(Comment::getId)
                 .toList();
 
-        Set<Long> likedIds = (userId != null && !commentIds.isEmpty())
-                ? new HashSet<>(commentLikeMapper.findLikedCommentIds(userId, commentIds))
+        Set<Long> likedIds = (userId != null && !rootIds.isEmpty())
+                ? new HashSet<>(commentLikeMapper.findLikedCommentIds(userId, rootIds))
                 : Collections.emptySet();
+
+        Map<Long, Integer> replyCounts = rootIds.isEmpty()
+                ? Collections.emptyMap()
+                : commentMapper.countRepliesByParentIds(rootIds).stream()
+                .collect(Collectors.toMap(CommentMapper.CommentReplyCount::getParentId, CommentMapper.CommentReplyCount::getCount));
 
         return comments.stream()
                 .map(comment -> {
@@ -162,15 +186,81 @@ public class CommentServiceImpl implements CommentService {
                             .id(comment.getId())
                             .quizId(comment.getQuizId())
                             .userId(comment.getUserId())
+                            .parentCommentId(comment.getParentCommentId())
+                            .rootCommentId(comment.getRootCommentId())
                             .nickname(nickname)
                             .profileImageUrl(profileImage)
 
                             .content(comment.getContent())
                             .likeCount(comment.getLikeCount())
+                            .replyCount(replyCounts.getOrDefault(comment.getId(), 0))
 
                             .mine(isOwner)
                             .likedByMe(likedByMe)
 
+                            .createdAt(comment.getCreatedAt())
+                            .updatedAt(comment.getUpdatedAt())
+                            .build();
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getReplies(Long parentCommentId, Long userId) {
+        Comment parent = commentMapper.findById(parentCommentId);
+        if (parent == null || parent.isDeleted()) {
+            throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
+        List<Comment> comments = commentMapper.findRepliesByParentId(parentCommentId);
+
+        List<Long> writerIds = comments.stream()
+                .map(Comment::getUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, UserResponse> writers = writerIds.isEmpty()
+                ? Collections.emptyMap()
+                : userMapper.findByIds(writerIds).stream()
+                .collect(Collectors.toMap(UserResponse::getId, Function.identity()));
+
+        List<Long> ids = comments.stream().map(Comment::getId).toList();
+        Set<Long> likedIds = (userId != null && !ids.isEmpty())
+                ? new HashSet<>(commentLikeMapper.findLikedCommentIds(userId, ids))
+                : Collections.emptySet();
+
+        Map<Long, Integer> replyCounts = ids.isEmpty()
+                ? Collections.emptyMap()
+                : commentMapper.countRepliesByParentIds(ids).stream()
+                .collect(Collectors.toMap(CommentMapper.CommentReplyCount::getParentId, CommentMapper.CommentReplyCount::getCount));
+
+        return comments.stream()
+                .map(comment -> {
+                    UserResponse writer = comment.getUserId() != null
+                            ? writers.get(comment.getUserId())
+                            : null;
+
+                    String nickname = writer != null ? writer.getNickname() : comment.getGuestNickname();
+                    String profileImage = writer != null ? writer.getProfileImageUrl() : null;
+
+                    boolean isOwner = userId != null && comment.getUserId() != null && userId.equals(comment.getUserId());
+                    boolean likedByMe = likedIds.contains(comment.getId());
+
+                    return CommentResponse.builder()
+                            .id(comment.getId())
+                            .quizId(comment.getQuizId())
+                            .parentCommentId(comment.getParentCommentId())
+                            .rootCommentId(comment.getRootCommentId())
+                            .userId(comment.getUserId())
+                            .nickname(nickname)
+                            .profileImageUrl(profileImage)
+                            .content(comment.getContent())
+                            .likeCount(comment.getLikeCount())
+                            .replyCount(replyCounts.getOrDefault(comment.getId(), 0))
+                            .mine(isOwner)
+                            .likedByMe(likedByMe)
                             .createdAt(comment.getCreatedAt())
                             .updatedAt(comment.getUpdatedAt())
                             .build();

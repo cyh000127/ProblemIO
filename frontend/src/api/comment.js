@@ -46,6 +46,21 @@ export const fetchComments = async (quizId, page = 1, size = 20) => {
 // 이전 이름 호환
 export const getComments = fetchComments
 
+// 대댓글 조회
+export const fetchReplies = async (commentId) => {
+  const response = await apiClient.get(`/comments/${commentId}/replies`)
+  const data = response.data?.data ?? response.data
+
+  const candidates = [
+    data?.comments,
+    data?.items,
+    data?.data,
+    data,
+  ]
+  const replies = candidates.find((c) => Array.isArray(c)) ?? []
+  return replies
+}
+
 // 댓글 작성 (게스트는 nickname/password 포함)
 export const createComment = async (quizId, payload) => {
   const response = await apiClient.post(

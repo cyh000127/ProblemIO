@@ -12,6 +12,8 @@ public class CommentResponse {
 
     private Long id;
     private Long quizId;
+    private Long parentCommentId;
+    private Long rootCommentId;
 
     // 작성자 정보 (회원/게스트 통합 응답)
     private Long userId;            // 회원이면 값, 게스트면 null
@@ -20,6 +22,7 @@ public class CommentResponse {
 
     private String content;
     private Integer likeCount;
+    private Integer replyCount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

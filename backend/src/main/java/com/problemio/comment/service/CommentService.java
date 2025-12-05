@@ -34,6 +34,11 @@ public interface CommentService {
     List<CommentResponse> getComments(Long quizId, Long userId, int page, int size);
 
     /**
+     * 특정 댓글의 대댓글 조회 (정렬: 작성순)
+     */
+    List<CommentResponse> getReplies(Long parentCommentId, Long userId);
+
+    /**
      * 댓글 좋아요 토글
      */
     void toggleLike(Long commentId, Long userId);

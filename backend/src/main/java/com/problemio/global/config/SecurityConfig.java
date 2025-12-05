@@ -43,6 +43,7 @@ public class SecurityConfig {
 
                         // Comments: 조회/작성/수정/삭제는 게스트 허용, 좋아요는 로그인 필요
                         .requestMatchers(HttpMethod.GET, "/api/quizzes/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/comments/*/replies").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quizzes/*/comments").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/comments/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/comments/**").permitAll()

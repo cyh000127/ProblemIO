@@ -1,5 +1,6 @@
 package com.problemio.comment.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -8,6 +9,9 @@ import lombok.Data;
 
 @Data
 public class CommentCreateRequest {
+    @JsonAlias({"parentCommentId", "parent_comment_id"})
+    private Long parentCommentId;
+
     @NotBlank
     @Size(max = 500)
     private String content;

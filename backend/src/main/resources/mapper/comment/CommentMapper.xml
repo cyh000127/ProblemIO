@@ -8,6 +8,8 @@
     <resultMap id="commentResult" type="com.problemio.comment.domain.Comment">
         <id property="id" column="id"/>
         <result property="quizId" column="quiz_id"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+        <result property="rootCommentId" column="root_comment_id"/>
         <result property="userId" column="user_id"/>
         <result property="guestNickname" column="guest_nickname"/>
         <result property="guestPasswordHash" column="guest_password_hash"/>
@@ -24,6 +26,8 @@
     <insert id="insertComment" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO comments (
             quiz_id,
+            parent_comment_id,
+            root_comment_id,
             user_id,
             guest_nickname,
             guest_password_hash,
@@ -32,6 +36,8 @@
             like_count
         ) VALUES (
                      #{quizId},
+                     #{parentCommentId},
+                     #{rootCommentId},
                      #{userId},
                      #{guestNickname},
                      #{guestPasswordHash},
@@ -59,6 +65,12 @@
             AND is_deleted = 0 <!-- 이미 삭제된 댓글에 대해 불필요한 업데이트 방지-->
     </update>
 
+    <update id="updateRootCommentId">
+        UPDATE comments
+        SET root_comment_id = #{rootCommentId}
+        WHERE id = #{id}
+    </update>
+
     <!-- FIND ONE -->
     <select id="findById" resultMap="commentResult">
         SELECT
@@ -78,10 +90,12 @@
     </select>
 
     <!-- LIST -->
-    <select id="findCommentsByQuizId" resultMap="commentResult">
+    <select id="findRootCommentsByQuizId" resultMap="commentResult">
         SELECT
             id,
             quiz_id,
+            parent_comment_id,
+            root_comment_id,
             user_id,
             guest_nickname,
             guest_password_hash,
@@ -93,6 +107,7 @@
             updated_at
         FROM comments
         WHERE quiz_id = #{quizId}
+          AND parent_comment_id IS NULL
           AND is_deleted = 0
         ORDER BY created_at DESC
         LIMIT #{limit}
@@ -103,7 +118,40 @@
         SELECT COUNT(*)
         FROM comments
         WHERE quiz_id = #{quizId}
+          AND parent_comment_id IS NULL
           AND is_deleted = 0
+    </select>
+
+    <select id="findRepliesByParentId" resultMap="commentResult">
+        SELECT
+            id,
+            quiz_id,
+            parent_comment_id,
+            root_comment_id,
+            user_id,
+            guest_nickname,
+            guest_password_hash,
+            writer_ip,
+            content,
+            like_count,
+            is_deleted,
+            created_at,
+            updated_at
+        FROM comments
+        WHERE parent_comment_id = #{parentId}
+          AND is_deleted = 0
+        ORDER BY created_at ASC
+    </select>
+
+    <select id="countRepliesByParentIds" resultType="com.problemio.comment.mapper.CommentMapper$CommentReplyCount">
+        SELECT parent_comment_id AS parentId, COUNT(*) AS count
+        FROM comments
+        WHERE parent_comment_id IN
+        <foreach collection="parentIds" item="pid" open="(" separator="," close=")">
+            #{pid}
+        </foreach>
+        AND is_deleted = 0
+        GROUP BY parent_comment_id
     </select>
 
     <!-- LIKE COUNT -->

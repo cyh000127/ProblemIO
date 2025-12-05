@@ -1,9 +1,8 @@
 <template>
   <Menubar :model="menuItems" class="border-bottom-1 surface-border">
     <template #start>
-      <router-link to="/" class="flex align-items-center gap-2 no-underline text-dark">
-        <i class="pi pi-home text-2xl"></i>
-        <span class="text-xl font-bold text-dark">Problem.io</span>
+      <router-link to="/" class="flex align-items-center gap-2 no-underline text-dark logo-link">
+        <img src="/problemio-logo.png" alt="Problem.io" class="logo-img" />
       </router-link>
     </template>
 
@@ -118,6 +117,16 @@ const handleLogout = () => {
   background: rgba(0, 150, 136, 0.08) !important; /* 아주 연한 틸 */
   color: #006f62 !important; /* 틸톤 텍스트 */
   border: none !important;
+}
+
+.logo-link {
+  height: 44px;
+}
+
+.logo-img {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
 }
 
 .logout-btn {

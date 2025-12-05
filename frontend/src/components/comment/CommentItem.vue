@@ -48,41 +48,89 @@
     <!-- 하단 버튼 -->
     <div class="actions">
       <!-- 좋아요 -->
-      <button @click="toggleLike" class="action-btn">
-        <span :class="likedByMe ? 'text-red-500' : 'text-gray-400'">♥</span>
+      <button @click="toggleLike" class="action-btn like-btn">
+        <span :class="heartClass">♥</span>
         <span>{{ comment.likeCount }}</span>
       </button>
 
       <!-- 수정 -->
-      <button class="action-btn text-blue-600" @click="startEdit">
+      <button
+        v-if="canEditDelete"
+        class="action-btn text-blue-600"
+        @click="startEdit"
+      >
         수정
       </button>
 
       <!-- 삭제 -->
-      <button class="action-btn text-red-600" @click="remove">
+      <button
+        v-if="canEditDelete"
+        class="action-btn text-red-600"
+        @click="remove"
+      >
         삭제
       </button>
+
+      <!-- 답글 토글 -->
+      <button
+        v-if="replyCountToShow > 0 || repliesOpen || showReplyForm"
+        class="action-btn text-teal"
+        @click="toggleReplies"
+      >
+        {{ repliesOpen ? "답글 접기" : `답글 ${replyCountToShow}개 보기` }}
+      </button>
+
+      <button class="action-btn text-teal" @click="toggleReplyForm">
+        {{ showReplyForm ? "답글 취소" : "답글 달기" }}
+      </button>
+    </div>
+
+    <!-- 답글 입력 -->
+    <div v-if="showReplyForm" class="reply-input">
+      <CommentInput
+        :quiz-id="comment.quizId"
+        :parent-comment-id="resolveCommentId()"
+        button-label="답글 작성"
+        placeholder="답글을 입력하세요..."
+        @submitted="handleReplySubmitted"
+      />
+    </div>
+
+    <!-- 답글 리스트 -->
+    <div v-if="repliesOpen" class="replies">
+      <div v-if="repliesLoading" class="reply-loading">불러오는 중...</div>
+      <CommentItem
+        v-else
+        v-for="(reply, idx) in replies"
+        :key="reply.id ?? reply.commentId ?? idx"
+        :comment="reply"
+        @updated="emit('updated')"
+      />
+      <div v-if="repliesOpen && !repliesLoading && replies.length === 0" class="no-replies">
+        아직 답글이 없습니다.
+      </div>
     </div>
   </div>
 
   <!-- 게스트 비밀번호 확인 모달 -->
   <Dialog
     v-model:visible="showPasswordModal"
-    header="댓글 삭제"
+    :header="modalMode === 'delete' ? '댓글 삭제' : '비밀번호 확인'"
     modal
-    :closable="!deleting"
+    :closable="false"
     :dismissableMask="!deleting"
     :style="{ width: '22rem' }"
   >
     <div class="flex flex-col gap-3">
       <p class="m-0 text-sm text-gray-600">
-        게스트로 작성된 댓글입니다. 삭제하려면 비밀번호를 입력하세요.
+        게스트로 작성된 댓글입니다. {{ modalMode === 'delete' ? '삭제' : '수정' }}하려면 비밀번호를 입력하세요.
       </p>
       <InputText
         v-model="password"
         type="password"
         placeholder="비밀번호"
         :disabled="deleting"
+        @keyup.enter.exact.prevent="confirmModal"
       />
       <div v-if="error" class="text-sm text-red-500">{{ error }}</div>
       <div class="flex justify-end gap-2">
@@ -93,10 +141,10 @@
           @click="closeModal"
         />
         <Button
-          label="삭제"
-          severity="danger"
+          :label="modalMode === 'delete' ? '삭제' : '확인'"
+          :severity="modalMode === 'delete' ? 'danger' : 'primary'"
           :loading="deleting"
-          @click="confirmDelete"
+          @click="confirmModal"
         />
       </div>
     </div>
@@ -105,13 +153,18 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import { toggleCommentLike, deleteComment, updateComment } from "@/api/comment";
+import { toggleCommentLike, deleteComment, updateComment, fetchReplies } from "@/api/comment";
+import { useAuthStore } from "@/stores/auth";
+import CommentInput from "./CommentInput.vue";
+
+defineOptions({ name: "CommentItem" });
 
 const props = defineProps({
   comment: { type: Object, required: true },
 });
 
 const emit = defineEmits(["updated"]);
+const authStore = useAuthStore();
 
 const likedByMe = computed(
   () =>
@@ -120,6 +173,24 @@ const likedByMe = computed(
 const isGuest = computed(
   () => !props.comment.userId && (props.comment.isGuest ?? true)
 );
+const canEditDelete = computed(() => {
+  if (props.comment.userId) {
+    return !!props.comment.mine;
+  }
+  // 게스트 댓글은 비밀번호를 알고 있는 경우만 가능하므로 버튼은 노출, 비밀번호 입력으로 진입 통제
+  return true;
+});
+const heartClass = computed(() =>
+  likedByMe.value ? "text-red-500 liked-heart" : "text-gray-400"
+);
+const replyCountToShow = computed(() => {
+  const base =
+    props.comment.replyCount ??
+    props.comment.repliesCount ??
+    props.comment.childrenCount ??
+    0;
+  return repliesLoaded.value ? replies.value.length : base;
+});
 
 const showPasswordModal = ref(false);
 const deleting = ref(false);
@@ -128,6 +199,13 @@ const error = ref("");
 const isEditing = ref(false);
 const editContent = ref(props.comment.content ?? "");
 const saving = ref(false);
+const replies = ref([]);
+const repliesOpen = ref(false);
+const repliesLoaded = ref(false);
+const repliesLoading = ref(false);
+const showReplyForm = ref(false);
+const modalMode = ref("delete"); // 'delete' | 'edit'
+const authorizedForEdit = ref(false);
 
 function resolveCommentId() {
   return props.comment.id ?? props.comment.commentId;
@@ -142,6 +220,11 @@ async function toggleLike() {
   const commentId = resolveCommentId();
   if (!commentId) return;
 
+  if (!authStore.isAuthenticated) {
+    window.alert("로그인 후 좋아요를 누를 수 있습니다.");
+    return;
+  }
+
   await toggleCommentLike(commentId);
   emit("updated");
 }
@@ -151,8 +234,14 @@ async function remove() {
   const commentId = resolveCommentId();
   if (!commentId) return;
 
+  // 작성자만 삭제 허용
+  if (props.comment.userId && !props.comment.mine) {
+    return;
+  }
+
   // 게스트면 모달로 비밀번호 입력
   if (isGuest.value) {
+    modalMode.value = "delete";
     showPasswordModal.value = true;
     return;
   }
@@ -161,7 +250,19 @@ async function remove() {
   emit("updated");
 }
 
-async function confirmDelete() {
+async function confirmModal() {
+  if (modalMode.value === "edit") {
+    if (!password.value.trim()) {
+      error.value = "비밀번호를 입력하세요.";
+      return;
+    }
+    authorizedForEdit.value = true;
+    isEditing.value = true;
+    error.value = "";
+    showPasswordModal.value = false;
+    return;
+  }
+
   if (!password.value.trim()) {
     error.value = "비밀번호를 입력하세요.";
     return;
@@ -191,10 +292,21 @@ function closeModal() {
 }
 
 function startEdit() {
+  // 작성자만 편집 허용
+  if (props.comment.userId && !props.comment.mine) {
+    return;
+  }
   isEditing.value = true;
   editContent.value = props.comment.content ?? "";
   error.value = "";
   password.value = "";
+  if (isGuest.value) {
+    isEditing.value = false;
+    modalMode.value = "edit";
+    showPasswordModal.value = true;
+  } else {
+    authorizedForEdit.value = true;
+  }
 }
 
 function cancelEdit() {
@@ -214,9 +326,15 @@ async function saveEdit() {
   const commentId = resolveCommentId();
   if (!commentId) return;
 
-  if (isGuest.value && !password.value.trim()) {
-    error.value = "비밀번호를 입력하세요.";
-    return;
+  if (isGuest.value) {
+    if (!authorizedForEdit.value && !password.value.trim()) {
+      error.value = "비밀번호를 입력하세요.";
+      return;
+    }
+    if (!password.value.trim()) {
+      error.value = "비밀번호를 입력하세요.";
+      return;
+    }
   }
 
   saving.value = true;
@@ -233,6 +351,43 @@ async function saveEdit() {
   } finally {
     saving.value = false;
   }
+}
+
+async function loadReplies() {
+  if (repliesLoading.value || repliesLoaded.value) return;
+  repliesLoading.value = true;
+  try {
+    const result = await fetchReplies(resolveCommentId());
+    replies.value = Array.isArray(result) ? result : [];
+    repliesLoaded.value = true;
+  } catch (err) {
+    console.error("대댓글 불러오기 실패", err);
+  } finally {
+    repliesLoading.value = false;
+  }
+}
+
+async function toggleReplies() {
+  repliesOpen.value = !repliesOpen.value;
+  if (repliesOpen.value && !repliesLoaded.value) {
+    await loadReplies();
+  }
+}
+
+function toggleReplyForm() {
+  showReplyForm.value = !showReplyForm.value;
+  if (showReplyForm.value && !repliesLoaded.value) {
+    // 답글을 보여줄 준비
+    repliesOpen.value = true;
+    loadReplies();
+  }
+}
+
+async function handleReplySubmitted() {
+  showReplyForm.value = false;
+  repliesLoaded.value = false;
+  await loadReplies();
+  emit("updated");
 }
 </script>
 
@@ -324,5 +479,37 @@ async function saveEdit() {
 .edit-actions {
   display: flex;
   gap: 8px;
+}
+
+.replies {
+  margin-top: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reply-input {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background-soft);
+}
+
+.reply-loading,
+.no-replies {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.text-teal {
+  color: var(--color-primary);
+}
+
+.like-btn .liked-heart {
+  color: #ef4444;
+  font-weight: 700;
 }
 </style>

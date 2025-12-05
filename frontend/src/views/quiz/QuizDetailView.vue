@@ -33,10 +33,12 @@
                   <Button
                     :icon="isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"
                     :label="`${quiz.likeCount || 0}`"
-                    :severity="isLiked ? undefined : 'secondary'"
+                    :severity="isLiked ? 'danger' : 'secondary'"
                     :outlined="!isLiked"
+                    :text="isLiked"
                     :disabled="isMyQuiz"
                     :title="isMyQuiz ? '내가 만든 퀴즈에는 좋아요를 누를 수 없습니다.' : ''"
+                    class="like-button"
                     @click="handleLike"
                   />
                 </div>
@@ -300,5 +302,13 @@ onMounted(() => {
   background: rgba(59, 130, 246, 0.12);
   color: var(--color-heading);
   font-size: 0.9rem;
+}
+
+.like-button.p-button-danger {
+  color: #ffffff !important;
+}
+
+.like-button.p-button-danger .pi-heart-fill {
+  color: #ffffff !important;
 }
 </style>

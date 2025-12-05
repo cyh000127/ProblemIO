@@ -65,6 +65,15 @@ public class CommentController {
         return commentService.getComments(quizId, userId, page, size);
     }
 
+    @GetMapping("/comments/{commentId}/replies")
+    public List<CommentResponse> getReplies(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        return commentService.getReplies(commentId, userId);
+    }
+
     @PostMapping("/comments/{commentId}/likes")
     public void toggleLike(
             @PathVariable Long commentId,

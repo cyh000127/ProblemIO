@@ -1,6 +1,6 @@
 <template>
-  <div class="comment-input">
-    <div class="notice">
+  <div :class="['comment-input', { compact: !!parentCommentId }]">
+    <div v-if="!parentCommentId" class="notice">
       댓글 작성 시 IP가 기록되며 사이트 이용 제한이나 요청에 따라 법적 조치가 취해질 수 있습니다.
     </div>
 
@@ -26,12 +26,12 @@
         v-model="content"
         class="comment-textarea"
         rows="3"
-        placeholder="댓글을 입력하세요..."
+        :placeholder="placeholderText"
         :disabled="submitting"
         @keyup.enter.exact.prevent="submit"
       />
       <Button
-        label="작성하기"
+        :label="buttonLabel"
         class="submit-btn"
         :loading="submitting"
         :disabled="!canSubmit"
@@ -48,6 +48,9 @@ import { createComment } from "@/api/comment";
 
 const props = defineProps({
   quizId: Number,
+  parentCommentId: { type: Number, default: null },
+  placeholder: { type: String, default: "" },
+  buttonLabel: { type: String, default: "" },
 });
 
 const emit = defineEmits(["submitted"]);
@@ -60,6 +63,13 @@ const nickname = ref("");
 const password = ref("");
 const submitting = ref(false);
 
+const placeholderText = computed(() =>
+  props.placeholder || (props.parentCommentId ? "답글을 입력하세요..." : "댓글을 입력하세요...")
+);
+const buttonLabel = computed(() =>
+  props.buttonLabel || (props.parentCommentId ? "답글 작성" : "작성하기")
+);
+
 const canSubmit = computed(() => {
   if (!content.value.trim()) return false;
   if (authStore.isAuthenticated) return true;
@@ -71,6 +81,7 @@ async function submit() {
 
   const payload = {
     content: content.value,
+    parentCommentId: props.parentCommentId ?? null,
   };
 
   if (!authStore.isAuthenticated) {
@@ -101,6 +112,14 @@ async function submit() {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.comment-input.compact .notice {
+  display: none;
+}
+
+.comment-input.compact .input-row {
+  padding-left: 8px;
 }
 
 .notice {

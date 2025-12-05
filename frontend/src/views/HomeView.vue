@@ -1,14 +1,13 @@
 <template>
   <div class="home-container">
-    <div class="container mx-20 px-4">
+    <div class="container page-container">
       <div class="home-controls mb-6">
         <div class="flex gap-1 filter-group">
           <Button icon="pi pi-heart" :label="'인기'" :class="['filter-button', { 'is-active': sort === 'popular' }]" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
           <Button icon="pi pi-eye" :label="'조회'" :class="['filter-button', { 'is-active': sort === 'views' }]" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
           <Button icon="pi pi-clock" :label="'최신'" :class="['filter-button', { 'is-active': sort === 'latest' }]" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
         </div>
-        <span class="p-input-icon-left home-search">
-          <i class="pi pi-search" />
+        <span class="home-search">
           <InputText v-model="searchKeyword" placeholder="Search quizzes..." class="search-bar" @keyup.enter="handleSearch" />
         </span>
       </div>
@@ -120,8 +119,13 @@ onMounted(() => {
 }
 
 .container {
-  max-width: 1200px;
+  width: 100%;
+}
+
+.page-container {
+  max-width: 1500px;
   margin: 0 auto;
+  padding: 0 12px;
 }
 
 /* Filters + Search in one line */
@@ -200,6 +204,7 @@ onMounted(() => {
 
 .home-search {
   width: 100%;
+  display: block;
 }
 
 .search-bar {
@@ -214,6 +219,7 @@ onMounted(() => {
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   padding: 0.5rem;
+  width: 100%;
 }
 
 @media (max-width: 1200px) {
@@ -231,6 +237,7 @@ onMounted(() => {
 @media (max-width: 768px) {
   .home-controls {
     grid-template-columns: 1fr;
+    max-width: 100%;
   }
   .search-bar {
     width: 100%;
