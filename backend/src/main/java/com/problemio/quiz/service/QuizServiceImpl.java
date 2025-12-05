@@ -22,6 +22,7 @@ import com.problemio.submission.mapper.SubmissionDetailMapper;
 import com.problemio.submission.mapper.SubmissionMapper;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.mapper.UserMapper;
+import com.problemio.comment.mapper.CommentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,8 @@ public class QuizServiceImpl implements QuizService {
     private final SubmissionMapper submissionMapper;
     // 제출 상세(SubmissionDetail) 관련 매퍼
     private final SubmissionDetailMapper submissionDetailMapper;
+    // 댓글 수 집계용
+    private final CommentMapper commentMapper;
 
     /**
      * 퀴즈 목록 조회 (페이징 + 정렬 + 검색)
@@ -72,9 +75,15 @@ public class QuizServiceImpl implements QuizService {
         // 전체 개수 조회
         int total = quizMapper.countQuizzes(keyword);
 
+        Map<Long, Integer> commentCountMap = quizzes.isEmpty()
+                ? Map.of()
+                : commentMapper.countCommentsByQuizIds(quizzes.stream().map(Quiz::getId).toList())
+                .stream()
+                .collect(Collectors.toMap(CommentMapper.CommentCount::getQuizId, CommentMapper.CommentCount::getCount));
+
         // Quiz 엔티티를 요약 DTO로 변환
         List<QuizSummaryDto> content = quizzes.stream()
-                .map(this::toSummaryDto)
+                .map(q -> toSummaryDto(q, commentCountMap))
                 .collect(Collectors.toList());
 
         int totalPages = (int) Math.ceil((double) total / safeSize);
@@ -275,14 +284,24 @@ public class QuizServiceImpl implements QuizService {
     }
 
     // ===== 내부 헬퍼: Quiz → DTO =====
-    private QuizSummaryDto toSummaryDto(Quiz quiz) {
+    private QuizSummaryDto toSummaryDto(Quiz quiz, Map<Long, Integer> commentCountMap) {
+        int commentCount = commentCountMap != null
+                ? commentCountMap.getOrDefault(quiz.getId(), 0)
+                : 0;
         return QuizSummaryDto.builder()
                 .id(quiz.getId())
                 .title(quiz.getTitle())
+                .description(quiz.getDescription())
                 .thumbnailUrl(quiz.getThumbnailUrl())
                 .likeCount(quiz.getLikeCount())
                 .playCount(quiz.getPlayCount())
+                .commentCount(commentCount)
                 .build();
+    }
+
+    // 기존 호출 호환용 (댓글 수 정보 없을 때)
+    private QuizSummaryDto toSummaryDto(Quiz quiz) {
+        return toSummaryDto(quiz, Map.of());
     }
 
     /**

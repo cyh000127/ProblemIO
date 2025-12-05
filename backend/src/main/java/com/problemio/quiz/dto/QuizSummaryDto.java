@@ -11,8 +11,10 @@ public class QuizSummaryDto {
 
     private Long id;
     private String title;
+    private String description;
     private String thumbnailUrl;
     private int likeCount;
     private int playCount;
+    private Integer commentCount;
 
 }

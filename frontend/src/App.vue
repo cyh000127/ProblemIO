@@ -14,6 +14,13 @@
     >
       <i :class="theme === 'light' ? 'pi pi-moon' : 'pi pi-sun'"></i>
     </button>
+    <button
+      class="scroll-top"
+      aria-label="Scroll to top"
+      @click="scrollToTop"
+    >
+      <i class="pi pi-arrow-up"></i>
+    </button>
   </div>
 </template>
 
@@ -33,6 +40,10 @@ const applyTheme = (mode: string) => {
 
 const toggleTheme = () => {
   applyTheme(theme.value === "light" ? "dark" : "light");
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
 onMounted(() => {
@@ -79,6 +90,36 @@ onMounted(() => {
 }
 
 .theme-toggle:active {
+  transform: translateY(1px);
+}
+
+.scroll-top {
+  position: fixed;
+  right: 20px;
+  bottom: 80px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-mute);
+  color: var(--color-heading);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 999;
+}
+
+.scroll-top:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+.scroll-top:active {
   transform: translateY(1px);
 }
 </style>

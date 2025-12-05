@@ -1,15 +1,50 @@
 <template>
   <div class="home-container">
     <div class="container page-container">
+      <!-- 긴 검색바 -->
+      <div class="home-search-row">
+        <div class="search-bar-wide">
+          <Button
+            class="search-filter-btn"
+            icon="pi pi-filter"
+            rounded
+            text
+            @click="toggleFilterPanel($event)">
+          </Button>
+          <OverlayPanel ref="filterPanel">
+            <div class="search-filter-menu">
+              <div
+                v-for="opt in filterOptions"
+                :key="opt.value"
+                class="search-filter-item"
+                :class="{ 'is-active': searchSort === opt.value }"
+                @click="selectSearchSort(opt.value)"
+              >
+                <i v-if="searchSort === opt.value" class="pi pi-check" />
+                <span>{{ opt.label }}</span>
+              </div>
+            </div>
+          </OverlayPanel>
+
+          <span class="p-input-icon-right search-input-wrapper">
+            <InputText
+              v-model="searchKeyword"
+              placeholder="검색어를 입력하세요."
+              class="search-input"
+              @keyup.enter="handleSearch"
+            />
+            <i class="pi pi-search search-icon" @click="handleSearch" />
+          </span>
+        </div>
+      </div>
+
+      <!-- 기존 퀵 필터 -->
       <div class="home-controls mb-6">
         <div class="flex gap-1 filter-group">
           <Button icon="pi pi-heart" :label="'인기'" :class="['filter-button', { 'is-active': sort === 'popular' }]" :severity="sort === 'popular' ? undefined : 'secondary'" :outlined="sort !== 'popular'" @click="sort = 'popular'" />
           <Button icon="pi pi-eye" :label="'조회'" :class="['filter-button', { 'is-active': sort === 'views' }]" :severity="sort === 'views' ? undefined : 'secondary'" :outlined="sort !== 'views'" @click="sort = 'views'" />
           <Button icon="pi pi-clock" :label="'최신'" :class="['filter-button', { 'is-active': sort === 'latest' }]" :severity="sort === 'latest' ? undefined : 'secondary'" :outlined="sort !== 'latest'" @click="sort = 'latest'" />
         </div>
-        <span class="home-search">
-          <InputText v-model="searchKeyword" placeholder="Search quizzes..." class="search-bar" @keyup.enter="handleSearch" />
-        </span>
       </div>
 
       <div v-if="loading" class="text-center py-8">
@@ -25,18 +60,23 @@
           <div class="quiz-thumbnail">
             <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="quiz-thumbnail-img" />
           </div>
-          <div class="quiz-meta">
+          <div class="quiz-body">
             <h3 class="quiz-title">{{ quiz.title }}</h3>
-            <div class="quiz-stats">
-              <div class="quiz-stat">
-                <i class="pi pi-heart text-xs"></i>
-                <span>{{ quiz.likeCount || 0 }}</span>
-              </div>
-              <div class="quiz-stat view">
-                <i class="pi pi-eye text-xs"></i>
+            <div class="quiz-meta-row">
+              <span class="quiz-meta-item">
+                <i class="pi pi-eye"></i>
                 <span>{{ quiz.playCount || 0 }}</span>
-              </div>
+              </span>
+              <span class="quiz-meta-item">
+                <i class="pi pi-heart"></i>
+                <span>{{ quiz.likeCount || 0 }}</span>
+              </span>
+              <span class="quiz-meta-item">
+                <i class="pi pi-comments"></i>
+                <span>{{ quiz.commentCount ?? 0 }}</span>
+              </span>
             </div>
+            <p class="quiz-description">{{ quiz.description || quiz.desc || quiz.summary || "설명이 없습니다." }}</p>
           </div>
         </div>
       </div>
@@ -51,12 +91,19 @@ import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { getQuizzes } from "@/api/quiz";
+import OverlayPanel from "primevue/overlaypanel";
 
 const router = useRouter();
 const toast = useToast();
 
 const quizzes = ref([]);
 const searchKeyword = ref("");
+const searchSort = ref<"popular" | "latest">("popular");
+const filterOptions = [
+  { label: "인기순", value: "popular" },
+  { label: "최신순", value: "latest" },
+];
+const filterPanel = ref();
 const loading = ref(false);
 const sort = ref("popular");
 const currentPage = ref(1);
@@ -93,13 +140,23 @@ const goToQuiz = (quizId: number) => {
 
 const handleSearch = () => {
   if (searchKeyword.value.trim()) {
-    router.push({ name: "search", query: { q: searchKeyword.value } });
+    router.push({ name: "search", query: { q: searchKeyword.value, sort: searchSort.value } });
   }
 };
 
 const onPageChange = (event: any) => {
   currentPage.value = event.page + 1;
   loadQuizzes();
+};
+
+const toggleFilterPanel = (event: Event) => {
+  filterPanel.value?.toggle(event);
+};
+
+const selectSearchSort = (value: "popular" | "latest") => {
+  searchSort.value = value;
+  filterPanel.value?.hide();
+  handleSearch();
 };
 
 watch(sort, () => {
@@ -123,7 +180,7 @@ onMounted(() => {
 }
 
 .page-container {
-  max-width: 1500px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 12px;
 }
@@ -138,6 +195,94 @@ onMounted(() => {
   width: 100%;
 }
 
+.home-search-row {
+  margin-top: 1.5rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.search-bar-wide {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1100px;
+  gap: 0.75rem;
+}
+
+.search-filter-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-main) !important;
+}
+
+:global([data-theme="dark"] .search-filter-btn) {
+  background: rgba(35, 45, 80, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: var(--color-heading) !important;
+}
+
+.search-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.search-input-wrapper .search-input {
+  width: 100%;
+  border-radius: 999px;
+  padding-left: 1.25rem;
+  padding-right: 2.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.search-input-wrapper .search-icon {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+:global([data-theme="dark"] .search-input-wrapper .search-input) {
+  background: rgba(35, 45, 80, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--color-heading);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.search-filter-menu {
+  min-width: 160px;
+  padding: 6px 0;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.search-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-heading);
+}
+
+.search-filter-item:hover {
+  background-color: var(--color-background-mute);
+}
+
+.search-filter-item.is-active {
+  font-weight: 600;
+}
+
 .filter-group {
   display: inline-flex;
   gap: 0.5rem;
@@ -145,19 +290,16 @@ onMounted(() => {
 }
 
 .filter-button {
-  color: #111827 !important;
+  color: var(--color-text-muted) !important;
+  background: var(--color-bg-card) !important;
+  border-color: var(--color-border) !important;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 :global(.filter-button.is-active) {
-  background: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-  color: #ffffff !important;
-}
-
-:global([data-theme="light"] .filter-button.is-active) {
-  background: #16c6b0 !important;
-  border-color: #13b8a3 !important;
+  background: var(--brand-cyan-soft) !important;
+  border-color: var(--brand-cyan) !important;
+  color: #0369a1 !important;
   box-shadow: 0 10px 26px rgba(19, 184, 163, 0.26);
 }
 
@@ -171,12 +313,7 @@ onMounted(() => {
 :global(.filter-button.is-active:hover) {
   background: var(--color-primary-hover) !important;
   border-color: var(--color-primary-hover) !important;
-  color: #ffffff !important;
-}
-
-:global([data-theme="light"] .filter-button.is-active:hover) {
-  background: #12b4a1 !important;
-  border-color: #12b4a1 !important;
+  color: #00131c !important;
 }
 
 :global([data-theme="dark"] .filter-button) {
@@ -211,6 +348,10 @@ onMounted(() => {
   width: 100%;
   max-width: 720px;
   min-width: 360px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-main);
 }
 
 /* Grid */
@@ -238,6 +379,10 @@ onMounted(() => {
   .home-controls {
     grid-template-columns: 1fr;
     max-width: 100%;
+  }
+  .home-search-row {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
   .search-bar {
     width: 100%;
@@ -279,12 +424,11 @@ onMounted(() => {
   background: var(--color-background-soft);
   border-radius: 18px;
   border: 1px solid var(--color-border);
-  padding: 0.6rem 0.6rem 0.3rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  box-shadow: var(--surface-glow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 :global([data-theme="dark"] .quiz-card) {
@@ -297,7 +441,8 @@ onMounted(() => {
 
 .quiz-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  border-color: rgba(148, 163, 184, 0.6);
 }
 
 :global([data-theme="dark"] .quiz-card:hover) {
@@ -311,43 +456,52 @@ onMounted(() => {
   transform: scale(1.03);
 }
 
-.quiz-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0 0.4rem 0.4rem;
-}
-
 .quiz-title {
   font-size: 1rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 0.3rem;
   color: var(--color-heading);
-  white-space: nowrap;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.quiz-stat {
+.quiz-body {
+  padding: 0 0.4rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.quiz-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.quiz-meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  background: rgba(137, 168, 124, 0.15);
-  color: var(--color-heading);
+  gap: 0.3rem;
+}
+
+.quiz-meta-item i {
   font-size: 0.85rem;
 }
 
-.quiz-stats {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.quiz-stat.view {
-  background: rgba(59, 130, 246, 0.12);
+.quiz-description {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .empty-state {

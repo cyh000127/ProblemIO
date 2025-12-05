@@ -122,6 +122,17 @@
           AND is_deleted = 0
     </select>
 
+    <select id="countCommentsByQuizIds" resultType="com.problemio.comment.mapper.CommentMapper$CommentCount">
+        SELECT quiz_id AS quizId, COUNT(*) AS count
+        FROM comments
+        WHERE quiz_id IN
+        <foreach collection="quizIds" item="qid" open="(" separator="," close=")">
+            #{qid}
+        </foreach>
+        AND is_deleted = 0
+        GROUP BY quiz_id
+    </select>
+
     <select id="findRepliesByParentId" resultMap="commentResult">
         SELECT
             id,

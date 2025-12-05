@@ -31,6 +31,8 @@ public interface CommentMapper {
 
     List<CommentReplyCount> countRepliesByParentIds(@Param("parentIds") List<Long> parentIds);
 
+    List<CommentCount> countCommentsByQuizIds(@Param("quizIds") List<Long> quizIds);
+
     void increaseLikeCount(@Param("commentId") Long commentId);
 
     void decreaseLikeCount(@Param("commentId") Long commentId);
@@ -41,6 +43,15 @@ public interface CommentMapper {
 
         public Long getParentId() { return parentId; }
         public void setParentId(Long parentId) { this.parentId = parentId; }
+        public Integer getCount() { return count; }
+        public void setCount(Integer count) { this.count = count; }
+    }
+
+    class CommentCount {
+        private Long quizId;
+        private Integer count;
+        public Long getQuizId() { return quizId; }
+        public void setQuizId(Long quizId) { this.quizId = quizId; }
         public Integer getCount() { return count; }
         public void setCount(Integer count) { this.count = count; }
     }

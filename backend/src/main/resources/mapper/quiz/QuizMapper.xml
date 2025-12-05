@@ -109,6 +109,7 @@
         SELECT
         q.id            AS id,
         q.title         AS title,
+        q.description   AS description,
         q.thumbnail_url AS thumbnailUrl,
         q.like_count    AS likeCount,
         q.play_count    AS playCount
@@ -128,6 +129,7 @@
         SELECT
             q.id            AS id,
             q.title         AS title,
+            q.description   AS description,
             q.thumbnail_url AS thumbnailUrl,
             q.like_count    AS likeCount,
             q.play_count    AS playCount
