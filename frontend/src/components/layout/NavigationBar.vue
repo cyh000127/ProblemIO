@@ -1,5 +1,5 @@
 <template>
-  <Menubar :model="menuItems" class="border-bottom-1 surface-border">
+  <Menubar :model="menuItems" class="border-bottom-1 surface-border app-header">
     <template #start>
       <router-link to="/" class="flex align-items-center gap-2 no-underline text-dark logo-link">
         <img src="/problemio-logo.png" alt="Problem.io" class="logo-img" />
@@ -117,6 +117,23 @@ const handleLogout = () => {
   background: rgba(0, 150, 136, 0.08) !important; /* 아주 연한 틸 */
   color: #006f62 !important; /* 틸톤 텍스트 */
   border: none !important;
+}
+
+.app-header {
+  background: var(--color-background-soft);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+}
+
+.app-header :deep(.p-menubar-root-list),
+.app-header :deep(.p-menubar-button) {
+  color: var(--color-heading);
+}
+
+.app-header :deep(.p-inputtext) {
+  background: var(--color-background-soft);
+  color: var(--color-heading);
+  border-color: var(--color-border);
 }
 
 .logo-link {
