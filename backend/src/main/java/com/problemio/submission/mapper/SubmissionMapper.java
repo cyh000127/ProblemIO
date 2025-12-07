@@ -21,4 +21,8 @@ public interface SubmissionMapper {
     List<Submission> findByUserId(@Param("userId") Long userId);
 
     void deleteByQuizId(@Param("quizId") Long quizId);
+
+    List<Long> findIdsByUserId(@Param("userId") Long userId);
+
+    void deleteByUserId(@Param("userId") Long userId);
 }

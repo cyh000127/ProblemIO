@@ -26,4 +26,6 @@ public interface FollowMapper {
     int countFollowers(@Param("userId") Long userId);
 
     int countFollowings(@Param("userId") Long userId);
+
+    int deleteByUserId(@Param("userId") Long userId);
 }

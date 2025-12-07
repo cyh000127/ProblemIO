@@ -20,6 +20,7 @@ import com.problemio.quiz.mapper.QuizLikeMapper;
 import com.problemio.quiz.mapper.QuizMapper;
 import com.problemio.submission.mapper.SubmissionDetailMapper;
 import com.problemio.submission.mapper.SubmissionMapper;
+import com.problemio.comment.mapper.CommentLikeMapper;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.mapper.UserMapper;
 import com.problemio.comment.mapper.CommentMapper;
@@ -56,6 +57,8 @@ public class QuizServiceImpl implements QuizService {
     private final SubmissionDetailMapper submissionDetailMapper;
     // 댓글 수 집계용
     private final CommentMapper commentMapper;
+    // 댓글 좋아요 정리용
+    private final CommentLikeMapper commentLikeMapper;
 
     /**
      * 퀴즈 목록 조회 (페이징 + 정렬 + 검색)
@@ -169,6 +172,13 @@ public class QuizServiceImpl implements QuizService {
         // 작성자 검증
         if (!Objects.equals(quiz.getUserId(), userId)) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+
+        // 관련 댓글/댓글 좋아요 정리
+        List<Long> commentIds = commentMapper.findIdsByQuizId(quizId);
+        if (!commentIds.isEmpty()) {
+            commentLikeMapper.deleteByCommentIds(commentIds);
+            commentMapper.softDeleteByQuizId(quizId);
         }
 
         // 관련 좋아요 제거

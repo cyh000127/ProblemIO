@@ -37,6 +37,16 @@ public interface CommentMapper {
 
     void decreaseLikeCount(@Param("commentId") Long commentId);
 
+    List<Long> findIdsByUserId(@Param("userId") Long userId);
+
+    List<Long> findIdsByQuizId(@Param("quizId") Long quizId);
+
+    void softDeleteByUserId(@Param("userId") Long userId);
+
+    void softDeleteByQuizId(@Param("quizId") Long quizId);
+
+    void deleteByUserId(@Param("userId") Long userId);
+
     class CommentReplyCount {
         private Long parentId;
         private Integer count;

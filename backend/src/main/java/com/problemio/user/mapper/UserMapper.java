@@ -38,4 +38,8 @@ public interface UserMapper {
             @Param("userId") Long userId,
             @Param("viewerId") Long viewerId
     );
+
+    void anonymizeCredentials(@Param("id") Long id,
+                              @Param("email") String email,
+                              @Param("nickname") String nickname);
 }

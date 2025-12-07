@@ -49,4 +49,12 @@
         </foreach>
     </delete>
 
+    <delete id="deleteBySubmissionIds">
+        DELETE FROM submission_details
+        WHERE submission_id IN
+        <foreach collection="submissionIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>

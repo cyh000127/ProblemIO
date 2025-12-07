@@ -41,15 +41,47 @@
     </delete>
 
     <select id="findById" resultMap="QuizResultMap">
-        SELECT * FROM quizzes WHERE id = #{id}
+        SELECT
+            q.*,
+            (SELECT COUNT(*)
+             FROM quiz_likes l
+             JOIN users ul ON ul.id = l.user_id
+             WHERE l.quiz_id = q.id
+               AND ul.is_deleted = 0) AS like_count
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.id = #{id}
+          AND u.is_deleted = 0
     </select>
 
     <select id="findPublicQuizzes" resultMap="QuizResultMap">
-        SELECT * FROM quizzes WHERE is_public = TRUE ORDER BY created_at DESC
+        SELECT
+            q.*,
+            (SELECT COUNT(*)
+             FROM quiz_likes l
+             JOIN users ul ON ul.id = l.user_id
+             WHERE l.quiz_id = q.id
+               AND ul.is_deleted = 0) AS like_count
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.is_public = TRUE
+          AND u.is_deleted = 0
+        ORDER BY q.created_at DESC
     </select>
 
     <select id="findQuizzesByUserId" resultMap="QuizResultMap">
-        SELECT * FROM quizzes WHERE user_id = #{userId} ORDER BY created_at DESC
+        SELECT
+            q.*,
+            (SELECT COUNT(*)
+             FROM quiz_likes l
+             JOIN users ul ON ul.id = l.user_id
+             WHERE l.quiz_id = q.id
+               AND ul.is_deleted = 0) AS like_count
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.user_id = #{userId}
+          AND u.is_deleted = 0
+        ORDER BY q.created_at DESC
     </select>
 
     <update id="incrementPlayCount">
@@ -65,22 +97,30 @@
     </update>
 
     <select id="searchQuizzes" resultMap="QuizResultMap">
-        SELECT *
-        FROM quizzes
-        WHERE is_public = TRUE
+        SELECT
+            q.*,
+            (SELECT COUNT(*)
+             FROM quiz_likes l
+             JOIN users ul ON ul.id = l.user_id
+             WHERE l.quiz_id = q.id
+               AND ul.is_deleted = 0) AS like_count
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.is_public = TRUE
+          AND u.is_deleted = 0
         <if test="keyword != null and keyword != ''">
-            AND (title LIKE CONCAT('%', #{keyword}, '%')
-                 OR description LIKE CONCAT('%', #{keyword}, '%'))
+            AND (q.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR q.description LIKE CONCAT('%', #{keyword}, '%'))
         </if>
         <choose>
             <when test="sort == 'popular'">
-                ORDER BY like_count DESC, play_count DESC, created_at DESC
+                ORDER BY like_count DESC, q.play_count DESC, q.created_at DESC
             </when>
             <when test="sort == 'views'">
-                ORDER BY play_count DESC, like_count DESC, created_at DESC
+                ORDER BY q.play_count DESC, like_count DESC, q.created_at DESC
             </when>
             <otherwise>
-                ORDER BY created_at DESC
+                ORDER BY q.created_at DESC
             </otherwise>
         </choose>
         LIMIT #{size} OFFSET #{offset}
@@ -88,18 +128,22 @@
 
     <select id="countQuizzes" resultType="int">
         SELECT COUNT(*)
-        FROM quizzes
-        WHERE is_public = TRUE
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.is_public = TRUE
+          AND u.is_deleted = 0
         <if test="keyword != null and keyword != ''">
-            AND (title LIKE CONCAT('%', #{keyword}, '%')
-                 OR description LIKE CONCAT('%', #{keyword}, '%'))
+            AND (q.title LIKE CONCAT('%', #{keyword}, '%')
+                 OR q.description LIKE CONCAT('%', #{keyword}, '%'))
         </if>
     </select>
 
     <select id="findUserIdByQuizId" parameterType="long" resultType="long">
-        SELECT user_id
-        FROM quizzes
-        WHERE id = #{id}
+        SELECT q.user_id
+        FROM quizzes q
+        JOIN users u ON u.id = q.user_id
+        WHERE q.id = #{id}
+          AND u.is_deleted = 0
     </select>
 
     <!-- 내가 팔로우한 유저들 퀴즈 목록 조회용 -->
@@ -111,13 +155,18 @@
         q.title         AS title,
         q.description   AS description,
         q.thumbnail_url AS thumbnailUrl,
-        q.like_count    AS likeCount,
+        (SELECT COUNT(*)
+         FROM quiz_likes l
+         JOIN users ul ON ul.id = l.user_id
+         WHERE l.quiz_id = q.id
+           AND ul.is_deleted = 0) AS likeCount,
         q.play_count    AS playCount
         FROM quizzes q
-        JOIN follows f
-        ON f.following_id = q.user_id   <!-- 내가 팔로우한 사람 = 퀴즈 작성자 -->
+        JOIN follows f ON f.following_id = q.user_id   <!-- 내가 팔로우한 사람 = 퀴즈 작성자 -->
+        JOIN users u ON u.id = q.user_id
         WHERE f.follower_id = #{userId}
         AND q.is_public = TRUE
+        AND u.is_deleted = 0
         ORDER BY q.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -131,13 +180,18 @@
             q.title         AS title,
             q.description   AS description,
             q.thumbnail_url AS thumbnailUrl,
-            q.like_count    AS likeCount,
+            (SELECT COUNT(*)
+             FROM quiz_likes l2
+             JOIN users ul ON ul.id = l2.user_id
+             WHERE l2.quiz_id = q.id
+               AND ul.is_deleted = 0) AS likeCount,
             q.play_count    AS playCount
         FROM quiz_likes l
-                 JOIN quizzes q
-                      ON q.id = l.quiz_id
+        JOIN quizzes q ON q.id = l.quiz_id
+        JOIN users u ON u.id = q.user_id
         WHERE l.user_id = #{userId}
           AND q.is_public = TRUE
+          AND u.is_deleted = 0
         ORDER BY l.created_at DESC
             LIMIT #{limit} OFFSET #{offset}
     </select>

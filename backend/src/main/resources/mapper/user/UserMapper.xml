@@ -62,12 +62,28 @@
         WHERE id = #{id}
     </update>
 
+    <update id="anonymizeCredentials">
+        UPDATE users
+        SET email = #{email},
+            nickname = #{nickname},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
     <select id="countFollowers" resultType="int">
-        SELECT COUNT(*) FROM follows WHERE following_id = #{userId}
+        SELECT COUNT(*)
+        FROM follows f
+        JOIN users u ON u.id = f.follower_id
+        WHERE f.following_id = #{userId}
+          AND u.is_deleted = 0
     </select>
 
     <select id="countFollowings" resultType="int">
-        SELECT COUNT(*) FROM follows WHERE follower_id = #{userId}
+        SELECT COUNT(*)
+        FROM follows f
+        JOIN users u ON u.id = f.following_id
+        WHERE f.follower_id = #{userId}
+          AND u.is_deleted = 0
     </select>
 
     <select id="countCreatedQuizzes" resultType="int">
@@ -88,8 +104,16 @@
             u.nickname,
             u.profile_image_url,
             u.status_message,
-            (SELECT COUNT(*) FROM follows f1 WHERE f1.following_id = u.id) AS follower_count,
-            (SELECT COUNT(*) FROM follows f2 WHERE f2.follower_id = u.id) AS following_count,
+            (SELECT COUNT(*)
+             FROM follows f1
+             JOIN users uf1 ON uf1.id = f1.follower_id
+             WHERE f1.following_id = u.id
+               AND uf1.is_deleted = 0) AS follower_count,
+            (SELECT COUNT(*)
+             FROM follows f2
+             JOIN users uf2 ON uf2.id = f2.following_id
+             WHERE f2.follower_id = u.id
+               AND uf2.is_deleted = 0) AS following_count,
             CASE
                 WHEN EXISTS (
                     SELECT 1

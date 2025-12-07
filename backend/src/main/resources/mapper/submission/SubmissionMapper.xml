@@ -40,4 +40,15 @@
         DELETE FROM submissions WHERE quiz_id = #{quizId}
     </delete>
 
+    <select id="findIdsByUserId" resultType="long">
+        SELECT id
+        FROM submissions
+        WHERE user_id = #{userId}
+    </select>
+
+    <delete id="deleteByUserId">
+        DELETE FROM submissions
+        WHERE user_id = #{userId}
+    </delete>
+
 </mapper>

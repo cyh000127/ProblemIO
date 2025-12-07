@@ -28,4 +28,15 @@
         SELECT COUNT(*) FROM quiz_likes WHERE quiz_id = #{quizId}
     </select>
 
+    <delete id="deleteByUserId">
+        DELETE FROM quiz_likes
+        WHERE user_id = #{userId}
+    </delete>
+
+    <select id="findQuizIdsByUserId" resultType="long">
+        SELECT quiz_id
+        FROM quiz_likes
+        WHERE user_id = #{userId}
+    </select>
+
 </mapper>

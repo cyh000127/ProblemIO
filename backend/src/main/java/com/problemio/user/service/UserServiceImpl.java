@@ -1,12 +1,22 @@
 package com.problemio.user.service;
 
+import com.problemio.comment.mapper.CommentLikeMapper;
+import com.problemio.comment.mapper.CommentMapper;
+import com.problemio.follow.mapper.FollowMapper;
 import com.problemio.global.exception.BusinessException;
 import com.problemio.global.exception.ErrorCode;
+import com.problemio.quiz.domain.Quiz;
 import com.problemio.quiz.dto.QuizSummaryDto;
+import com.problemio.quiz.mapper.QuizLikeMapper;
+import com.problemio.quiz.mapper.QuizMapper;
+import com.problemio.quiz.service.QuizService;
+import com.problemio.submission.mapper.SubmissionDetailMapper;
+import com.problemio.submission.mapper.SubmissionMapper;
 import com.problemio.user.domain.User;
 import com.problemio.user.dto.UserPopoverResponse;
 import com.problemio.user.dto.UserResponse;
 import com.problemio.user.dto.UserSummaryDto;
+import com.problemio.user.mapper.RefreshTokenMapper;
 import com.problemio.user.mapper.UserAuthMapper;
 import com.problemio.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +41,15 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserAuthMapper userAuthMapper;
     private final PasswordEncoder passwordEncoder;
+    private final QuizService quizService;
+    private final QuizMapper quizMapper;
+    private final QuizLikeMapper quizLikeMapper;
+    private final CommentMapper commentMapper;
+    private final CommentLikeMapper commentLikeMapper;
+    private final FollowMapper followMapper;
+    private final SubmissionMapper submissionMapper;
+    private final SubmissionDetailMapper submissionDetailMapper;
+    private final RefreshTokenMapper refreshTokenMapper;
 
     @Override
     public UserResponse getUserById(Long id) {
@@ -144,6 +163,50 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorCode.INVALID_LOGIN);
         }
 
+        // 1) 인증 토큰 정리
+        refreshTokenMapper.deleteByUserId(userId);
+
+        // 2) 팔로우 관계 제거
+        followMapper.deleteByUserId(userId);
+
+        // 3) 내가 눌렀던 퀴즈 좋아요 삭제 + 카운트 보정
+        List<Long> likedQuizIds = quizLikeMapper.findQuizIdsByUserId(userId);
+        if (!likedQuizIds.isEmpty()) {
+            quizLikeMapper.deleteByUserId(userId);
+            likedQuizIds.forEach(quizMapper::decrementLikeCount);
+        }
+
+        // 4) 내가 눌렀던 댓글 좋아요 삭제 + 카운트 보정
+        List<Long> likedCommentIds = commentLikeMapper.findLikedCommentIdsByUser(userId);
+        if (!likedCommentIds.isEmpty()) {
+            commentLikeMapper.deleteByUserId(userId);
+            likedCommentIds.forEach(commentMapper::decreaseLikeCount);
+        }
+
+        // 5) 내가 작성한 댓글 삭제 + 그 댓글 좋아요 정리
+        List<Long> myCommentIds = commentMapper.findIdsByUserId(userId);
+        if (!myCommentIds.isEmpty()) {
+            commentLikeMapper.deleteByCommentIds(myCommentIds);
+            commentMapper.deleteByUserId(userId);
+        }
+
+        // 6) 내가 만든 제출 기록 제거 (상세 먼저)
+        List<Long> mySubmissionIds = submissionMapper.findIdsByUserId(userId);
+        if (!mySubmissionIds.isEmpty()) {
+            submissionDetailMapper.deleteBySubmissionIds(mySubmissionIds);
+            submissionMapper.deleteByUserId(userId);
+        }
+
+        // 7) 내가 만든 퀴즈 삭제 (내 퀴즈에 달린 댓글/좋아요/제출도 QuizService에서 정리)
+        List<Quiz> myQuizzes = quizMapper.findQuizzesByUserId(userId);
+        for (Quiz quiz : myQuizzes) {
+            quizService.deleteQuiz(userId, quiz.getId());
+        }
+
+        // 8) 개인정보/식별자 비우기 후 소프트 삭제 (닉네임/이메일 중복 방지)
+        String tombstone = "deleted_" + UUID.randomUUID();
+        userMapper.anonymizeCredentials(userId, tombstone + "@deleted.local", tombstone);
+        // 9) 최종 사용자 소프트 삭제
         userMapper.deleteUser(userId);
     }
 

@@ -92,77 +92,87 @@
     <!-- LIST -->
     <select id="findRootCommentsByQuizId" resultMap="commentResult">
         SELECT
-            id,
-            quiz_id,
-            parent_comment_id,
-            root_comment_id,
-            user_id,
-            guest_nickname,
-            guest_password_hash,
-            writer_ip,
-            content,
-            like_count,
-            is_deleted,
-            created_at,
-            updated_at
-        FROM comments
-        WHERE quiz_id = #{quizId}
-          AND parent_comment_id IS NULL
-          AND is_deleted = 0
-        ORDER BY created_at DESC
+            c.id,
+            c.quiz_id,
+            c.parent_comment_id,
+            c.root_comment_id,
+            c.user_id,
+            c.guest_nickname,
+            c.guest_password_hash,
+            c.writer_ip,
+            c.content,
+            c.like_count,
+            c.is_deleted,
+            c.created_at,
+            c.updated_at
+        FROM comments c
+        LEFT JOIN users u ON u.id = c.user_id
+        WHERE c.quiz_id = #{quizId}
+          AND c.parent_comment_id IS NULL
+          AND c.is_deleted = 0
+          AND (c.user_id IS NULL OR u.is_deleted = 0)
+        ORDER BY c.created_at DESC
         LIMIT #{limit}
         OFFSET #{offset}
     </select>
 
     <select id="countCommentsByQuizId" resultType="int">
         SELECT COUNT(*)
-        FROM comments
-        WHERE quiz_id = #{quizId}
-          AND parent_comment_id IS NULL
-          AND is_deleted = 0
+        FROM comments c
+        LEFT JOIN users u ON u.id = c.user_id
+        WHERE c.quiz_id = #{quizId}
+          AND c.parent_comment_id IS NULL
+          AND c.is_deleted = 0
+          AND (c.user_id IS NULL OR u.is_deleted = 0)
     </select>
 
     <select id="countCommentsByQuizIds" resultType="com.problemio.comment.mapper.CommentMapper$CommentCount">
-        SELECT quiz_id AS quizId, COUNT(*) AS count
-        FROM comments
-        WHERE quiz_id IN
+        SELECT c.quiz_id AS quizId, COUNT(*) AS count
+        FROM comments c
+        LEFT JOIN users u ON u.id = c.user_id
+        WHERE c.quiz_id IN
         <foreach collection="quizIds" item="qid" open="(" separator="," close=")">
             #{qid}
         </foreach>
-        AND is_deleted = 0
-        GROUP BY quiz_id
+        AND c.is_deleted = 0
+        AND (c.user_id IS NULL OR u.is_deleted = 0)
+        GROUP BY c.quiz_id
     </select>
 
     <select id="findRepliesByParentId" resultMap="commentResult">
         SELECT
-            id,
-            quiz_id,
-            parent_comment_id,
-            root_comment_id,
-            user_id,
-            guest_nickname,
-            guest_password_hash,
-            writer_ip,
-            content,
-            like_count,
-            is_deleted,
-            created_at,
-            updated_at
-        FROM comments
-        WHERE parent_comment_id = #{parentId}
-          AND is_deleted = 0
-        ORDER BY created_at ASC
+            c.id,
+            c.quiz_id,
+            c.parent_comment_id,
+            c.root_comment_id,
+            c.user_id,
+            c.guest_nickname,
+            c.guest_password_hash,
+            c.writer_ip,
+            c.content,
+            c.like_count,
+            c.is_deleted,
+            c.created_at,
+            c.updated_at
+        FROM comments c
+        LEFT JOIN users u ON u.id = c.user_id
+        WHERE c.parent_comment_id = #{parentId}
+          AND c.is_deleted = 0
+          AND (c.user_id IS NULL OR u.is_deleted = 0)
+        ORDER BY c.created_at ASC
     </select>
 
     <select id="countRepliesByParentIds" resultType="com.problemio.comment.mapper.CommentMapper$CommentReplyCount">
-        SELECT parent_comment_id AS parentId, COUNT(*) AS count
-        FROM comments
-        WHERE parent_comment_id IN
+        SELECT c.parent_comment_id AS parentId, COUNT(*) AS count
+        FROM comments c
+        LEFT JOIN users u ON u.id = c.user_id
+        WHERE c.parent_comment_id IN
         <foreach collection="parentIds" item="pid" open="(" separator="," close=")">
             #{pid}
         </foreach>
-        AND is_deleted = 0
-        GROUP BY parent_comment_id
+        AND c.is_deleted = 0
+        AND (c.user_id IS NULL OR u.is_deleted = 0)
+        GROUP BY c.parent_comment_id
     </select>
 
     <!-- LIKE COUNT -->
@@ -180,5 +190,38 @@
           AND like_count > 0
           AND is_deleted = 0
     </update>
+
+    <select id="findIdsByUserId" resultType="long">
+        SELECT id
+        FROM comments
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="findIdsByQuizId" resultType="long">
+        SELECT id
+        FROM comments
+        WHERE quiz_id = #{quizId}
+    </select>
+
+    <update id="softDeleteByUserId">
+        UPDATE comments
+        SET is_deleted = 1,
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+          AND is_deleted = 0
+    </update>
+
+    <update id="softDeleteByQuizId">
+        UPDATE comments
+        SET is_deleted = 1,
+            updated_at = NOW()
+        WHERE quiz_id = #{quizId}
+          AND is_deleted = 0
+    </update>
+
+    <delete id="deleteByUserId">
+        DELETE FROM comments
+        WHERE user_id = #{userId}
+    </delete>
 
 </mapper>

@@ -18,4 +18,8 @@ public interface QuizLikeMapper {
     Optional<QuizLike> findByUserIdAndQuizId(@Param("userId") Long userId, @Param("quizId") Long quizId);
 
     int countByQuizId(@Param("quizId") Long quizId);
+
+    void deleteByUserId(@Param("userId") Long userId);
+
+    java.util.List<Long> findQuizIdsByUserId(@Param("userId") Long userId);
 }

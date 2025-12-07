@@ -1,50 +1,70 @@
 <template>
-  <div :class="['comment-input', { compact: !!parentCommentId }]">
-    <div v-if="!parentCommentId" class="notice">
-      댓글 작성 시 IP가 기록되며 사이트 이용 제한이나 요청에 따라 법적 조치가 취해질 수 있습니다.
-    </div>
+  <section class="comment-section" :class="{ compact: !!parentCommentId }">
+    <div class="comment-card">
+      <!-- 비로그인 게스트 정보 -->
+      <div v-if="!isAuthenticated" class="guest-row">
+        <InputText
+          v-model="nickname"
+          class="flex-1"
+          placeholder="닉네임"
+          :disabled="submitting"
+        />
+        <InputText
+          v-model="password"
+          type="password"
+          class="guest-password"
+          placeholder="비밀번호"
+          :disabled="submitting"
+        />
+      </div>
 
-    <!-- 비로그인 게스트 정보 -->
-    <div v-if="!isAuthenticated" class="guest-row">
-      <InputText
-        v-model="nickname"
-        class="flex-1"
-        placeholder="닉네임"
-        :disabled="submitting"
-      />
-      <InputText
-        v-model="password"
-        type="password"
-        class="guest-password"
-        placeholder="비밀번호"
-        :disabled="submitting"
-      />
-    </div>
+      <div class="comment-input-wrapper">
+        <!-- 일반 textarea (기본) -->
+        <textarea
+          v-if="!usePrimeTextarea"
+          ref="textareaRef"
+          v-model="content"
+          class="comment-textarea"
+          rows="3"
+          :placeholder="placeholderText"
+          :disabled="submitting"
+          @keyup.enter.exact.prevent="submit"
+        />
+        <!-- PrimeVue Textarea 대응 -->
+        <Textarea
+          v-else
+          ref="textareaRef"
+          v-model="content"
+          class="comment-textarea prime"
+          autoResize
+          rows="3"
+          :placeholder="placeholderText"
+          :disabled="submitting"
+          @keyup.enter.exact.prevent="submit"
+        />
 
-    <div class="input-row">
-      <textarea
-        v-model="content"
-        class="comment-textarea"
-        rows="3"
-        :placeholder="placeholderText"
-        :disabled="submitting"
-        @keyup.enter.exact.prevent="submit"
-      />
-      <Button
-        :label="buttonLabel"
-        class="submit-btn"
-        :loading="submitting"
-        :disabled="!canSubmit"
-        @click="submit"
-      />
+        <!-- 경고 문구 오버레이 -->
+
+      </div>
+
+      <div class="action-row">
+        <Button
+          :label="buttonLabel"
+          class="comment-submit-btn"
+          :loading="submitting"
+          :disabled="!canSubmit"
+          @click="submit"
+        />
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { createComment } from "@/api/comment";
+import Textarea from "primevue/textarea";
 
 const props = defineProps({
   quizId: Number,
@@ -62,9 +82,11 @@ const content = ref("");
 const nickname = ref("");
 const password = ref("");
 const submitting = ref(false);
+const textareaRef = ref(null);
+const usePrimeTextarea = ref(false); // 필요 시 true로 토글
 
 const placeholderText = computed(() =>
-  props.placeholder || (props.parentCommentId ? "답글을 입력하세요..." : "댓글을 입력하세요...")
+  props.placeholder || (props.parentCommentId ? "댓글 작성 시 IP가 기록되며 사이트 이용 제한이나 요청에 따라 법적 조치가 취해질 수 있습니다" : "댓글 작성 시 IP가 기록되며 사이트 이용 제한이나 요청에 따라 법적 조치가 취해질 수 있습니다")
 );
 const buttonLabel = computed(() =>
   props.buttonLabel || (props.parentCommentId ? "답글 작성" : "작성하기")
@@ -92,12 +114,10 @@ async function submit() {
   submitting.value = true;
   try {
     await createComment(props.quizId, payload);
-
     content.value = "";
     if (!authStore.isAuthenticated) {
       password.value = "";
     }
-
     emit("submitted");
   } catch (err) {
     console.error("댓글 작성 실패", err);
@@ -108,26 +128,22 @@ async function submit() {
 </script>
 
 <style scoped>
-.comment-input {
+.comment-section {
+  margin-bottom: 12px;
+}
+
+.comment-card {
+  background: #fff; /* 항상 흰색 카드 */
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.comment-input.compact .notice {
-  display: none;
-}
-
-.comment-input.compact .input-row {
-  padding-left: 8px;
-}
-
-.notice {
-  background: #f3f4f6;
-  color: #6b7280;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13px;
+.compact .comment-card {
+  padding: 12px;
 }
 
 .guest-row {
@@ -139,25 +155,129 @@ async function submit() {
   width: 160px;
 }
 
-.input-row {
+:deep(.guest-row .p-inputtext),
+.guest-row .guest-password,
+.guest-row .flex-1 {
+  background: #fff !important; /* 라이트 모드 기본 */
+  border: 1px solid #e5e7eb !important;
+  color: #111827 !important;
+}
+
+.comment-input-wrapper {
+  position: relative;
+  background: #fff; /* 라이트 모드 기본 */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.comment-warning {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 10px;
-  align-items: stretch;
+  align-items: center;
+  padding: 12px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+  pointer-events: none; /* 입력을 가로막지 않음 */
+  background: #f2f4f7;
+  border-radius: 10px;
 }
 
 .comment-textarea {
-  flex: 1;
-  border: 1px solid #d1d5db;
+  width: 100%;
+  min-height: 110px;
   border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 14px;
-  resize: vertical;
-  min-height: 88px;
+  border: none !important;
+  padding: 12px;
   box-sizing: border-box;
+  background: transparent !important; /* 카드 배경이 비치도록 */
+  color: #111827 !important;
+  resize: vertical;
 }
 
-.submit-btn {
-  align-self: flex-end;
+.comment-textarea.prime {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* PrimeVue 내부 textarea를 완전히 투명/무테로 맞춤 */
+:deep(.comment-textarea.prime.p-inputtextarea) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+}
+
+/* 다크 모드 대응 (여러 테마 클래스 대응) */
+:global(body.dark) .comment-card,
+:global(.dark) .comment-card,
+:global(.p-dark) .comment-card,
+:global(.p-theme-dark) .comment-card {
+  background: #1e1e1e;
+}
+
+:global(body.dark) .comment-input-wrapper,
+:global(.dark) .comment-input-wrapper,
+:global(.p-dark) .comment-input-wrapper,
+:global(.p-theme-dark) .comment-input-wrapper {
+  background: #1e1e1e;
+  border-color: #3a3a3a;
+}
+
+:global(body.dark) .comment-warning,
+:global(.dark) .comment-warning,
+:global(.p-dark) .comment-warning,
+:global(.p-theme-dark) .comment-warning {
+  background: #2a2a2a;
+  color: #d1d5db;
+}
+
+:global(body.dark) .comment-textarea,
+:global(.dark) .comment-textarea,
+:global(.p-dark) .comment-textarea,
+:global(.p-theme-dark) .comment-textarea,
+:global(body.dark) .comment-textarea.prime,
+:global(.dark) .comment-textarea.prime,
+:global(.p-dark) .comment-textarea.prime,
+:global(.p-theme-dark) .comment-textarea.prime,
+:global(body.dark) .comment-textarea.prime.p-inputtextarea,
+:global(.dark) .comment-textarea.prime.p-inputtextarea,
+:global(.p-dark) .comment-textarea.prime.p-inputtextarea,
+:global(.p-theme-dark) .comment-textarea.prime.p-inputtextarea {
+  color: #e5e7eb !important;
+}
+
+:global(body.dark) .comment-submit-btn,
+:global(.dark) .comment-submit-btn,
+:global(.p-dark) .comment-submit-btn,
+:global(.p-theme-dark) .comment-submit-btn {
+  filter: brightness(0.95);
+}
+
+:global(body.dark) .guest-row .p-inputtext,
+:global(.dark) .guest-row .p-inputtext,
+:global(.p-dark) .guest-row .p-inputtext,
+:global(.p-theme-dark) .guest-row .p-inputtext,
+:global(body.dark) .guest-row .guest-password,
+:global(.dark) .guest-row .guest-password,
+:global(.p-dark) .guest-row .guest-password,
+:global(.p-theme-dark) .guest-row .guest-password,
+:global(body.dark) .guest-row .flex-1,
+:global(.dark) .guest-row .flex-1,
+:global(.p-dark) .guest-row .flex-1,
+:global(.p-theme-dark) .guest-row .flex-1 {
+  background: #1e1e1e !important;
+  border: 1px solid #3a3a3a !important;
+  color: #e5e7eb !important;
+}
+
+.action-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-submit-btn {
   width: 110px;
 }
 </style>

@@ -23,4 +23,10 @@ public interface CommentLikeMapper {
             @Param("userId") Long userId,
             @Param("commentIds") java.util.List<Long> commentIds
     );
+
+    void deleteByUserId(@Param("userId") Long userId);
+
+    java.util.List<Long> findLikedCommentIdsByUser(@Param("userId") Long userId);
+
+    void deleteByCommentIds(@Param("commentIds") java.util.List<Long> commentIds);
 }

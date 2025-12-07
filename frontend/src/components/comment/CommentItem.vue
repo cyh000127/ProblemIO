@@ -49,7 +49,7 @@
     <div class="actions">
       <!-- 좋아요 -->
       <button @click="toggleLike" class="action-btn like-btn">
-        <span :class="heartClass">♥</span>
+        <span :class="heartClass" :style="heartStyle">♥</span>
         <span>{{ comment.likeCount }}</span>
       </button>
 
@@ -166,9 +166,12 @@ const props = defineProps({
 const emit = defineEmits(["updated"]);
 const authStore = useAuthStore();
 
-const likedByMe = computed(
-  () =>
-    props.comment.likedByMe ?? props.comment.liked ?? props.comment.isLiked
+const likedByMe = computed(() =>
+  props.comment.likedByMe ??
+  props.comment.liked ??
+  props.comment.isLiked ??
+  props.comment.liked_by_me ??
+  props.comment.liked_by_user
 );
 const isGuest = computed(
   () => !props.comment.userId && (props.comment.isGuest ?? true)
@@ -181,7 +184,12 @@ const canEditDelete = computed(() => {
   return true;
 });
 const heartClass = computed(() =>
-  likedByMe.value ? "text-red-500 liked-heart" : "text-gray-400"
+  likedByMe.value ? "liked-heart" : "unliked-heart"
+);
+const heartStyle = computed(() =>
+  likedByMe.value
+    ? { color: "#ef4444" } // 강제 빨간색 (다크/라이트 동일)
+    : { color: "var(--color-text)" }
 );
 const replyCountToShow = computed(() => {
   const base =
@@ -511,5 +519,12 @@ async function handleReplySubmitted() {
 .like-btn .liked-heart {
   color: #ef4444;
   font-weight: 700;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.15);
+  /* 다크/라이트 공통 강제 */
+  color: #ef4444 !important;
+}
+
+.like-btn .unliked-heart {
+  color: var(--color-text);
 }
 </style>

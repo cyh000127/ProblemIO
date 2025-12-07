@@ -35,4 +35,23 @@
             </foreach>
     </select>
 
+    <delete id="deleteByUserId">
+        DELETE FROM comment_likes
+        WHERE user_id = #{userId}
+    </delete>
+
+    <select id="findLikedCommentIdsByUser" resultType="long">
+        SELECT comment_id
+        FROM comment_likes
+        WHERE user_id = #{userId}
+    </select>
+
+    <delete id="deleteByCommentIds">
+        DELETE FROM comment_likes
+        WHERE comment_id IN
+        <foreach collection="commentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>
