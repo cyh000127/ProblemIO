@@ -3,7 +3,7 @@
     <div class="container page-container">
       <!-- 긴 검색바 -->
       <div class="home-search-row">
-        <div class="search-bar-wide">
+        <div class="search-bar-wide w-full">
           <Button class="search-filter-btn" icon="pi pi-filter" rounded text @click="toggleFilterPanel($event)"></Button>
           <OverlayPanel ref="filterPanel">
             <div class="search-filter-menu">
@@ -15,7 +15,7 @@
           </OverlayPanel>
 
           <span class="p-input-icon-right search-input-wrapper">
-            <InputText v-model="searchKeyword" placeholder="검색어를 입력하세요." class="search-input" @keyup.enter="handleSearch" />
+            <InputText v-model="searchKeyword" placeholder="검색어를 입력하세요." class="search-input w-full" @keyup.enter="handleSearch" />
             <i class="pi pi-search search-icon" @click="handleSearch" />
           </span>
         </div>
@@ -203,7 +203,7 @@ onMounted(() => {
   margin-top: 1.5rem;
   margin-bottom: 1.25rem;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
 }
 
@@ -211,7 +211,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1100px;
   gap: 0.75rem;
 }
 
@@ -363,7 +362,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  padding: 0.5rem;
+  padding: 0;
   width: 100%;
 }
 

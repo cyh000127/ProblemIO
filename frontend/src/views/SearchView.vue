@@ -160,7 +160,7 @@ watch(sort, () => {
   margin-top: 1.5rem;
   margin-bottom: 1.25rem;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
 }
 
