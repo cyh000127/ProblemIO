@@ -44,7 +44,11 @@
             v-for="(question, index) in quizForm.questions"
             :key="question.id || index"
             class="question-card"
-            @click="openQuestionDialog(index)"
+            :class="{ 'drag-over': questionCardDragOverIndex === index }"
+            @click="handleQuestionCardClick(index)"
+            @dragover.prevent.stop="handleQuestionDragOver(index)"
+            @dragleave.stop="handleQuestionDragLeave"
+            @drop.prevent.stop="handleQuestionDrop(index, $event)"
           >
             <div class="card-image-wrapper">
               <img
@@ -141,7 +145,14 @@
 
           <div class="field">
             <label class="field-label">썸네일 (선택)</label>
-            <div class="thumbnail-box" @click="triggerThumbnailSelect">
+            <div
+              class="thumbnail-box"
+              :class="{ 'drag-over': thumbnailDragOver }"
+              @click="triggerThumbnailSelect"
+              @dragover.prevent="thumbnailDragOver = true"
+              @dragleave.prevent="thumbnailDragOver = false"
+              @drop.prevent="handleThumbnailDrop"
+            >
               <img
                 v-if="thumbnailPreview"
                 :src="thumbnailPreview"
@@ -169,7 +180,13 @@
         :style="{ width: '720px' }"
       >
         <div v-if="editingQuestionIndex !== null" class="question-edit">
-          <div class="question-image-preview">
+          <div
+            class="question-image-preview"
+            :class="{ 'drag-over': questionDialogDragOver }"
+            @dragover.prevent="handleQuestionDialogDragOver"
+            @dragleave.prevent="handleQuestionDialogDragLeave"
+            @drop.prevent="handleQuestionDialogDrop"
+          >
             <img
               v-if="currentQuestion.imageUrl"
               :src="getImagePreview(currentQuestion.imageUrl)"
@@ -205,7 +222,7 @@
             <Chips
               v-model="questionForm.answers"
               placeholder="정답을 입력하고 Enter"
-              class="w-full"
+              class="w-full answer-chips"
               :allow-duplicate="false"
               @add="handleAnswerAdd"
             />
@@ -243,6 +260,9 @@ const submitting = ref(false);
 const thumbnailUploading = ref(false);
 const questionUploadingIndex = ref<number | null>(null);
 const loading = ref(false);
+const thumbnailDragOver = ref(false);
+const questionCardDragOverIndex = ref<number | null>(null);
+const questionDialogDragOver = ref(false);
 
 // 퀴즈 메타/문제 편집 모달
 const metaDialogVisible = ref(props.mode === "create");
@@ -362,10 +382,16 @@ const triggerThumbnailSelect = () => {
   thumbnailInputRef.value?.click();
 };
 
-const handleThumbnailChange = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (!file) return;
+const uploadThumbnailFile = async (file: File) => {
+  if (!isImageFile(file)) {
+    toast.add({
+      severity: "warn",
+      summary: "Invalid file",
+      detail: "이미지 파일만 업로드할 수 있습니다.",
+      life: 2500,
+    });
+    return;
+  }
 
   thumbnailUploading.value = true;
   try {
@@ -386,16 +412,31 @@ const handleThumbnailChange = async (event: Event) => {
     });
   } finally {
     thumbnailUploading.value = false;
+  }
+};
+
+const handleThumbnailChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  try {
+    await uploadThumbnailFile(file);
+  } finally {
     target.value = "";
   }
+};
+
+const handleThumbnailDrop = async (event: DragEvent) => {
+  thumbnailDragOver.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+  await uploadThumbnailFile(file);
 };
 
 // ==== 문제 카드/이미지/모달 ====
 const handleAddQuestionClick = () => {
   quizStore.addQuestion();
-  const index = quizForm.value.questions.length - 1;
-  editingQuestionIndex.value = index;
-  triggerQuestionImageSelect();
 };
 
 const triggerQuestionImageSelect = () => {
@@ -409,6 +450,24 @@ const handleQuestionImageChange = async (event: Event) => {
   if (editingQuestionIndex.value === null) return;
 
   const index = editingQuestionIndex.value;
+  try {
+    await uploadQuestionImageFile(file, index);
+  } finally {
+    target.value = "";
+  }
+};
+
+const uploadQuestionImageFile = async (file: File, index: number) => {
+  if (!isImageFile(file)) {
+    toast.add({
+      severity: "warn",
+      summary: "Invalid file",
+      detail: "이미지 파일만 업로드할 수 있습니다.",
+      life: 2500,
+    });
+    return;
+  }
+
   questionUploadingIndex.value = index;
 
   try {
@@ -431,7 +490,33 @@ const handleQuestionImageChange = async (event: Event) => {
     });
   } finally {
     questionUploadingIndex.value = null;
-    target.value = "";
+  }
+};
+
+const handleQuestionDragOver = (index: number) => {
+  questionCardDragOverIndex.value = index;
+};
+
+const handleQuestionDragLeave = () => {
+  questionCardDragOverIndex.value = null;
+};
+
+const handleQuestionDrop = async (index: number, event: DragEvent) => {
+  questionCardDragOverIndex.value = null;
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+  editingQuestionIndex.value = index;
+  await uploadQuestionImageFile(file, index);
+};
+
+const handleQuestionCardClick = (index: number) => {
+  editingQuestionIndex.value = index;
+  const q = quizForm.value.questions[index];
+
+  if (!q.imageUrl) {
+    triggerQuestionImageSelect();
+  } else {
+    openQuestionDialog(index);
   }
 };
 
@@ -443,6 +528,22 @@ const openQuestionDialog = (index: number) => {
   questionForm.answers = q.answers ? [...q.answers] : [];
 
   questionDialogVisible.value = true;
+};
+
+const handleQuestionDialogDragOver = () => {
+  questionDialogDragOver.value = true;
+};
+
+const handleQuestionDialogDragLeave = () => {
+  questionDialogDragOver.value = false;
+};
+
+const handleQuestionDialogDrop = async (event: DragEvent) => {
+  questionDialogDragOver.value = false;
+  if (editingQuestionIndex.value === null) return;
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+  await uploadQuestionImageFile(file, editingQuestionIndex.value);
 };
 
 const closeQuestionDialog = () => {
@@ -466,6 +567,7 @@ const removeQuestion = (index: number) => {
 };
 
 const getImagePreview = (path?: string) => buildImageUrl(path);
+const isImageFile = (file: File) => file.type.startsWith("image/");
 
 // ==== 취소/저장 ====
 const handleCancel = () => {
@@ -778,6 +880,11 @@ onMounted(() => {
   border-radius: 12px;
 }
 
+.thumbnail-box.drag-over {
+  background: rgba(124, 77, 255, 0.12);
+  border-color: #5b2fff;
+}
+
 .thumbnail-placeholder {
   display: flex;
   flex-direction: column;
@@ -787,9 +894,65 @@ onMounted(() => {
 }
 
 /* 문제 편집 모달 */
+.question-image-preview {
+  border: 2px dashed transparent;
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.question-image-preview.drag-over {
+  border-color: var(--color-border-hover);
+  background: var(--color-background-mute);
+}
+
 .question-image-preview img {
   width: 100%;
   max-height: 260px;
   object-fit: contain;
+}
+
+.question-card.drag-over {
+  border-color: var(--color-border-hover);
+  background: var(--color-background-mute);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.15);
+}
+
+/* 정답 입력칩 - 다크 배경 가독성 */
+:deep(.answer-chips) {
+  background: var(--color-background-mute);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.35rem 0.5rem;
+}
+
+:deep(.answer-chips.p-focus) {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 0 0 1px var(--color-border-hover);
+}
+
+:deep(.answer-chips .p-chips-multiple-container) {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+:deep(.answer-chips .p-chips-token) {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border);
+  color: var(--color-heading);
+}
+
+:deep(.answer-chips .p-chips-token .p-chips-token-label) {
+  color: inherit;
+}
+
+:deep(.answer-chips .p-chips-input-token input) {
+  color: var(--color-heading);
+}
+
+:deep(.answer-chips .p-chips-input-token input::placeholder) {
+  color: var(--color-text);
+  opacity: 0.8;
 }
 </style>
