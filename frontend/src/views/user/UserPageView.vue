@@ -135,9 +135,7 @@ const loadUserQuizzes = async () => {
   loadingQuizzes.value = true;
   try {
     quizzes.value = await getUserQuizzes(Number(route.params.id));
-    if (user.value) {
-      user.value.quizCount = quizzes.value.length;
-    }
+    // quizCount는 이제 getUserProfile에서 가져옵니다.
   } catch (error: any) {
     toast.add({
       severity: "error",

@@ -42,4 +42,7 @@ public interface UserMapper {
     void anonymizeCredentials(@Param("id") Long id,
                               @Param("email") String email,
                               @Param("nickname") String nickname);
+
+    // 8. 프로필 상세 조회 (카운트 포함)
+    UserResponse findUserProfile(@Param("userId") Long userId, @Param("viewerId") Long viewerId);
 }

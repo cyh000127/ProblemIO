@@ -28,8 +28,12 @@ public class UserController {
 
     // 특정 유저 조회
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(ApiResponse.success(userService.getUserById(userId)));
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 로그인 여부 확인용
+    ) {
+        Long viewerId = (userDetails != null) ? userDetails.getUser().getId() : null;
+        return ResponseEntity.ok(ApiResponse.success(userService.getUserProfile(userId, viewerId)));
     }
 
     // 내 정보 조회

@@ -369,9 +369,9 @@ onMounted(() => {
 .tab-content {
   padding: 1rem 0;
   animation: fadeIn 0.3s ease;
-  background: var(--color-background-soft);
-  border-radius: 0 0 18px 18px;
-  box-shadow: var(--surface-glow);
+  /* background: var(--color-background-soft); */
+  /* border-radius: 0 0 18px 18px; */
+  /* box-shadow: var(--surface-glow); */
 }
 
 @keyframes fadeIn {

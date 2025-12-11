@@ -57,6 +57,18 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
+    @Override
+    public UserResponse getUserProfile(Long userId, Long viewerId) {
+        // 비로그인 사용자(viewerId == null)라면 0L로 처리
+        long vId = (viewerId == null) ? 0L : viewerId;
+        UserResponse user = userMapper.findUserProfile(userId, vId);
+
+        if (user == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+        return user;
+    }
+
     // 프로필 업데이트
     @Override
     @Transactional

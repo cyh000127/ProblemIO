@@ -12,6 +12,9 @@ public interface UserService {
     // 내 정보 조회
     UserResponse getUserById(Long id);
 
+    // 상세 프로필 조회 (카운트, 팔로우 여부 포함)
+    UserResponse getUserProfile(Long userId, Long viewerId);
+
     // 프로필 수정
     UserResponse updateProfile(Long userId, UserResponse request, MultipartFile file);
 

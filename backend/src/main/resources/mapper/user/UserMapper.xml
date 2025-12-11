@@ -10,6 +10,10 @@
         <result property="nickname" column="nickname"/>
         <result property="profileImageUrl" column="profile_image_url"/>
         <result property="statusMessage" column="status_message"/>
+        <result property="followerCount" column="follower_count"/>
+        <result property="followingCount" column="following_count"/>
+        <result property="quizCount" column="quiz_count"/>
+        <result property="isFollowedByMe" column="is_followed_by_me"/>
     </resultMap>
 
     <!-- 유저 팝오버용 결과 매핑 -->
@@ -122,6 +126,39 @@
                       AND f3.following_id = u.id
                 ) THEN 1 ELSE 0
                 END AS is_following
+        FROM users u
+        WHERE u.id = #{userId}
+          AND u.is_deleted = 0
+    </select>
+    <select id="findUserProfile" resultMap="UserResponseMap">
+        SELECT
+            u.id,
+            u.email,
+            u.nickname,
+            u.profile_image_url,
+            u.status_message,
+            (SELECT COUNT(*)
+             FROM follows f1
+             JOIN users uf1 ON uf1.id = f1.follower_id
+             WHERE f1.following_id = u.id
+               AND uf1.is_deleted = 0) AS follower_count,
+            (SELECT COUNT(*)
+             FROM follows f2
+             JOIN users uf2 ON uf2.id = f2.following_id
+             WHERE f2.follower_id = u.id
+               AND uf2.is_deleted = 0) AS following_count,
+            (SELECT COUNT(*)
+             FROM quizzes q
+             WHERE q.user_id = u.id
+               AND q.is_public = 1) AS quiz_count,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM follows f3
+                    WHERE f3.follower_id = #{viewerId}
+                      AND f3.following_id = u.id
+                ) THEN 1 ELSE 0
+                END AS is_followed_by_me
         FROM users u
         WHERE u.id = #{userId}
           AND u.is_deleted = 0

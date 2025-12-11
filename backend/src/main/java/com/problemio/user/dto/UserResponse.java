@@ -16,4 +16,9 @@ public class UserResponse {
     private String profileImageUrl;
     private String statusMessage;
     private Boolean isDeleted;
+
+    private int followerCount;
+    private int followingCount;
+    private int quizCount;
+    private Boolean isFollowedByMe;
 }
