@@ -1,8 +1,9 @@
 <template>
+
   <div class="mypage-container">
     <div class="container mx-auto px-4">
       <!-- 프로필 헤더 -->
-             <Card class="mb-8">
+             <Card class="mb-8" :style="containerStyle">
         <template #content>
           <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
                 <UserAvatar class="w-32 h-32" />
@@ -179,6 +180,7 @@ import { useAuthStore } from "@/stores/auth";
 import { getFollowingQuizzes, getMyLikedQuizzes } from "@/api/user";
 import { getMyQuizzes, deleteQuiz } from "@/api/quiz";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import { PROFILE_THEMES } from '@/constants/themeConfig'; 
 
 const router = useRouter();
 const toast = useToast();
@@ -310,6 +312,25 @@ const formatDate = (dateString: string) => {
 
 onMounted(() => {
   loadAllData();
+});
+
+const containerStyle = computed(() => {
+  if (me.value?.profileTheme) {
+      const theme = PROFILE_THEMES[me.value.profileTheme];
+      if (theme) {
+          if (theme.image) {
+               return {
+                  backgroundImage: `url('${theme.image}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundAttachment: 'fixed',
+                  ...theme.style
+               };
+          }
+           return theme.style || {};
+      }
+  }
+  return {};
 });
 </script>
 

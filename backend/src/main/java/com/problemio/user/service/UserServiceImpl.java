@@ -35,7 +35,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     // 파일 저장 경로 상수 정의
-    private static final String ROOT_PATH = "C:/upload/";
+    private static final String ROOT_PATH = "C:/public/upload/";
     private static final String PROFILE_SUB_DIR = "profile/";
 
     private final UserMapper userMapper;

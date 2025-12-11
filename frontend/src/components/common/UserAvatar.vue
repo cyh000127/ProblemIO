@@ -1,26 +1,34 @@
 <template>
-  <Avatar
-    :image="image"
-    :label="label"
-    :icon="icon"
-    shape="circle" 
-    :size="size"
-  />
-
-  <!-- image 경로 나(user)인지 / 타인(auth, profile 등) 인지 --> 
+  <div class="relative inline-block" :style="containerStyle">
+    <Avatar
+      :image="image"
+      :label="label"
+      :icon="icon"
+      shape="circle" 
+      :class="avatarClass"
+      :style="avatarStyle"
+    />
+    <img 
+      v-if="decorationUrl" 
+      :src="decorationUrl" 
+      class="absolute top-0 left-0 w-full h-full object-contain pointer-events-none z-10"
+      alt="decoration"
+    />
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { resolveImageUrl } from '@/lib/image'
+import { AVATAR_DECORATIONS } from '@/constants/avatarConfig'
 
 const props = defineProps({
   user: {
     type: Object,
     default: null,
   },
-
+  // PrimeVue Avatar size prop (normal, large, xlarge - or explicit styling)
   size: {
     type: String,
     default: 'xlarge',
@@ -50,5 +58,37 @@ const icon = computed(() => {
     return 'pi pi-user'
   }
   return ''
+})
+
+const decorationUrl = computed(() => {
+  const u = targetUser.value
+  if (!u?.avatarDecoration) return null
+  const deco = AVATAR_DECORATIONS[u.avatarDecoration]
+  return deco ? deco.image : null
+})
+
+// Size mapping: PrimeVue Avatar size classes aren't always enough for custom wrapper sizing
+// We'll map 'size' prop to explicit pixel sizes for the wrapper to container the decoration
+const sizeMap = {
+  small: '1.5rem',
+  normal: '2rem', // 32px
+  medium: '2.5rem',
+  large: '3rem',  // 48px
+  xlarge: '4rem', // 64px
+}
+
+const containerStyle = computed(() => {
+  const s = sizeMap[props.size] || '4rem' // default to xlarge if unknown
+  return { width: s, height: s }
+})
+
+const avatarClass = computed(() => {
+  const classes = []
+  if (props.size) classes.push(`p-avatar-${props.size}`)
+  return classes
+})
+
+const avatarStyle = computed(() => {
+  return { width: '100%', height: '100%' }
 })
 </script>

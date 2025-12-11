@@ -143,4 +143,38 @@ public class UserController {
         List<QuizSummaryDto> quizzes = quizService.getUserQuizzes(userId);
         return ResponseEntity.ok(ApiResponse.success(quizzes));
     }
+
+    // 리소스(테마, 아바타, 팝오버) 목록 조회
+    @GetMapping("/resources/{type}")
+    public ResponseEntity<ApiResponse<List<String>>> getResources(@PathVariable String type) {
+        // 허용된 타입인지 확인
+        if (!List.of("theme", "avatar", "popover").contains(type)) {
+            return ResponseEntity.badRequest().body(ApiResponse.fail("BAD_REQUEST", "Invalid resource type"));
+        }
+        
+        // 프론트엔드 public 폴더 경로 (개발 환경 기준)
+        // 주의: 실제 배포 환경에서는 경로 설정이 달라질 수 있음
+        String resourcePath = "d:/Project/ProblemIO/frontend/public/" + type;
+        java.io.File folder = new java.io.File(resourcePath);
+        
+        List<String> fileNames = new java.util.ArrayList<>();
+        if (folder.exists() && folder.isDirectory()) {
+            java.io.File[] files = folder.listFiles();
+            if (files != null) {
+                for (java.io.File file : files) {
+                    if (file.isFile() && isImageFile(file.getName())) {
+                        fileNames.add(file.getName());
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(ApiResponse.success(fileNames));
+    }
+
+    private boolean isImageFile(String filename) {
+        String lower = filename.toLowerCase();
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
+               lower.endsWith(".png") || lower.endsWith(".gif") || 
+               lower.endsWith(".webp") || lower.endsWith(".svg");
+    }
 }

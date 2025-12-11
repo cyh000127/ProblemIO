@@ -15,7 +15,9 @@
               <div class="flex flex-col gap-2 items-center my-8">
                 <div class="relative inline-block">
 
-                   <UserAvatar class="font-bold border-4 border-gray-200 surface-200" 
+                   <UserAvatar 
+                   :user="previewUser"
+                   class="font-bold border-4 border-gray-200 surface-200" 
                    style="width: 300px; height: 300px; font-size: 100px"/>
 
                   <!-- <Avatar
@@ -66,6 +68,80 @@
                 <small v-else class="text-gray-500">닉네임 변경 시 중복 확인이 필요합니다.</small>
               </div>
 
+              <!-- 커스터마이징 섹션 -->
+              <Divider />
+              <div class="flex flex-col gap-6">
+                <h3 class="text-xl font-bold">꾸미기</h3>
+                
+                <!-- 배경 테마 선택 -->
+                <div class="flex flex-col gap-3">
+                  <label class="text-sm font-medium">프로필 배경 테마</label>
+                  <div class="flex gap-3 overflow-x-auto pb-2">
+                    <div 
+                      v-for="theme in themes" 
+                      :key="theme.key"
+                      class="cursor-pointer border-2 rounded-lg p-1 min-w-[80px] h-[60px] overflow-hidden relative"
+                      :class="{'border-primary': profileForm.profileTheme === theme.key, 'border-transparent': profileForm.profileTheme !== theme.key}"
+                      @click="profileForm.profileTheme = theme.key"
+                    >
+                      <div v-if="theme.image" class="w-full h-full">
+                          <img :src="theme.image" class="w-full h-full object-cover rounded" />
+                      </div>
+                      <div v-else class="w-full h-full rounded" :class="theme.class" :style="theme.style"></div>
+                      
+                      <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-black/50 text-white truncate px-1">
+                          {{ theme.name }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 아바타 꾸미기 선택 -->
+                <div class="flex flex-col gap-3">
+                  <label class="text-sm font-medium">아바타 프레임</label>
+                  <div class="flex gap-3 overflow-x-auto pb-2">
+                    <div 
+                      v-for="deco in avatars" 
+                      :key="deco.key"
+                      class="cursor-pointer border-2 rounded-full p-1 min-w-[70px] h-[70px] relative"
+                      :class="{'border-primary': profileForm.avatarDecoration === deco.key, 'border-transparent': profileForm.avatarDecoration !== deco.key}"
+                      @click="profileForm.avatarDecoration = deco.key"
+                    >
+                       <div class="w-full h-full bg-gray-200 rounded-full"></div>
+                       <img v-if="deco.image" :src="deco.image" class="absolute inset-0 w-full h-full object-contain" />
+                       <span class="absolute -bottom-1 left-0 w-full text-[10px] text-center bg-black/50 text-white rounded-full truncate px-1">
+                          {{ deco.name }}
+                       </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 팝오버 꾸미기 선택 -->
+                <div class="flex flex-col gap-3">
+                  <label class="text-sm font-medium">팝오버 테마</label>
+                  <div class="flex gap-3 overflow-x-auto pb-2">
+                    <div 
+                      v-for="pop in popovers" 
+                      :key="pop.key"
+                      class="cursor-pointer border-2 rounded-lg p-1 min-w-[80px] h-[60px] overflow-hidden relative"
+                      :class="{'border-primary': profileForm.popoverDecoration === pop.key, 'border-transparent': profileForm.popoverDecoration !== pop.key}"
+                      @click="profileForm.popoverDecoration = pop.key"
+                    >
+                      <img v-if="pop.image" :src="pop.image" class="w-full h-full object-cover rounded" />
+                      <div v-else-if="pop.style" class="w-full h-full rounded flex items-center justify-center" :style="pop.style">
+                          <!-- 색상이 있으면 색상 박스로 표시 -->
+                      </div>
+                      <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <span class="text-xs text-gray-500">기본</span>
+                      </div>
+                      <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-black/50 text-white truncate px-1">
+                          {{ pop.name }}
+                       </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-medium">상태 메시지</label>
                 <Textarea v-model="profileForm.statusMessage" placeholder="내 상태 기입하기" rows="3" class="w-full" />
@@ -110,14 +186,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { useAuthStore } from "@/stores/auth";
 // checkNickname 추가
+// checkNickname 추가
 import { updateMyProfile, changePassword, deleteAccount, getMe, checkNickname } from "@/api/user";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import { resolveImageUrl } from "@/lib/image";
+import { PROFILE_THEMES } from "@/constants/themeConfig";
+import { AVATAR_DECORATIONS } from "@/constants/avatarConfig";
+import { POPOVER_DECORATIONS } from "@/constants/popoverConfig"; 
 
 const router = useRouter();
 const toast = useToast();
@@ -127,7 +208,14 @@ const authStore = useAuthStore();
 const profileForm = ref({
   nickname: "",
   statusMessage: "",
+  profileTheme: null,
+  avatarDecoration: null,
+  popoverDecoration: null,
 });
+
+const themes = ref([]);
+const avatars = ref([]);
+const popovers = ref([]);
 
 //  원래 닉네임 보관용 (변경 여부 판단)
 const originalNickname = ref("");
@@ -151,20 +239,58 @@ const passwordForm = ref({
 const savingProfile = ref(false);
 const changingPassword = ref(false);
 
+// 실시간 미리보기를 위한 computed 속성
+const previewUser = computed(() => {
+    return {
+        ...authStore.user,
+        ...profileForm.value,
+        // 새로 선택한 프로필 이미지가 있다면 (previewUrl이 있다면) 그것을 우선 사용, 아니면 기존 이미지
+        profileImageUrl: previewUrl.value || authStore.user?.profileImageUrl
+    };
+});
+
 const loadProfile = async () => {
   try {
     const user = await getMe();
     profileForm.value.nickname = user.nickname || "";
+    profileForm.value.nickname = user.nickname || "";
     profileForm.value.statusMessage = user.statusMessage || "";
+    profileForm.value.profileTheme = user.profileTheme || null;
+    profileForm.value.avatarDecoration = user.avatarDecoration || null;
+    profileForm.value.popoverDecoration = user.popoverDecoration || null;
 
     //  원래 닉네임 저장 및 상태 초기화
     originalNickname.value = user.nickname || "";
     nicknameState.value.isChecked = true;
     nicknameState.value.error = "";
 
+    // 리소스 로드 (Config 파일 사용)
+    themes.value = Object.keys(PROFILE_THEMES).map(key => ({
+      key,
+      ...PROFILE_THEMES[key]
+    }));
+    
+    avatars.value = Object.keys(AVATAR_DECORATIONS).map(key => ({
+      key,
+      ...AVATAR_DECORATIONS[key]
+    }));
+
+    popovers.value = Object.keys(POPOVER_DECORATIONS).map(key => ({
+      key,
+      ...POPOVER_DECORATIONS[key]
+    }));
+    /* 
+    // 기존 API 호출 로직 제거
+    const [themeList, avatarList, popoverList] = await Promise.all([
+      getResources('theme'),
+      getResources('avatar'),
+      getResources('popover')
+    ]); 
+    */
+
     // 서버 이미지 주소 설정
     if (user.profileImageUrl) {
-      previewUrl.value = `http://localhost:8080${user.profileImageUrl}`;
+      previewUrl.value = resolveImageUrl(user.profileImageUrl);
     } else {
       previewUrl.value = "";
     }

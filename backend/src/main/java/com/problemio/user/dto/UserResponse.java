@@ -14,6 +14,9 @@ public class UserResponse {
     private String email; // username
     private String nickname;
     private String profileImageUrl;
+    private String profileTheme;
+    private String avatarDecoration;
+    private String popoverDecoration;
     private String statusMessage;
     private Boolean isDeleted;
 

@@ -4,7 +4,7 @@ const staticBaseUrl = apiBaseUrl.replace(/\/api$/, '')
 
 export const resolveImageUrl = (url) => {
   if (!url) return url
-  if (url.startsWith('http')) return url
+  if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) return url
   const prefix = url.startsWith('/') ? '' : '/'
   return `${staticBaseUrl}${prefix}${url}`
 }

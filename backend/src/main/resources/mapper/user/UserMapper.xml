@@ -14,6 +14,9 @@
         <result property="followingCount" column="following_count"/>
         <result property="quizCount" column="quiz_count"/>
         <result property="isFollowedByMe" column="is_followed_by_me"/>
+        <result property="profileTheme" column="profile_theme"/>
+        <result property="avatarDecoration" column="avatar_decoration"/>
+        <result property="popoverDecoration" column="popover_decoration"/>
     </resultMap>
 
     <!-- 유저 팝오버용 결과 매핑 -->
@@ -30,13 +33,13 @@
     </resultMap>
 
     <select id="findById" resultMap="UserResponseMap">
-        SELECT id, email, nickname, profile_image_url, status_message
+        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration
         FROM users
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="findByIds" resultMap="UserResponseMap">
-        SELECT id, email, nickname, profile_image_url, status_message
+        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration
         FROM users
         WHERE is_deleted = 0
           AND id IN
@@ -51,6 +54,9 @@
             <if test="nickname != null">nickname = #{nickname},</if>
             <if test="profileImageUrl != null">profile_image_url = #{profileImageUrl},</if>
             <if test="statusMessage != null">status_message = #{statusMessage},</if>
+            <if test="profileTheme != null">profile_theme = #{profileTheme},</if>
+            <if test="avatarDecoration != null">avatar_decoration = #{avatarDecoration},</if>
+            <if test="popoverDecoration != null">popover_decoration = #{popoverDecoration},</if>
             updated_at = NOW()
         </set>
         WHERE id = #{id}
@@ -108,6 +114,9 @@
             u.nickname,
             u.profile_image_url,
             u.status_message,
+            u.profile_theme,
+            u.avatar_decoration,
+            u.popover_decoration,
             (SELECT COUNT(*)
              FROM follows f1
              JOIN users uf1 ON uf1.id = f1.follower_id
@@ -137,6 +146,9 @@
             u.nickname,
             u.profile_image_url,
             u.status_message,
+            u.profile_theme,
+            u.avatar_decoration,
+            u.popover_decoration,
             (SELECT COUNT(*)
              FROM follows f1
              JOIN users uf1 ON uf1.id = f1.follower_id

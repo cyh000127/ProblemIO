@@ -1,4 +1,5 @@
 <template>
+
   <div class="user-profile-container">
     <div class="container mx-auto px-4">
       <div v-if="loading" class="text-center py-8">
@@ -7,7 +8,7 @@
 
       <div v-else-if="user" class="flex flex-col gap-6">
         <!-- Profile Header -->
-        <Card>
+        <Card :style="containerStyle">
           <template #content>
             <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
               <UserAvatar :user="user" class="w-32 h-32" />
@@ -92,13 +93,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import { useAuthStore } from "@/stores/auth";
 import { getUserProfile, followUser, unfollowUser, getUserQuizzes } from "@/api/user";
 import UserAvatar from '@/components/common/UserAvatar.vue'
+import { PROFILE_THEMES } from '@/constants/themeConfig';
 
 const route = useRoute();
 const router = useRouter();
@@ -190,13 +192,24 @@ onMounted(() => {
   loadUserQuizzes();
 });
 
-watch(
-  () => route.params.id,
-  () => {
-    loadUserProfile();
-    loadUserQuizzes();
+const containerStyle = computed(() => {
+  if (user.value?.profileTheme) {
+      const theme = PROFILE_THEMES[user.value.profileTheme];
+      if (theme) {
+          if (theme.image) {
+               return {
+                  backgroundImage: `url('${theme.image}')`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundAttachment: 'fixed',
+                  ...theme.style
+               };
+          }
+           return theme.style || {};
+      }
   }
-);
+  return {};
+});
 </script>
 
 <style scoped>

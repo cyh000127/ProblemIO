@@ -1,5 +1,5 @@
 <template>
-  <OverlayPanel ref="op" class="border-none rounded-xl shadow-lg p-0">
+  <OverlayPanel ref="op" class="border-none rounded-xl shadow-lg p-0 popover-panel" :style="popoverStyle">
     <!-- 로딩 / 에러 -->
     <div v-if="loading" class="w-96 p-6 text-center text-sm text-gray-500">프로필 정보를 불러오는 중입니다.</div>
     <div v-else-if="error" class="w-96 p-6 text-center text-sm text-red-500">
@@ -7,58 +7,59 @@
     </div>
 
     <!-- 내용 -->
-    <div v-else class="w-96 p-3">
-      <!-- 상단: 아바타 + 닉네임 + 버튼 -->
-      <div class="flex items-center gap-4">
+    <!-- 배경 이미지 적용: decoration이 있으면 그 이미지를 배경으로 사용 -->
+    <div 
+      v-else 
+      class="w-96 p-3 relative overflow-hidden rounded-xl"
+    >
+      <!-- 배경 오버레이 (텍스트 가독성 위해 살짝 깔아줌) -->
+      <div v-if="profile.popoverDecoration" class="absolute inset-0 bg-white/60 blur-[1px] z-0"></div>
 
-        <UserAvatar
-          :user="profile"
-          size="large"
-          class="mr-1 font-bold"
-          :class="{ 'surface-200 text-700': !profile?.profileImageUrl }"
-        />
+      <!-- 실제 컨텐츠 - z-index로 배경 위에 올림 -->
+      <div class="relative z-10">
+        <!-- 상단: 아바타 + 닉네임 + 버튼 -->
+        <div class="flex items-center gap-4">
 
-        <!-- <Avatar
-          :image="avatarUrl"
-          :label="!profile.profileImageUrl && profile.nickname ? profile.nickname.charAt(0).toUpperCase() : ''"
-          :icon="!profile.profileImageUrl && !profile.nickname ? 'pi pi-user' : ''"
-          shape="circle"
-          size="xlarge"
-          class="w-32 h-32 border border-gray-200"
-        /> -->
+          <UserAvatar
+            :user="profile"
+            size="large"
+            class="mr-1 font-bold"
+            :class="{ 'surface-200 text-700': !profile?.profileImageUrl }"
+          />
 
-        <div class="flex-1 min-w-0">
-          <p class="font-semibold text-base truncate cursor-pointer hover:underline" @click.stop="goToProfile">
-            {{ profile.nickname || "알 수 없는 사용자" }}
-          </p>
-          <p v-if="profile.statusMessage" class="text-sm text-gray-500 mt-1 break-words">
-            {{ profile.statusMessage }}
-          </p>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-base truncate cursor-pointer hover:underline" @click.stop="goToProfile">
+              {{ profile.nickname || "알 수 없는 사용자" }}
+            </p>
+            <p v-if="profile.statusMessage" class="text-sm text-gray-500 mt-1 break-words">
+              {{ profile.statusMessage }}
+            </p>
+          </div>
+
+          <!-- 오른쪽 상단 버튼 -->
+          <Button v-if="!profile.me" :label="profile.following ? '팔로잉' : '팔로우'" size="small" :outlined="profile.following" class="!text-xs !px-3 whitespace-nowrap" @click.stop="onToggleFollow" />
+          <Button v-else icon="pi pi-cog" rounded outlined size="small" class="!text-xs !px-3" @click.stop="goToProfileEdit" />
         </div>
 
-        <!-- 오른쪽 상단 버튼 -->
-        <Button v-if="!profile.me" :label="profile.following ? '팔로잉' : '팔로우'" size="small" :outlined="profile.following" class="!text-xs !px-3 whitespace-nowrap" @click.stop="onToggleFollow" />
-        <Button v-else icon="pi pi-cog" rounded outlined size="small" class="!text-xs !px-3" @click.stop="goToProfileEdit" />
+        <!-- 하단: 팔로워 / 팔로잉 (오른쪽 아래 정렬) -->
+        <div class="mt-6 flex justify-end gap-6 text-right text-sm">
+          <div>
+            <p class="font-semibold text-base">
+              {{ profile.followerCount }}
+            </p>
+            <p class="text-xs text-gray-500 mt-0.5">팔로워</p>
+          </div>
+          <div>
+            <p class="font-semibold text-base">
+              {{ profile.followingCount }}
+            </p>
+            <p class="text-xs text-gray-500 mt-0.5">팔로잉</p>
+          </div>
+        </div>
+
+        <!-- 프로필 보기 버튼 -->
+        <Button class="w-full mt-4 !text-sm" severity="secondary" outlined label="프로필 보기" @click="goToProfile" />
       </div>
-
-      <!-- 하단: 팔로워 / 팔로잉 (오른쪽 아래 정렬) -->
-      <div class="mt-6 flex justify-end gap-6 text-right text-sm">
-        <div>
-          <p class="font-semibold text-base">
-            {{ profile.followerCount }}
-          </p>
-          <p class="text-xs text-gray-500 mt-0.5">팔로워</p>
-        </div>
-        <div>
-          <p class="font-semibold text-base">
-            {{ profile.followingCount }}
-          </p>
-          <p class="text-xs text-gray-500 mt-0.5">팔로잉</p>
-        </div>
-      </div>
-
-      <!-- 프로필 보기 버튼 -->
-      <Button class="w-full mt-4 !text-sm" severity="secondary" outlined label="프로필 보기" @click="goToProfile" />
     </div>
   </OverlayPanel>
 </template>
@@ -70,6 +71,7 @@ import OverlayPanel from "primevue/overlaypanel";
 import Button from "primevue/button";
 import { getUserPopover, followUser, unfollowUser } from "@/api/user";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import { POPOVER_DECORATIONS } from '@/constants/popoverConfig' 
 
 const op = ref(null);
 const router = useRouter();
@@ -86,6 +88,9 @@ const profile = reactive({
   me: false, // 나 자신인지
   followerCount: 0,
   followingCount: 0,
+  popoverDecoration: null,
+  avatarDecoration: null,
+  profileTheme: null,
 });
 
 const avatarUrl = computed(() => {
@@ -105,7 +110,26 @@ const avatarSrc = computed(() => {
   const url = profile.profileImageUrl;
   if (!url) return "";
   if (url.startsWith("http") || url.startsWith("/")) return url;
+  if (url.startsWith("http") || url.startsWith("/")) return url;
   return `/upload/profile/${url}`;
+});
+
+const popoverStyle = computed(() => {
+  if (profile.popoverDecoration) {
+    const deco = POPOVER_DECORATIONS[profile.popoverDecoration];
+    if (deco) {
+        if (deco.image) {
+            return {
+                backgroundImage: `url('${deco.image}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                ...deco.style
+            }
+        }
+        return deco.style || {};
+    }
+  }
+  return {};
 });
 
 async function fetchProfile(userId) {

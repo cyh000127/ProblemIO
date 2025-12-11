@@ -105,3 +105,9 @@ export const checkNickname = async (nickname) => {
 
   return response.data.data;
 };
+
+// 리소스(테마, 아바타, 팝오버) 목록 조회
+export const getResources = async (type) => {
+  const response = await apiClient.get(`/users/resources/${type}`);
+  return response.data.data;
+};

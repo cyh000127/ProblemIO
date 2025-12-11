@@ -13,12 +13,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         // 프로필 사진 변경은 upload/profile로 처리
         registry.addResourceHandler("/uploads/profile/**")
-                .addResourceLocations("file:///C:/upload/profile/");
+                .addResourceLocations("file:///C:/public/upload/profile/");
         
         // 확인 해볼것. quiz 썸네일과 문제 파일 분리 ? 
         // 문제 생성시 아래의 로직 작동 upload 에 들어감 
         // todo: 디렉토리 생성해서 파일 넣게 하기
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:///C:/upload/");
+                .addResourceLocations("file:///C:/public/upload/");
     }
 }
