@@ -8,25 +8,18 @@
           </div>
         </template>
         <template #content>
-          <div class="flex flex-col gap-6">
-            <div class="flex flex-col gap-4">
-              <h2 class="text-2xl font-bold">프로필</h2>
-
+          <div class="flex flex-col gap-8">
+            
+            <!-- SECTION 1: 닉네임 변경 & 상태메시지 수정 -->
+            <section class="flex flex-col gap-6">
+              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">내 정보 수정</h2>
+              
               <div class="flex flex-col gap-2 items-center my-8">
                 <div class="relative inline-block">
-
                    <UserAvatar 
                    :user="previewUser"
-                   class="font-bold border-4 border-gray-200 surface-200" 
+                   class="font-bold surface-200" 
                    style="width: 300px; height: 300px; font-size: 100px"/>
-
-                  <!-- <Avatar
-                    :image="previewUrl"
-                    :label="!previewUrl && profileForm.nickname ? profileForm.nickname.charAt(0).toUpperCase() : ''"
-                    :icon="!previewUrl && !profileForm.nickname ? 'pi pi-user' : ''"
-                    class="font-bold border-4 border-gray-200 surface-200"
-                    shape="circle"
-                  /> -->
 
                   <div class="absolute bottom-4 right-4">
                     <FileUpload
@@ -43,144 +36,197 @@
                     />
                   </div>
                 </div>
-                <small class="text-gray-500 mt-2">Click camera icon to change image</small>
+                <small class="text-gray-500 mt-2">파란 버튼을 눌러 이미지를 변경하세요</small>
               </div>
 
-              <!-- 닉네임 변경 부분 수정 -->
-              <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">닉네임 변경하기</label>
-                <div class="flex gap-2">
-                  <InputText v-model="profileForm.nickname" placeholder="닉네임을 써주세요" class="flex-1" :class="{ 'p-invalid': nicknameState.error }" maxlength="10" @input="handleNicknameChange" />
-                  <!-- 본인 닉네임일 경우 버튼 비활성화 -->
-                  <Button
-                    label="중복 확인"
-                    icon="pi pi-check-circle"
-                    severity="secondary"
-                    :loading="nicknameState.isChecking"
-                    :disabled="!profileForm.nickname || profileForm.nickname === originalNickname || nicknameState.isChecked"
-                    @click="handleCheckNickname"
-                  />
-                </div>
-
-                <!-- 상태 메시지 표시 -->
-                <small v-if="nicknameState.error" class="text-red-500">{{ nicknameState.error }}</small>
-                <small v-else-if="profileForm.nickname !== originalNickname && nicknameState.isChecked" class="text-green-500">사용 가능한 닉네임입니다.</small>
-                <small v-else class="text-gray-500">닉네임 변경 시 중복 확인이 필요합니다.</small>
-              </div>
-
-              <!-- 커스터마이징 섹션 -->
-              <Divider />
-              <div class="flex flex-col gap-6">
-                <h3 class="text-xl font-bold">꾸미기</h3>
-                
-                <!-- 배경 테마 선택 -->
-                <div class="flex flex-col gap-3">
-                  <label class="text-sm font-medium">프로필 배경 테마</label>
-                  <div class="flex gap-3 overflow-x-auto pb-2">
-                    <div 
-                      v-for="theme in themes" 
-                      :key="theme.key"
-                      class="cursor-pointer border-2 rounded-lg p-1 min-w-[80px] h-[60px] overflow-hidden relative"
-                      :class="{'border-primary': profileForm.profileTheme === theme.key, 'border-transparent': profileForm.profileTheme !== theme.key}"
-                      @click="profileForm.profileTheme = theme.key"
-                    >
-                      <div v-if="theme.image" class="w-full h-full">
-                          <img :src="theme.image" class="w-full h-full object-cover rounded" />
-                      </div>
-                      <div v-else class="w-full h-full rounded" :class="theme.class" :style="theme.style"></div>
-                      
-                      <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-black/50 text-white truncate px-1">
-                          {{ theme.name }}
-                      </span>
-                    </div>
+              <div class="grid gap-4">
+                <!-- 닉네임 -->
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium">닉네임</label>
+                  <div class="flex gap-2">
+                    <InputText 
+                      v-model="profileForm.nickname" 
+                      placeholder="닉네임 입력" 
+                      class="flex-1" 
+                      :class="{ 'p-invalid': nicknameState.error }" 
+                      maxlength="10" 
+                      @input="handleNicknameChange" 
+                    />
+                    <Button
+                      label="중복 확인"
+                      icon="pi pi-check-circle"
+                      severity="secondary"
+                      :loading="nicknameState.isChecking"
+                      :disabled="!profileForm.nickname || profileForm.nickname === originalNickname || nicknameState.isChecked"
+                      @click="handleCheckNickname"
+                    />
                   </div>
+                  <small v-if="nicknameState.error" class="text-red-500">{{ nicknameState.error }}</small>
+                  <small v-else-if="profileForm.nickname !== originalNickname && nicknameState.isChecked" class="text-green-500">사용 가능한 닉네임입니다.</small>
                 </div>
 
-                <!-- 아바타 꾸미기 선택 -->
-                <div class="flex flex-col gap-3">
-                  <label class="text-sm font-medium">아바타 프레임</label>
-                  <div class="flex gap-3 overflow-x-auto pb-2">
-                    <div 
-                      v-for="deco in avatars" 
-                      :key="deco.key"
-                      class="cursor-pointer border-2 rounded-full p-1 min-w-[70px] h-[70px] relative"
-                      :class="{'border-primary': profileForm.avatarDecoration === deco.key, 'border-transparent': profileForm.avatarDecoration !== deco.key}"
-                      @click="profileForm.avatarDecoration = deco.key"
-                    >
-                       <div class="w-full h-full bg-gray-200 rounded-full"></div>
-                       <img v-if="deco.image" :src="deco.image" class="absolute inset-0 w-full h-full object-contain" />
-                       <span class="absolute -bottom-1 left-0 w-full text-[10px] text-center bg-black/50 text-white rounded-full truncate px-1">
-                          {{ deco.name }}
-                       </span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 팝오버 꾸미기 선택 -->
-                <div class="flex flex-col gap-3">
-                  <label class="text-sm font-medium">팝오버 테마</label>
-                  <div class="flex gap-3 overflow-x-auto pb-2">
-                    <div 
-                      v-for="pop in popovers" 
-                      :key="pop.key"
-                      class="cursor-pointer border-2 rounded-lg p-1 min-w-[80px] h-[60px] overflow-hidden relative"
-                      :class="{'border-primary': profileForm.popoverDecoration === pop.key, 'border-transparent': profileForm.popoverDecoration !== pop.key}"
-                      @click="profileForm.popoverDecoration = pop.key"
-                    >
-                      <img v-if="pop.image" :src="pop.image" class="w-full h-full object-cover rounded" />
-                      <div v-else-if="pop.style" class="w-full h-full rounded flex items-center justify-center" :style="pop.style">
-                          <!-- 색상이 있으면 색상 박스로 표시 -->
-                      </div>
-                      <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <span class="text-xs text-gray-500">기본</span>
-                      </div>
-                      <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-black/50 text-white truncate px-1">
-                          {{ pop.name }}
-                       </span>
-                    </div>
-                  </div>
+                <!-- 상태 메시지 -->
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium">상태 메시지</label>
+                  <Textarea v-model="profileForm.statusMessage" placeholder="나를 표현하는 한마디" rows="3" class="w-full" />
                 </div>
               </div>
-
-              <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">상태 메시지</label>
-                <Textarea v-model="profileForm.statusMessage" placeholder="내 상태 기입하기" rows="3" class="w-full" />
-              </div>
-
-              <Button label="Save Profile" icon="pi pi-check" :loading="savingProfile" @click="handleSaveProfile" class="mt-2" />
-            </div>
+            </section>
 
             <Divider />
-            <div class="flex flex-col gap-4">
-              <h2 class="text-2xl font-bold">비밀번호 변경</h2>
-              <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">현재 비밀번호</label>
-                <Password v-model="passwordForm.currentPassword" toggleMask placeholder="Enter current password" class="w-full" />
+
+            <!-- SECTION 2: 꾸미기 -->
+            <section class="flex flex-col gap-6">
+              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">꾸미기</h2>
+              
+              <!-- 배경 테마 -->
+              <div class="flex flex-col gap-3">
+                <label class="text-sm font-medium">프로필 배경 테마</label>
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  <div 
+                    v-for="theme in themes" 
+                    :key="theme.key"
+                    class="cursor-pointer border-2 rounded-lg p-1 min-w-[100px] h-[70px] relative transition-all hover:shadow-lg"
+                    :class="{'border-primary ring-2 ring-primary/20': profileForm.profileTheme === theme.key, 'border-transparent hover:border-gray-300': profileForm.profileTheme !== theme.key}"
+                    @click="profileForm.profileTheme = theme.key"
+                  >
+                    <div v-if="theme.image" class="w-full h-full">
+                        <img :src="theme.image" class="w-full h-full object-cover rounded" />
+                    </div>
+                    <div v-else class="w-full h-full rounded shadow-sm" :class="theme.class" :style="theme.style"></div>
+                    <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-gray-200/80 text-gray-900 truncate px-1 rounded-b">
+                        {{ theme.name }}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">새 비밀번호</label>
-                <Password v-model="passwordForm.newPassword" toggleMask placeholder="Enter new password" class="w-full" />
+
+              <!-- 아바타 프레임 -->
+              <div class="flex flex-col gap-3">
+                <label class="text-sm font-medium">아바타 프레임</label>
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  <div 
+                    v-for="deco in avatars" 
+                    :key="deco.key"
+                    class="cursor-pointer border-2 rounded-full p-1 min-w-[70px] h-[70px] relative transition-all hover:scale-105"
+                    :class="{'border-primary ring-2 ring-primary/20': profileForm.avatarDecoration === deco.key, 'border-transparent hover:border-gray-300': profileForm.avatarDecoration !== deco.key}"
+                    @click="profileForm.avatarDecoration = deco.key"
+                  >
+                     <div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center">
+                       <i class="pi pi-user text-gray-300 text-xl"></i>
+                     </div>
+                     <img v-if="deco.image" :src="deco.image" class="absolute inset-0 w-full h-full object-contain" />
+                     <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] bg-gray-200/80 text-gray-900 rounded-full px-2 py-0.5 whitespace-nowrap z-10">
+                        {{ deco.name }}
+                     </span>
+                  </div>
+                </div>
               </div>
-              <div class="flex flex-col gap-2">
-                <label class="text-sm font-medium">비밀번호 다시 입력</label>
-                <Password v-model="passwordForm.confirmPassword" toggleMask placeholder="Confirm new password" class="w-full" />
+
+              <!-- 팝오버 꾸미기 -->
+              <div class="flex flex-col gap-3">
+                <label class="text-sm font-medium">팝오버 테마</label>
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  <div 
+                    v-for="pop in popovers" 
+                    :key="pop.key"
+                    class="cursor-pointer border-2 rounded-lg p-1 min-w-[100px] h-[70px] relative transition-all hover:shadow-lg"
+                    :class="{'border-primary ring-2 ring-primary/20': profileForm.popoverDecoration === pop.key, 'border-transparent hover:border-gray-300': profileForm.popoverDecoration !== pop.key}"
+                    @click="profileForm.popoverDecoration = pop.key"
+                  >
+                    <img v-if="pop.image" :src="pop.image" class="w-full h-full object-cover rounded" />
+                    <div v-else-if="pop.style" class="w-full h-full rounded shadow-sm" :style="pop.style"></div>
+                    <div v-else class="w-full h-full bg-gray-50 rounded flex items-center justify-center border border-gray-100">
+                        <span class="text-xs text-gray-500">기본</span>
+                    </div>
+                    <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-gray-200/80 text-gray-900 truncate px-1 rounded-b">
+                        {{ pop.name }}
+                     </span>
+                  </div>
+                </div>
               </div>
-              <Button label="Change Password" icon="pi pi-key" :loading="changingPassword" @click="handleChangePassword" class="mt-2" />
+            </section>
+
+            <!-- 저장 버튼 -->
+            <div class="flex justify-end pt-4">
+               <Button label="저장하기" icon="pi pi-check" :loading="savingProfile" @click="handleSaveProfile" class="w-full md:w-auto px-6" />
             </div>
 
             <Divider />
 
-            <div class="flex flex-col gap-4 danger-section">
-              <h2 class="text-2xl font-bold text-red-500">Danger Zone</h2>
-              <div class="danger-box border-round">
-                <p class="font-semibold mb-2">Delete Account</p>
-                <p class="text-sm text-color-secondary mb-4">Once you delete your account, there is no going back.</p>
-                <Button label="Delete Account" icon="pi pi-trash" class="danger-btn" severity="danger" outlined @click="handleDeleteAccount" />
+            <!-- SECTION 3: 비밀번호 변경 -->
+            <section class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div class="flex flex-col">
+                <h3 class="text-lg font-bold text-gray-900">비밀번호 변경</h3>
+                <span class="text-sm text-gray-500">주기적인 비밀번호 변경으로 계정을 보호하세요.</span>
               </div>
-            </div>
+              <Button label="변경하기" icon="pi pi-key" severity="help" text outlined @click="showPasswordDialog = true" />
+            </section>
+
+            <!-- SECTION 4: 회원탈퇴 -->
+            <section class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100 mt-2">
+              <div class="flex flex-col">
+                <h3 class="text-lg font-bold text-red-600">회원 탈퇴</h3>
+                <span class="text-sm text-red-400">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</span>
+              </div>
+              <Button label="탈퇴하기" icon="pi pi-user-minus" severity="danger" text outlined @click="showDeleteDialog = true" />
+            </section>
+
           </div>
         </template>
       </Card>
+      
+      <!-- 비밀번호 변경 모달 -->
+      <Dialog v-model:visible="showPasswordDialog" modal header="비밀번호 변경" :style="{ width: '90vw', maxWidth: '400px' }">
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">현재 비밀번호</label>
+            <Password v-model="passwordForm.currentPassword" toggleMask :feedback="false" placeholder="현재 비밀번호 입력" class="w-full" inputClass="w-full" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">새 비밀번호</label>
+            <Password v-model="passwordForm.newPassword" toggleMask placeholder="새 비밀번호 입력" class="w-full" inputClass="w-full">
+                <template #footer>
+                    <Divider />
+                    <p class="mt-2">Suggestions</p>
+                    <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                        <li>At least one lowercase</li>
+                        <li>At least one uppercase</li>
+                        <li>At least one numeric</li>
+                        <li>Minimum 8 characters</li>
+                    </ul>
+                </template>
+            </Password>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">새 비밀번호 확인</label>
+            <Password v-model="passwordForm.confirmPassword" toggleMask :feedback="false" placeholder="새 비밀번호 다시 입력" class="w-full" inputClass="w-full" />
+          </div>
+        </div>
+        <template #footer>
+          <Button label="취소" icon="pi pi-times" text @click="showPasswordDialog = false" />
+          <Button label="변경하기" icon="pi pi-check" :loading="changingPassword" @click="handleChangePassword" />
+        </template>
+      </Dialog>
+
+      <!-- 회원 탈퇴 모달 -->
+      <Dialog v-model:visible="showDeleteDialog" modal header="회원 탈퇴" :style="{ width: '90vw', maxWidth: '400px' }">
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="bg-red-50 p-3 rounded text-red-700 text-sm">
+            <i class="pi pi-exclamation-triangle mr-2"></i>
+            정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium">비밀번호 확인</label>
+            <Password v-model="deletePassword" toggleMask :feedback="false" placeholder="비밀번호를 입력하세요" class="w-full" inputClass="w-full" />
+          </div>
+        </div>
+        <template #footer>
+          <Button label="취소" icon="pi pi-times" text @click="showDeleteDialog = false" />
+          <Button label="탈퇴하기" icon="pi pi-trash" severity="danger" :loading="deletingAccount" @click="handleDeleteAccount" />
+        </template>
+      </Dialog>
+
     </div>
   </div>
 </template>
@@ -189,12 +235,9 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { useConfirm } from "primevue/useconfirm";
 import { useAuthStore } from "@/stores/auth";
-// checkNickname 추가
-// checkNickname 추가
 import { updateMyProfile, changePassword, deleteAccount, getMe, checkNickname } from "@/api/user";
-import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import UserAvatar from '@/components/common/UserAvatar.vue'
 import { resolveImageUrl } from "@/lib/image";
 import { PROFILE_THEMES } from "@/constants/themeConfig";
 import { AVATAR_DECORATIONS } from "@/constants/avatarConfig";
@@ -202,8 +245,11 @@ import { POPOVER_DECORATIONS } from "@/constants/popoverConfig";
 
 const router = useRouter();
 const toast = useToast();
-const confirm = useConfirm();
 const authStore = useAuthStore();
+
+// UI Control
+const showPasswordDialog = ref(false);
+const showDeleteDialog = ref(false);
 
 const profileForm = ref({
   nickname: "",
@@ -230,14 +276,19 @@ const nicknameState = ref({
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref("");
 
+// 비밀번호 변경 폼
 const passwordForm = ref({
   currentPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
 
+// 회원탈퇴 비밀번호
+const deletePassword = ref("");
+
 const savingProfile = ref(false);
 const changingPassword = ref(false);
+const deletingAccount = ref(false);
 
 // 실시간 미리보기를 위한 computed 속성
 const previewUser = computed(() => {
@@ -252,7 +303,6 @@ const previewUser = computed(() => {
 const loadProfile = async () => {
   try {
     const user = await getMe();
-    profileForm.value.nickname = user.nickname || "";
     profileForm.value.nickname = user.nickname || "";
     profileForm.value.statusMessage = user.statusMessage || "";
     profileForm.value.profileTheme = user.profileTheme || null;
@@ -279,14 +329,6 @@ const loadProfile = async () => {
       key,
       ...POPOVER_DECORATIONS[key]
     }));
-    /* 
-    // 기존 API 호출 로직 제거
-    const [themeList, avatarList, popoverList] = await Promise.all([
-      getResources('theme'),
-      getResources('avatar'),
-      getResources('popover')
-    ]); 
-    */
 
     // 서버 이미지 주소 설정
     if (user.profileImageUrl) {
@@ -376,10 +418,10 @@ const handleSaveProfile = async () => {
     originalNickname.value = profileForm.value.nickname;
     nicknameState.value.isChecked = true;
 
-    toast.add({ severity: "success", summary: "성공", detail: "프로필 업데이트 성공", life: 3000 });
+    toast.add({ severity: "success", summary: "성공", detail: "프로필이 업데이트 되었습니다.", life: 3000 });
     selectedFile.value = null;
   } catch (error: any) {
-    toast.add({ severity: "error", summary: "Error", detail: "Failed update", life: 3000 });
+    toast.add({ severity: "error", summary: "실패", detail: "업데이트에 실패했습니다.", life: 3000 });
   } finally {
     savingProfile.value = false;
   }
@@ -390,7 +432,7 @@ const handleChangePassword = async () => {
     toast.add({
       severity: "warn",
       summary: "Warning",
-      detail: "Passwords do not match",
+      detail: "비밀번호가 일치하지 않습니다.",
       life: 3000,
     });
     return;
@@ -400,7 +442,7 @@ const handleChangePassword = async () => {
     toast.add({
       severity: "warn",
       summary: "Warning",
-      detail: "Password must be at least 8 characters",
+      detail: "비밀번호는 최소 8자 이상이어야 합니다.",
       life: 3000,
     });
     return;
@@ -409,22 +451,26 @@ const handleChangePassword = async () => {
   changingPassword.value = true;
   try {
     await changePassword(passwordForm.value.currentPassword, passwordForm.value.newPassword);
+    
+    // 성공 시 폼 초기화 및 닫기
     passwordForm.value = {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     };
+    showPasswordDialog.value = false;
+    
     toast.add({
       severity: "success",
       summary: "Success",
-      detail: "Password changed successfully",
+      detail: "비밀번호가 변경되었습니다.",
       life: 3000,
     });
   } catch (error: any) {
     toast.add({
       severity: "error",
       summary: "Error",
-      detail: error.response?.data?.message || "Failed to change password",
+      detail: error.response?.data?.message || "비밀번호 변경에 실패했습니다.",
       life: 3000,
     });
   } finally {
@@ -432,36 +478,34 @@ const handleChangePassword = async () => {
   }
 };
 
-const handleDeleteAccount = () => {
-  confirm.require({
-    message: "Are you absolutely sure? This action cannot be undone.",
-    header: "Delete Account",
-    icon: "pi pi-exclamation-triangle",
-    acceptClass: "p-button-danger",
-    accept: async () => {
-      const password = prompt("Please enter your password to confirm:");
-      if (!password) return;
+const handleDeleteAccount = async () => {
+    if (!deletePassword.value) {
+        toast.add({ severity: 'warn', summary: '확인 필요', detail: '비밀번호를 입력해주세요.', life: 3000 });
+        return;
+    }
 
-      try {
-        await deleteAccount(password);
-        toast.add({
-          severity: "success",
-          summary: "Success",
-          detail: "Account deleted successfully",
-          life: 3000,
-        });
-        authStore.logoutUser();
-        router.push("/");
-      } catch (error: any) {
-        toast.add({
-          severity: "error",
-          summary: "Error",
-          detail: error.response?.data?.message || "Failed to delete account",
-          life: 3000,
-        });
-      }
-    },
-  });
+    deletingAccount.value = true;
+    try {
+    await deleteAccount(deletePassword.value);
+    toast.add({
+        severity: "success",
+        summary: "Success",
+        detail: "계정이 삭제되었습니다.",
+        life: 3000,
+    });
+    authStore.logoutUser();
+    showDeleteDialog.value = false;
+    router.push("/");
+    } catch (error: any) {
+    toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: error.response?.data?.message || "계정 삭제에 실패했습니다.",
+        life: 3000,
+    });
+    } finally {
+        deletingAccount.value = false;
+    }
 };
 
 onMounted(() => {
@@ -471,11 +515,8 @@ onMounted(() => {
 
 <style scoped>
 .profile-edit-container {
-  min-height: calc(100vh - 200px);
-}
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
+  min-height: calc(100vh - 100px);
+  padding-bottom: 3rem;
 }
 
 :deep(.custom-upload .p-button-label) {
@@ -500,71 +541,22 @@ onMounted(() => {
   justify-content: center;
 }
 
-/* Fallback: hide any plain span or label siblings that display the filename/text
-   (covers browser default "No file chosen" rendering and PrimeVue variants) */
+/* Fallback: hide any plain span or label siblings that display the filename/text */
 :deep(.p-fileupload) span {
   display: none !important;
 }
 
-.danger-section {
-  gap: 0.75rem;
+/* 스크롤바 숨기기 (가로 스크롤 깔끔하게) */
+.scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
-.danger-box {
-  background: #fff5f5;
-  border: 1px solid #fecdd3;
-  padding: 1.25rem;
-  transition: transform 0.15s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-}
-
-.danger-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(255, 107, 107, 0.12);
-  border-color: #fda4af;
-}
-
-.danger-btn {
-  transition: transform 0.12s ease, box-shadow 0.15s ease;
-}
-
-.danger-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(255, 107, 107, 0.22);
-}
-
-:global([data-theme="dark"] .danger-section h2) {
-  color: #fca5a5;
-}
-
-:global([data-theme="dark"] .danger-box) {
-  background: #1b0f0f;
-  border: 1px solid #7f1d1d;
-  box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-}
-
-:global([data-theme="dark"] .danger-box:hover) {
-  border-color: #b91c1c;
-  box-shadow:
-    0 24px 56px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-}
-
-:global([data-theme="dark"] .danger-btn) {
-  border-color: #f87171 !important;
-  color: #fca5a5 !important;
-  background: rgba(248, 113, 113, 0.06) !important;
-}
-
-:global([data-theme="dark"] .danger-btn:hover) {
-  border-color: #ef4444 !important;
-  color: #fecaca !important;
-  box-shadow: 0 12px 26px rgba(239, 68, 68, 0.3);
-  background: rgba(248, 113, 113, 0.12) !important;
-}
-
-:global([data-theme="dark"] .danger-btn:active) {
-  transform: translateY(0);
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>
