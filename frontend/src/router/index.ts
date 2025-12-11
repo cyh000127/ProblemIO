@@ -127,17 +127,25 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
 
+    // 로그인 페이지로 이동할 때 redirect 파라미터가 없으면 직전 페이지를 기억
+    if (to.name === 'login' && !to.query.redirect && from && from.name !== 'login') {
+        return next({
+            ...to,
+            query: { ...to.query, redirect: from.fullPath || '/' },
+            replace: true,
+        })
+    }
+
     // 인증이 필요한 라우트인지 확인
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         // 원래 가려던 경로를 query로 전달
-        next({
+        return next({
             name: 'login',
             query: { redirect: to.fullPath },
         })
-    } else {
-        next()
     }
 
+    next()
 })
 
 export default router

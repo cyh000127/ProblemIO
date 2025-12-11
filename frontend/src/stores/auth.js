@@ -70,7 +70,18 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
-      router.push('/login')
+
+      const currentRoute = router.currentRoute.value
+      // 인증이 필요한 화면이면 로그인으로 보내되, 아니면 현재 화면 유지
+      if (currentRoute?.meta?.requiresAuth) {
+        router.replace({
+          name: 'login',
+          query: { redirect: currentRoute.fullPath },
+        })
+      } else if (currentRoute?.name === 'login') {
+        // 로그인 화면에서 로그아웃 시 홈으로 이동
+        router.replace({ name: 'home' })
+      }
     }
   }
 

@@ -89,7 +89,6 @@ const handleLogout = () => {
         detail: "로그아웃 되었습니다",
         life: 3000,
       });
-      router.push("/"); // 로그아웃 후 메인으로 이동
     },
   });
 };
