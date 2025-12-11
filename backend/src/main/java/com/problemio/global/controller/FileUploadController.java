@@ -21,8 +21,8 @@ import java.util.UUID;
 @RequestMapping("/api/files")
 public class FileUploadController {
 
-    // 파일이 저장될 로컬 디렉토리 경로
-    private static final String UPLOAD_DIR = "C:/upload";
+    // 파일이 저장될 로컬 디렉토리 경로 (정적 리소스 매핑과 동일하게 유지)
+    private static final String UPLOAD_DIR = "C:/public/upload";
     private static final String THUMBNAIL_DIR = "Thumbnail";
     private static final String QUESTIONS_DIR = "Questions";
 
