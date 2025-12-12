@@ -89,6 +89,9 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Override
     @Transactional
     public TokenResponse reissue(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new BusinessException(ErrorCode.ACCESS_DENIED);
         }
