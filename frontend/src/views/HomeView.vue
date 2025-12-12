@@ -1,91 +1,121 @@
 <template>
   <div class="home-container">
     <div class="container page-container">
-      <!-- 긴 검색바 -->
+      <!-- ✅ 검색바(그대로 유지) -->
       <div class="home-search-row">
         <div class="search-bar-wide w-full">
           <Button class="search-filter-btn" icon="pi pi-filter" rounded text @click="toggleFilterPanel($event)"></Button>
           <OverlayPanel ref="filterPanel">
             <div class="search-filter-menu">
-              <div v-for="opt in filterOptions" :key="opt.value" class="search-filter-item" :class="{ 'is-active': searchSort === opt.value }" @click="selectSearchSort(opt.value)">
-                <i v-if="searchSort === opt.value" class="pi pi-check" ></i>
+              <div
+                v-for="opt in filterOptions"
+                :key="opt.value"
+                class="search-filter-item"
+                :class="{ 'is-active': searchSort === opt.value }"
+                @click="selectSearchSort(opt.value)"
+              >
+                <i v-if="searchSort === opt.value" class="pi pi-check"></i>
                 <span>{{ opt.label }}</span>
               </div>
             </div>
           </OverlayPanel>
 
           <span class="p-input-icon-right search-input-wrapper">
-            <InputText v-model="searchKeyword" placeholder="검색어를 입력하세요." class="search-input w-full" @keyup.enter="handleSearch" />
-            <i class="pi pi-search search-icon" @click="handleSearch" ></i>
+            <InputText
+              v-model="searchKeyword"
+              placeholder="검색어를 입력하세요."
+              class="search-input w-full"
+              @keyup.enter="handleSearch"
+            />
+            <i class="pi pi-search search-icon" @click="handleSearch"></i>
           </span>
         </div>
       </div>
 
-      <!-- 기존 퀵 필터 -->
-      <div class="home-controls mb-6">
-        <div class="flex gap-1 filter-group">
-          <Button
-            icon="pi pi-heart"
-            :label="'인기'"
-            :class="['filter-button', { 'is-active': sort === 'popular' }]"
-            :severity="sort === 'popular' ? undefined : 'secondary'"
-            :outlined="sort !== 'popular'"
-            @click="sort = 'popular'"
-          ></Button>
-          <Button
-            icon="pi pi-eye"
-            :label="'조회'"
-            :class="['filter-button', { 'is-active': sort === 'views' }]"
-            :severity="sort === 'views' ? undefined : 'secondary'"
-            :outlined="sort !== 'views'"
-            @click="sort = 'views'"
-          ></Button>
-          <Button
-            icon="pi pi-clock"
-            :label="'최신'"
-            :class="['filter-button', { 'is-active': sort === 'latest' }]"
-            :severity="sort === 'latest' ? undefined : 'secondary'"
-            :outlined="sort !== 'latest'"
-            @click="sort = 'latest'"
-          ></Button>
-        </div>
-      </div>
-
-      <div v-if="loading" class="text-center py-8">
-        <i class="pi pi-spin pi-spinner text-4xl"></i>
-      </div>
-
-      <div v-else-if="quizzes.length === 0" class="text-center py-8 empty-state">
-        <p class="text-color-secondary text-xl">No quizzes found</p>
-      </div>
-
-      <div v-else class="quiz-grid-container mb-6">
-        <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-card cursor-pointer" @click="goToQuiz(quiz.id)">
-          <div class="quiz-thumbnail">
-            <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="quiz-thumbnail-img" />
-          </div>
-          <div class="quiz-body">
-            <h3 class="quiz-title">{{ quiz.title }}</h3>
-            <div class="quiz-meta-row">
-              <span class="quiz-meta-item">
-                <i class="pi pi-eye"></i>
-                <span>{{ quiz.playCount || 0 }}</span>
-              </span>
-              <span class="quiz-meta-item">
-                <i class="pi pi-heart"></i>
-                <span>{{ quiz.likeCount || 0 }}</span>
-              </span>
-              <span class="quiz-meta-item">
-                <i class="pi pi-comments"></i>
-                <span>{{ quiz.commentCount ?? 0 }}</span>
-              </span>
+      <!-- ✅ 메인: (왼쪽) 콘텐츠 + (오른쪽) 랭킹 사이드바 -->
+      <div class="home-layout">
+        <!-- 왼쪽: 필터 + 카드 + 페이지네이션 -->
+        <section class="home-main">
+          <div class="home-controls">
+            <div class="flex gap-1 filter-group">
+              <Button
+                icon="pi pi-heart"
+                :label="'인기'"
+                :class="['filter-button', { 'is-active': sort === 'popular' }]"
+                :severity="sort === 'popular' ? undefined : 'secondary'"
+                :outlined="sort !== 'popular'"
+                @click="sort = 'popular'"
+              />
+              <Button
+                icon="pi pi-eye"
+                :label="'조회'"
+                :class="['filter-button', { 'is-active': sort === 'views' }]"
+                :severity="sort === 'views' ? undefined : 'secondary'"
+                :outlined="sort !== 'views'"
+                @click="sort = 'views'"
+              />
+              <Button
+                icon="pi pi-clock"
+                :label="'최신'"
+                :class="['filter-button', { 'is-active': sort === 'latest' }]"
+                :severity="sort === 'latest' ? undefined : 'secondary'"
+                :outlined="sort !== 'latest'"
+                @click="sort = 'latest'"
+              />
             </div>
-            <p class="quiz-description">{{ quiz.description || quiz.desc || quiz.summary || "설명이 없습니다." }}</p>
           </div>
-        </div>
-      </div>
 
-      <Paginator v-if="totalPages > 1" :first="(currentPage - 1) * pageSize" :rows="pageSize" :totalRecords="totalElements" @page="onPageChange" class="mb-6" />
+          <div v-if="loading" class="text-center py-8">
+            <i class="pi pi-spin pi-spinner text-4xl"></i>
+          </div>
+
+          <div v-else-if="quizzes.length === 0" class="text-center py-8 empty-state">
+            <p class="text-color-secondary text-xl">No quizzes found</p>
+          </div>
+
+          <div v-else class="quiz-grid-container mb-6">
+            <div v-for="quiz in quizzes" :key="quiz.id" class="quiz-card cursor-pointer" @click="goToQuiz(quiz.id)">
+              <div class="quiz-thumbnail">
+                <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="quiz-thumbnail-img" />
+              </div>
+              <div class="quiz-body">
+                <h3 class="quiz-title">{{ quiz.title }}</h3>
+                <div class="quiz-meta-row">
+                  <span class="quiz-meta-item">
+                    <i class="pi pi-eye"></i>
+                    <span>{{ quiz.playCount || 0 }}</span>
+                  </span>
+                  <span class="quiz-meta-item">
+                    <i class="pi pi-heart"></i>
+                    <span>{{ quiz.likeCount || 0 }}</span>
+                  </span>
+                  <span class="quiz-meta-item">
+                    <i class="pi pi-comments"></i>
+                    <span>{{ quiz.commentCount ?? 0 }}</span>
+                  </span>
+                </div>
+                <p class="quiz-description">{{ quiz.description || quiz.desc || quiz.summary || "설명이 없습니다." }}</p>
+              </div>
+            </div>
+          </div>
+
+          <Paginator
+            v-if="totalPages > 1"
+            :first="(currentPage - 1) * pageSize"
+            :rows="pageSize"
+            :totalRecords="totalElements"
+            @page="onPageChange"
+            class="mb-6"
+          />
+        </section>
+
+        <!-- 오른쪽: 랭킹 사이드바(레이아웃 흐름 안에 포함) -->
+        <aside class="home-aside">
+          <div class="ranking-panel">
+            <LiveRankingWidget />
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 </template>
@@ -96,21 +126,25 @@ import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { getQuizzes } from "@/api/quiz";
 import OverlayPanel from "primevue/overlaypanel";
+import LiveRankingWidget from "@/components/LiveRankingWidget.vue";
 
 const router = useRouter();
 const toast = useToast();
 
-const quizzes = ref([]);
+const quizzes = ref<any[]>([]);
 const searchKeyword = ref("");
+
 type SortOption = "popular" | "latest" | "views";
 const searchSort = ref<SortOption>("popular");
 const sort = ref<SortOption>("popular");
+
 const filterOptions: { label: string; value: SortOption }[] = [
   { label: "인기순", value: "popular" },
   { label: "조회순", value: "views" },
   { label: "최신순", value: "latest" },
 ];
-const filterPanel = ref();
+
+const filterPanel = ref<any>();
 const loading = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(12);
@@ -189,18 +223,10 @@ onMounted(() => {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 12px;
+  min-width: 0;
 }
 
-/* Filters + Search in one line */
-.home-controls {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0 1.5rem;
-  width: 100%;
-}
-
+/* ✅ 검색바 */
 .home-search-row {
   margin-top: 1.5rem;
   margin-bottom: 1.25rem;
@@ -262,30 +288,46 @@ onMounted(() => {
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
-.search-filter-menu {
-  min-width: 160px;
-  padding: 6px 0;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+/* ✅ 핵심: 2컬럼 레이아웃 (왼쪽: 카드 / 오른쪽: 랭킹) */
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  align-items: start;
 }
 
-.search-filter-item {
+.home-main {
+  min-width: 0;
+}
+
+.home-aside {
+  position: relative;
+}
+
+/* ✅ 랭킹 패널은 "컨테이너 안"에서 카드처럼 보이게 */
+.ranking-panel {
+  position: sticky;
+  top: 140px; /* 헤더 높이에 따라 조절 */
+}
+
+/* ✅ 화면 좁아지면 랭킹을 아래로 내리거나 숨김(선택) */
+@media (max-width: 1200px) {
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+  .ranking-panel {
+    position: static;
+    margin-top: 10px;
+  }
+}
+
+/* ✅ 필터 줄 */
+.home-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--color-heading);
-}
-
-.search-filter-item:hover {
-  background-color: var(--color-background-mute);
-}
-
-.search-filter-item.is-active {
-  font-weight: 600;
+  gap: 1rem;
+  padding: 0.5rem 0 1.5rem;
+  width: 100%;
 }
 
 .filter-group {
@@ -299,6 +341,12 @@ onMounted(() => {
   background: var(--color-bg-card) !important;
   border-color: var(--color-border) !important;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  line-height: 1;
 }
 
 :global(.filter-button.is-active) {
@@ -315,82 +363,17 @@ onMounted(() => {
   box-shadow: 0 10px 28px rgba(16, 185, 129, 0.35);
 }
 
-:global(.filter-button.is-active:hover) {
-  background: var(--color-primary-hover) !important;
-  border-color: var(--color-primary-hover) !important;
-  color: #00131c !important;
-}
-
-:global([data-theme="dark"] .filter-button) {
-  color: #e5e7eb !important;
-  border-color: #374151 !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-}
-
-:global([data-theme="dark"] .filter-button.p-button-outlined) {
-  border-color: #4b5563 !important;
-  color: #e5e7eb !important;
-}
-
-.filter-button:hover {
-  background: rgba(0, 150, 136, 0.1) !important;
-  border-color: var(--color-primary) !important;
-  color: var(--color-heading) !important;
-}
-
-:global([data-theme="dark"] .filter-button:hover) {
-  background: rgba(26, 188, 156, 0.18) !important;
-  border-color: #34d399 !important;
-  color: #f9fafb !important;
-}
-
-.home-search {
-  width: 100%;
-  display: block;
-}
-
-.search-bar {
-  width: 100%;
-  max-width: 720px;
-  min-width: 360px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  color: var(--color-text-main);
-}
-
-/* Grid */
+/* ✅ 카드: 4열 → 3열 */
 .quiz-grid-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  padding: 0;
   width: 100%;
-}
-
-@media (max-width: 1200px) {
-  .quiz-grid-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 @media (max-width: 960px) {
   .quiz-grid-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .home-controls {
-    grid-template-columns: 1fr;
-    max-width: 100%;
-  }
-  .home-search-row {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-  .search-bar {
-    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -400,6 +383,7 @@ onMounted(() => {
   }
 }
 
+/* Card UI(기존 유지) */
 .quiz-thumbnail {
   width: 100%;
   height: 200px;
@@ -421,7 +405,6 @@ onMounted(() => {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  image-rendering: auto;
   transition: transform 0.2s ease;
 }
 
@@ -448,13 +431,15 @@ onMounted(() => {
   border-color: rgba(148, 163, 184, 0.6);
 }
 
-:global([data-theme="dark"] .quiz-card:hover) {
-  background: #1e1e1e;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.03);
-}
-
 .quiz-card:hover .quiz-thumbnail-img {
   transform: scale(1.03);
+}
+
+.quiz-body {
+  padding: 0 0.4rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .quiz-title {
@@ -467,13 +452,6 @@ onMounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.quiz-body {
-  padding: 0 0.4rem 0.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .quiz-meta-row {
@@ -490,10 +468,6 @@ onMounted(() => {
   gap: 0.3rem;
 }
 
-.quiz-meta-item i {
-  font-size: 0.85rem;
-}
-
 .quiz-description {
   margin: 0.1rem 0 0;
   font-size: 0.85rem;
@@ -503,6 +477,38 @@ onMounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.empty-state {
+  background: rgba(244, 241, 236, 0.6);
+  border-radius: 14px;
+  padding: 2rem;
+}
+
+.search-filter-menu {
+  min-width: 160px;
+  padding: 6px 0;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.search-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-heading);
+}
+
+.search-filter-item:hover {
+  background-color: var(--color-background-mute);
+}
+
+.search-filter-item.is-active {
+  font-weight: 600;
 }
 
 .empty-state {

@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/quizzes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/quizzes/*/submissions").permitAll()
                         .requestMatchers("/api/submissions/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/rankings/**").permitAll()
 
                         // (퀴즈 생성/수정/삭제는 인증된 유저만)
                         .requestMatchers(HttpMethod.POST, "/api/quizzes/**").authenticated()

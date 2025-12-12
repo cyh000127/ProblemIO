@@ -3,7 +3,14 @@ import apiClient from './axios'
 // 퀴즈 풀이 제출 (한 문제씩)
 export const submitQuiz = async (quizId, payload) => {
   // payload: { submissionId?, questionId, answerText }
-  const response = await apiClient.post(`/quizzes/${quizId}/submissions`, payload)
+  const token = localStorage.getItem('accessToken')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+  const response = await apiClient.post(
+    `/quizzes/${quizId}/submissions`,
+    payload,
+    { headers }
+  )
   return response.data.data   // QuizAnswerResponse
 }
 
@@ -12,4 +19,3 @@ export const getSubmission = async (submissionId) => {
   const response = await apiClient.get(`/submissions/${submissionId}`)
   return response.data.data
 }
-
