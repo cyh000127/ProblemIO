@@ -10,10 +10,14 @@
     <!-- 배경 이미지 적용: decoration이 있으면 그 이미지를 배경으로 사용 -->
     <div 
       v-else 
-      class="w-96 p-3 relative overflow-hidden rounded-xl"
+      class="w-96 p-3 relative overflow-hidden rounded-xl popover-content"
+      :style="{ color: popoverStyle.color, ...popoverStyle.textStyle }" 
     >
-      <!-- 배경 오버레이 (텍스트 가독성 위해 살짝 깔아줌) -->
-      <div v-if="profile.popoverDecoration" class="absolute inset-0 bg-white/60 blur-[1px] z-0"></div>
+      <!-- 배경 오버레이 (텍스트 가독성 + 디자인) -->
+      <div 
+         class="absolute inset-0 z-0 transition-all duration-300"
+         :class="popoverStyle.overlayStyle"
+      ></div>
 
       <!-- 실제 컨텐츠 - z-index로 배경 위에 올림 -->
       <div class="relative z-10">
@@ -31,14 +35,14 @@
             <p class="font-semibold text-base truncate cursor-pointer hover:underline" @click.stop="goToProfile">
               {{ profile.nickname || "알 수 없는 사용자" }}
             </p>
-            <p v-if="profile.statusMessage" class="text-sm text-gray-500 mt-1 break-words">
+            <p v-if="profile.statusMessage" class="text-sm opacity-80 mt-1 break-words">
               {{ profile.statusMessage }}
             </p>
           </div>
 
           <!-- 오른쪽 상단 버튼 -->
-          <Button v-if="!profile.me" :label="profile.following ? '팔로잉' : '팔로우'" size="small" :outlined="profile.following" class="!text-xs !px-3 whitespace-nowrap" @click.stop="onToggleFollow" />
-          <Button v-else icon="pi pi-cog" rounded outlined size="small" class="!text-xs !px-3" @click.stop="goToProfileEdit" />
+          <Button v-if="!profile.me" :label="profile.following ? '팔로잉' : '팔로우'" size="small" :outlined="profile.following" class="!text-xs !px-3 whitespace-nowrap" @click.stop="onToggleFollow" :style="popoverStyle.buttonStyle" />
+          <Button v-else icon="pi pi-cog" rounded outlined size="small" class="!text-xs !px-3" @click.stop="goToProfileEdit" :style="popoverStyle.buttonStyle" />
         </div>
 
         <!-- 하단: 팔로워 / 팔로잉 (오른쪽 아래 정렬) -->
@@ -47,18 +51,18 @@
             <p class="font-semibold text-base">
               {{ profile.followerCount }}
             </p>
-            <p class="text-xs text-gray-500 mt-0.5">팔로워</p>
+            <p class="text-xs opacity-60 mt-0.5">팔로워</p>
           </div>
           <div>
             <p class="font-semibold text-base">
               {{ profile.followingCount }}
             </p>
-            <p class="text-xs text-gray-500 mt-0.5">팔로잉</p>
+            <p class="text-xs opacity-60 mt-0.5">팔로잉</p>
           </div>
         </div>
 
         <!-- 프로필 보기 버튼 -->
-        <Button class="w-full mt-4 !text-sm" severity="secondary" outlined label="프로필 보기" @click="goToProfile" />
+        <Button class="w-full mt-4 !text-sm" severity="secondary" outlined label="프로필 보기" @click="goToProfile" :style="popoverStyle.buttonStyle" />
       </div>
     </div>
   </OverlayPanel>
@@ -72,6 +76,7 @@ import Button from "primevue/button";
 import { getUserPopover, followUser, unfollowUser } from "@/api/user";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
 import { POPOVER_DECORATIONS } from '@/constants/popoverConfig' 
+import { resolveImageUrl } from '@/lib/image' 
 
 const op = ref(null);
 const router = useRouter();
@@ -117,19 +122,35 @@ const avatarSrc = computed(() => {
 const popoverStyle = computed(() => {
   if (profile.popoverDecoration) {
     const deco = POPOVER_DECORATIONS[profile.popoverDecoration];
-    if (deco) {
+      if (deco) {
+        // [수정] !important를 붙여서 우선순위 강제
+        const colorStyle = deco.textColor ? `color: ${deco.textColor} !important;` : '';
+        const varsStyle = deco.textColor ? {
+            '--text-color': `${deco.textColor} !important`,
+            '--text-color-secondary': `${deco.textColor} !important`
+        } : {};
+
+        const baseStyle = {
+            color: deco.textColor || 'inherit',
+            overlayStyle: deco.overlayStyle || 'bg-white/60 backdrop-blur-[1px]',
+            textStyle: deco.textStyle || {},
+            buttonStyle: deco.buttonStyle || {},
+            ...varsStyle,
+            ...(deco.style || {})
+        };
+
         if (deco.image) {
             return {
-                backgroundImage: `url('${deco.image}')`,
+                backgroundImage: `url('${resolveImageUrl(deco.image)}')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                ...deco.style
+                ...baseStyle
             }
         }
-        return deco.style || {};
+        return baseStyle;
     }
   }
-  return {};
+  return { overlayStyle: 'bg-white/90', textStyle: {}, buttonStyle: {} };
 });
 
 async function fetchProfile(userId) {
@@ -194,4 +215,16 @@ function open(event, userId) {
 defineExpose({ open });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 텍스트 색상 강제 상속을 위한 스타일 */
+.popover-content p,
+.popover-content span,
+.popover-content i {
+  color: inherit;
+}
+
+/* 버튼 내부 텍스트는 버튼 스타일을 따르도록 예외 처리 가능하나, 
+   네온 테마의 경우 버튼 텍스트도 네온색으로 통일감을 주는 것이 좋을 수 있음.
+   만약 버튼은 제외하고 싶다면 :not(.p-button-label) 등을 사용.
+   여기서는 일단 전체 컨셉 통일을 위해 다 둡니다. */
+</style>

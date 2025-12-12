@@ -101,6 +101,7 @@ import { useAuthStore } from "@/stores/auth";
 import { getUserProfile, followUser, unfollowUser, getUserQuizzes } from "@/api/user";
 import UserAvatar from '@/components/common/UserAvatar.vue'
 import { PROFILE_THEMES } from '@/constants/themeConfig';
+import { resolveImageUrl } from "@/lib/image";
 
 const route = useRoute();
 const router = useRouter();
@@ -198,14 +199,22 @@ const containerStyle = computed(() => {
       if (theme) {
           if (theme.image) {
                return {
-                  backgroundImage: `url('${theme.image}')`,
+                  backgroundImage: `url('${resolveImageUrl(theme.image)}')`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundAttachment: 'fixed',
+                  color: theme.textColor, 
+                  '--text-color': theme.textColor,
+                  '--text-color-secondary': theme.textColor,
                   ...theme.style
                };
           }
-           return theme.style || {};
+           return {
+             ...theme.style,
+             color: theme.textColor,
+             '--text-color': theme.textColor,
+             '--text-color-secondary': theme.textColor,
+           } || {};
       }
   }
   return {};

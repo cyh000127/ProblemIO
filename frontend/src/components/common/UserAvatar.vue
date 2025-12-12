@@ -64,7 +64,7 @@ const decorationUrl = computed(() => {
   const u = targetUser.value
   if (!u?.avatarDecoration) return null
   const deco = AVATAR_DECORATIONS[u.avatarDecoration]
-  return deco ? deco.image : null
+  return deco ? resolveImageUrl(deco.image) : null
 })
 
 // Size mapping: PrimeVue Avatar size classes aren't always enough for custom wrapper sizing
@@ -89,6 +89,13 @@ const avatarClass = computed(() => {
 })
 
 const avatarStyle = computed(() => {
-  return { width: '100%', height: '100%' }
+  return { 
+    width: '100%', 
+    height: '100%',
+    // Reset inherited text styles that might come from themes (prevent neon effects on avatar text)
+    textShadow: 'none',
+    WebkitTextStroke: '0',
+    color: '#374151' // Force dark text (gray-700) for readability inside avatar
+  }
 })
 </script>

@@ -40,6 +40,9 @@ public class SecurityConfig {
 
                         // 2. Static/file access
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/theme/**").permitAll()    
+                        .requestMatchers("/popover/**").permitAll()  
+                        .requestMatchers("/avatar/**").permitAll()   
                         .requestMatchers(HttpMethod.POST, "/api/files/**").authenticated()
 
                         // 3. Comments (댓글: 조회/작성/수정/삭제는 허용, 좋아요는 인증 필요)

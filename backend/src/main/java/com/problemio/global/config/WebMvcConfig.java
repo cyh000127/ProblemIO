@@ -15,10 +15,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/profile/**")
                 .addResourceLocations("file:///C:/public/upload/profile/");
         
-        // 확인 해볼것. quiz 썸네일과 문제 파일 분리 ? 
-        // 문제 생성시 아래의 로직 작동 upload 에 들어감 
+                                                                                                                                                                                                                                                                // 문제 생성시 아래의 로직 작동 upload 에 들어감 
         // todo: 디렉토리 생성해서 파일 넣게 하기
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:///C:/public/upload/");
+
+        // 테마 폴더 매핑
+        registry.addResourceHandler("/theme/**")
+                .addResourceLocations("file:///C:/public/theme/");
+
+        // 팝오버 폴더 매핑
+        registry.addResourceHandler("/popover/**")
+                .addResourceLocations("file:///C:/public/popover/");
+                
+        // 아바타 폴더 매핑
+        registry.addResourceHandler("/avatar/**")
+                .addResourceLocations("file:///C:/public/avatar/");
     }
 }

@@ -3,9 +3,13 @@
   <div class="mypage-container">
     <div class="container mx-auto px-4">
       <!-- 프로필 헤더 -->
-             <Card class="mb-8" :style="containerStyle">
+             <Card class="mb-8 profile-card-content" :style="containerStyle">
         <template #content>
-          <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+          <!-- [수정] 텍스트 색상을 확실하게 적용하기 위해 내부 div에 color 스타일 바인딩 -->
+          <div 
+             class="flex flex-col md:flex-row gap-6 items-center md:items-start"
+             :style="{ color: containerStyle.color }" 
+          >
                 <UserAvatar class="w-32 h-32" />
             <div class="flex-1 text-center md:text-left">
               <!-- 닉네임 / 상태메시지 + 우측 상단 설정 버튼 -->
@@ -14,7 +18,7 @@
                   <h1 class="text-3xl font-bold mb-2">{{ me?.nickname }}</h1>
                   <p
                     v-if="me?.statusMessage"
-                    class="text-lg text-color-secondary mb-4"
+                    class="text-lg opacity-80 mb-4"
                   >
                     {{ me.statusMessage }}
                   </p>
@@ -34,15 +38,15 @@
 <div class="flex justify-center md:justify-start gap-8 mt-2">
   <div class="stat-box">
     <p class="text-2xl font-bold m-0">{{ myQuizCount }}</p>
-    <p class="text-sm text-color-secondary m-0">만든 퀴즈</p>
+    <p class="text-sm opacity-80 m-0">만든 퀴즈</p>
   </div>
   <div class="stat-box">
     <p class="text-2xl font-bold m-0">{{ me?.followerCount ?? 0 }}</p>
-    <p class="text-sm text-color-secondary m-0">팔로워</p>
+    <p class="text-sm opacity-80 m-0">팔로워</p>
   </div>
   <div class="stat-box">
     <p class="text-2xl font-bold m-0">{{ me?.followingCount ?? 0 }}</p>
-    <p class="text-sm text-color-secondary m-0">팔로잉</p>
+    <p class="text-sm opacity-80 m-0">팔로잉</p>
   </div>
 </div>
             </div>
@@ -181,6 +185,7 @@ import { getFollowingQuizzes, getMyLikedQuizzes } from "@/api/user";
 import { getMyQuizzes, deleteQuiz } from "@/api/quiz";
 import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
 import { PROFILE_THEMES } from '@/constants/themeConfig'; 
+import { resolveImageUrl } from "@/lib/image"; 
 
 const router = useRouter();
 const toast = useToast();
@@ -318,16 +323,28 @@ const containerStyle = computed(() => {
   if (me.value?.profileTheme) {
       const theme = PROFILE_THEMES[me.value.profileTheme];
       if (theme) {
+          // [수정] !important를 붙여서 우선순위 강제
+          const varsStyle = theme.textColor ? {
+              '--text-color': `${theme.textColor} !important`,
+              '--text-color-secondary': `${theme.textColor} !important`
+          } : {};
+
           if (theme.image) {
                return {
-                  backgroundImage: `url('${theme.image}')`,
+                  backgroundImage: `url('${resolveImageUrl(theme.image)}')`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundAttachment: 'fixed',
+                  ...varsStyle,
+                  color: theme.textColor || 'inherit', 
                   ...theme.style
                };
           }
-           return theme.style || {};
+           return {
+             ...theme.style,
+             ...varsStyle,
+             color: theme.textColor || 'inherit', 
+           } || {};
       }
   }
   return {};
@@ -337,6 +354,13 @@ const containerStyle = computed(() => {
 
 
 <style scoped>
+/* 프로필 카드 내부 텍스트 색상 강제 상속 */
+.profile-card-content p,
+.profile-card-content span,
+.profile-card-content h1 {
+  color: inherit;
+}
+
 /* 통계 부분 */
 .stat-box {
   width: 60px;          

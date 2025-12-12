@@ -91,7 +91,7 @@
                     @click="profileForm.profileTheme = theme.key"
                   >
                     <div v-if="theme.image" class="w-full h-full">
-                        <img :src="theme.image" class="w-full h-full object-cover rounded" />
+                        <img :src="resolveImageUrl(theme.image)" class="w-full h-full object-cover rounded" />
                     </div>
                     <div v-else class="w-full h-full rounded shadow-sm" :class="theme.class" :style="theme.style"></div>
                     <span class="absolute bottom-0 left-0 w-full text-[10px] text-center bg-gray-200/80 text-gray-900 truncate px-1 rounded-b">
@@ -115,7 +115,7 @@
                      <div class="w-full h-full bg-gray-100 rounded-full flex items-center justify-center">
                        <i class="pi pi-user text-gray-300 text-xl"></i>
                      </div>
-                     <img v-if="deco.image" :src="deco.image" class="absolute inset-0 w-full h-full object-contain" />
+                     <img v-if="deco.image" :src="resolveImageUrl(deco.image)" class="absolute inset-0 w-full h-full object-contain" />
                      <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] bg-gray-200/80 text-gray-900 rounded-full px-2 py-0.5 whitespace-nowrap z-10">
                         {{ deco.name }}
                      </span>
@@ -134,7 +134,7 @@
                     :class="{'border-primary ring-2 ring-primary/20': profileForm.popoverDecoration === pop.key, 'border-transparent hover:border-gray-300': profileForm.popoverDecoration !== pop.key}"
                     @click="profileForm.popoverDecoration = pop.key"
                   >
-                    <img v-if="pop.image" :src="pop.image" class="w-full h-full object-cover rounded" />
+                    <img v-if="pop.image" :src="resolveImageUrl(pop.image)" class="w-full h-full object-cover rounded" />
                     <div v-else-if="pop.style" class="w-full h-full rounded shadow-sm" :style="pop.style"></div>
                     <div v-else class="w-full h-full bg-gray-50 rounded flex items-center justify-center border border-gray-100">
                         <span class="text-xs text-gray-500">기본</span>
