@@ -77,7 +77,8 @@ const handleLogin = async () => {
 }
 
 :global([data-theme="dark"] .login-container) {
-  background: #000;
+  /* background: #000; */
+  background: transparent;
 }
 
 .auth-card {
