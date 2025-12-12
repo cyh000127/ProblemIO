@@ -2,6 +2,8 @@ package com.problemio.quiz.controller;
 
 import com.problemio.global.auth.CustomUserDetails;
 import com.problemio.global.common.ApiResponse;
+import com.problemio.global.exception.BusinessException;
+import com.problemio.global.exception.ErrorCode;
 import com.problemio.quiz.dto.QuizCreateRequest;
 import com.problemio.quiz.dto.QuizResponse;
 import com.problemio.quiz.dto.QuizSummaryDto;
@@ -62,7 +64,7 @@ public class QuizController {
             @RequestBody @Valid QuizCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         return ResponseEntity.ok(
                 ApiResponse.success(quizService.createQuiz(userId, request))
         );
@@ -79,7 +81,7 @@ public class QuizController {
             @RequestBody @Valid QuizUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         return ResponseEntity.ok(
                 ApiResponse.success(quizService.updateQuiz(userId, quizId, request))
         );
@@ -96,7 +98,7 @@ public class QuizController {
             @RequestBody QuizUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         return ResponseEntity.ok(
                 ApiResponse.success(quizService.updateQuiz(userId, quizId, request))
         );
@@ -112,7 +114,7 @@ public class QuizController {
             @PathVariable Long quizId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         quizService.deleteQuiz(userId, quizId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -158,7 +160,7 @@ public class QuizController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return ResponseEntity.ok(
-                ApiResponse.success(quizService.getUserQuizzes(userDetails.getUser().getId()))
+                ApiResponse.success(quizService.getUserQuizzes(requireLogin(userDetails)))
         );
     }
 
@@ -172,7 +174,7 @@ public class QuizController {
             @PathVariable Long quizId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        quizService.likeQuiz(userDetails.getUser().getId(), quizId);
+        quizService.likeQuiz(requireLogin(userDetails), quizId);
         return ResponseEntity.ok(
                 ApiResponse.success(Map.of("liked", true))
         );
@@ -188,9 +190,16 @@ public class QuizController {
             @PathVariable Long quizId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        quizService.unlikeQuiz(userDetails.getUser().getId(), quizId);
+        quizService.unlikeQuiz(requireLogin(userDetails), quizId);
         return ResponseEntity.ok(
                 ApiResponse.success(Map.of("liked", false))
         );
+    }
+
+    private Long requireLogin(CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+        return userDetails.getUser().getId();
     }
 }

@@ -5,6 +5,8 @@ import com.problemio.follow.dto.FollowUserDto;
 import com.problemio.follow.service.FollowService;
 import com.problemio.global.common.ApiResponse;
 import com.problemio.global.auth.CustomUserDetails;
+import com.problemio.global.exception.BusinessException;
+import com.problemio.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,7 @@ public class FollowController {
     @PostMapping("/{targetUserId}")
     public ApiResponse<Void> follow(@AuthenticationPrincipal CustomUserDetails userDetails,
                                     @PathVariable Long targetUserId) {
-        Long loginUserId = userDetails.getUser().getId(); // 프로젝트에 맞게 수정
+        Long loginUserId = requireLogin(userDetails);
         followService.follow(loginUserId, targetUserId);
         return ApiResponse.success(null);
     }
@@ -31,7 +33,7 @@ public class FollowController {
     @DeleteMapping("/{targetUserId}")
     public ApiResponse<Void> unfollow(@AuthenticationPrincipal CustomUserDetails userDetails,
                                       @PathVariable Long targetUserId) {
-        Long loginUserId = userDetails.getUser().getId(); // 프로젝트에 맞게 수정
+        Long loginUserId = requireLogin(userDetails);
         followService.unfollow(loginUserId, targetUserId);
         return ApiResponse.success(null);
     }
@@ -40,7 +42,7 @@ public class FollowController {
     @GetMapping("/{targetUserId}/status")
     public ApiResponse<Boolean> isFollowing(@AuthenticationPrincipal CustomUserDetails userDetails,
                                             @PathVariable Long targetUserId) {
-        Long loginUserId = userDetails.getUser().getId();
+        Long loginUserId = requireLogin(userDetails);
         boolean result = followService.isFollowing(loginUserId, targetUserId);
         return ApiResponse.success(result);
     }
@@ -55,5 +57,12 @@ public class FollowController {
     @GetMapping("/{userId}/followings")
     public ApiResponse<List<FollowUserDto>> getFollowings(@PathVariable Long userId) {
         return ApiResponse.success(followService.getFollowings(userId));
+    }
+
+    private Long requireLogin(CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+        return userDetails.getUser().getId();
     }
 }

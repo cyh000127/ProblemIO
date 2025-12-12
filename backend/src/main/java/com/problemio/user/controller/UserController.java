@@ -2,6 +2,8 @@ package com.problemio.user.controller;
 
 import com.problemio.global.auth.CustomUserDetails;
 import com.problemio.global.common.ApiResponse;
+import com.problemio.global.exception.BusinessException;
+import com.problemio.global.exception.ErrorCode;
 import com.problemio.quiz.dto.QuizSummaryDto;
 import com.problemio.quiz.service.QuizService;
 import com.problemio.user.dto.UserPopoverResponse;
@@ -39,7 +41,7 @@ public class UserController {
     // 내 정보 조회
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getMe(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.success(userService.getUserById(userDetails.getUser().getId())));
+        return ResponseEntity.ok(ApiResponse.success(userService.getUserById(requireLogin(userDetails))));
     }
 
     // 프로필 수정
@@ -49,7 +51,7 @@ public class UserController {
             @RequestPart(value = "file", required = false) MultipartFile file, // [체크] 이름이 'file'이어야 함
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Long myId = userDetails.getUser().getId();
+        Long myId = requireLogin(userDetails);
         // 로그 추가 (파일이 들어왔는지 확인용)
         if (file != null && !file.isEmpty()) {
             System.out.println(">>> [Controller] 파일 수신 성공: " + file.getOriginalFilename());
@@ -65,7 +67,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> changePassword(
             @RequestBody Map<String, String> request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         userService.changePassword(userId, request.get("oldPassword"), request.get("newPassword"));
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -75,7 +77,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> deleteAccount(
             @RequestBody Map<String, String> request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         userService.deleteAccount(userId, request.get("password"));
         return ResponseEntity.ok(ApiResponse.success(null));
     }
@@ -83,7 +85,7 @@ public class UserController {
     // 마이페이지 상단 요약
     @GetMapping("/me/summary")
     public ResponseEntity<ApiResponse<UserSummaryDto>> getMySummary(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         return ResponseEntity.ok(ApiResponse.success(userService.getMySummary(userId)));
     }
 
@@ -118,7 +120,7 @@ public class UserController {
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         var data = quizService.getQuizzesOfFollowings(userId, page, size);
         return ResponseEntity.ok(ApiResponse.success(data));
     }
@@ -130,7 +132,7 @@ public class UserController {
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Long userId = userDetails.getUser().getId();
+        Long userId = requireLogin(userDetails);
         var data = quizService.getLikedQuizzes(userId, page, size);
         return ResponseEntity.ok(ApiResponse.success(data));
     }
@@ -176,5 +178,12 @@ public class UserController {
         return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
                lower.endsWith(".png") || lower.endsWith(".gif") || 
                lower.endsWith(".webp") || lower.endsWith(".svg");
+    }
+
+    private Long requireLogin(CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
+        }
+        return userDetails.getUser().getId();
     }
 }

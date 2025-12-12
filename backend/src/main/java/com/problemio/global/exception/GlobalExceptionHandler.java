@@ -11,9 +11,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
         ErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.fail(errorCode.getCode(), errorCode.getMessage()));
+        // 인증/인가 관련 에러는 적절한 HTTP 상태 코드로 내려준다.
+        return switch (errorCode) {
+            case LOGIN_REQUIRED -> ResponseEntity
+                    .status(401)
+                    .body(ApiResponse.fail(errorCode.getCode(), errorCode.getMessage()));
+            case ACCESS_DENIED -> ResponseEntity
+                    .status(403)
+                    .body(ApiResponse.fail(errorCode.getCode(), errorCode.getMessage()));
+            default -> ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.fail(errorCode.getCode(), errorCode.getMessage()));
+        };
     }
 
     @ExceptionHandler(Exception.class)
