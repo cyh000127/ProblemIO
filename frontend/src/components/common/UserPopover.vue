@@ -220,7 +220,7 @@ defineExpose({ open });
 .popover-content p,
 .popover-content span,
 .popover-content i {
-  color: inherit;
+  color: inherit !important;
 }
 
 /* 버튼 내부 텍스트는 버튼 스타일을 따르도록 예외 처리 가능하나, 

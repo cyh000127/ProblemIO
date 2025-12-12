@@ -323,20 +323,20 @@ const containerStyle = computed(() => {
   if (me.value?.profileTheme) {
       const theme = PROFILE_THEMES[me.value.profileTheme];
       if (theme) {
-          // [수정] !important를 붙여서 우선순위 강제
-          const varsStyle = theme.textColor ? {
-              '--text-color': `${theme.textColor} !important`,
-              '--text-color-secondary': `${theme.textColor} !important`
+          const textColor = theme.textColor ? `${theme.textColor} !important` : undefined;
+          const varsStyle = textColor ? {
+              '--text-color': textColor,
+              '--text-color-secondary': textColor,
+              '--color-heading': textColor,
+              '--color-text': textColor
           } : {};
 
           if (theme.image) {
                return {
-                  backgroundImage: `url('${resolveImageUrl(theme.image)}')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundAttachment: 'fixed',
+                  background: `url('${resolveImageUrl(theme.image)}') center / cover no-repeat fixed !important`,
+                  // backgroundImage causes issues with base.css !important background override
+                  color: theme.textColor, 
                   ...varsStyle,
-                  color: theme.textColor || 'inherit', 
                   ...theme.style
                };
           }
@@ -358,7 +358,7 @@ const containerStyle = computed(() => {
 .profile-card-content p,
 .profile-card-content span,
 .profile-card-content h1 {
-  color: inherit;
+  color: inherit !important;
 }
 
 /* 통계 부분 */
