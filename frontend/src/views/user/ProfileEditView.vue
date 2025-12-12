@@ -67,8 +67,8 @@
 
                 <!-- 상태 메시지 -->
                 <div class="flex flex-col gap-2">
-                  <label class="text-sm font-medium">상태 메시지</label>
-                  <Textarea v-model="profileForm.statusMessage" placeholder="나를 표현하는 한마디" rows="3" class="w-full" />
+                  <label class="text-sm font-medium">상태 메시지(20자 제한)</label>
+                  <Textarea v-model="profileForm.statusMessage" placeholder="나를 표현하는 한마디" rows="3" class="w-full" maxlength="20" />
                 </div>
               </div>
             </section>
