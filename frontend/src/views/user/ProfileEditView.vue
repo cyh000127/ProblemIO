@@ -155,21 +155,21 @@
             <Divider />
 
             <!-- SECTION 3: 비밀번호 변경 -->
-            <section class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <section class="flex items-center justify-between p-4 rounded-lg action-card">
               <div class="flex flex-col">
-                <h3 class="text-lg font-bold text-gray-900">비밀번호 변경</h3>
-                <span class="text-sm text-gray-500">주기적인 비밀번호 변경으로 계정을 보호하세요.</span>
+                <h3 class="text-lg font-bold">비밀번호 변경</h3>
+                <span class="text-sm muted-text">주기적인 비밀번호 변경으로 계정을 보호하세요.</span>
               </div>
-              <Button label="변경하기" icon="pi pi-key" severity="help" text outlined @click="showPasswordDialog = true" />
+              <Button label="변경하기" icon="pi pi-key" severity="help" outlined @click="showPasswordDialog = true" />
             </section>
 
             <!-- SECTION 4: 회원탈퇴 -->
-            <section class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100 mt-2">
+            <section class="flex items-center justify-between p-4 rounded-lg danger-card mt-2">
               <div class="flex flex-col">
-                <h3 class="text-lg font-bold text-red-600">회원 탈퇴</h3>
-                <span class="text-sm text-red-400">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</span>
+                <h3 class="text-lg font-bold">회원 탈퇴</h3>
+                <span class="text-sm danger-muted">탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.</span>
               </div>
-              <Button label="탈퇴하기" icon="pi pi-user-minus" severity="danger" text outlined @click="showDeleteDialog = true" />
+              <Button label="탈퇴하기" icon="pi pi-user-minus" severity="danger" outlined @click="showDeleteDialog = true" />
             </section>
 
           </div>
@@ -558,5 +558,41 @@ onMounted(() => {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.action-card {
+  background: var(--color-background-soft, #111827);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.danger-card {
+  background: rgba(255, 99, 71, 0.08);
+  border: 1px solid rgba(255, 99, 71, 0.26);
+  box-shadow: 0 12px 32px rgba(255, 99, 71, 0.15);
+}
+
+.muted-text {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.danger-muted {
+  color: #fca5a5;
+}
+
+:global([data-theme="dark"] .action-card) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+:global([data-theme="dark"] .danger-card) {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.32);
+  box-shadow: 0 18px 44px rgba(239, 68, 68, 0.2);
+}
+
+:global([data-theme="dark"] .muted-text) {
+  color: rgba(255, 255, 255, 0.72);
 }
 </style>
