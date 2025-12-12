@@ -102,14 +102,16 @@ const toast = useToast();
 
 const quizzes = ref([]);
 const searchKeyword = ref("");
-const searchSort = ref<"popular" | "latest">("popular");
-const filterOptions = [
+type SortOption = "popular" | "latest" | "views";
+const searchSort = ref<SortOption>("popular");
+const sort = ref<SortOption>("popular");
+const filterOptions: { label: string; value: SortOption }[] = [
   { label: "인기순", value: "popular" },
+  { label: "조회순", value: "views" },
   { label: "최신순", value: "latest" },
 ];
 const filterPanel = ref();
 const loading = ref(false);
-const sort = ref("popular");
 const currentPage = ref(1);
 const pageSize = ref(12);
 const totalPages = ref(0);
@@ -157,7 +159,7 @@ const toggleFilterPanel = (event: Event) => {
   filterPanel.value?.toggle(event);
 };
 
-const selectSearchSort = (value: "popular" | "latest") => {
+const selectSearchSort = (value: SortOption) => {
   searchSort.value = value;
   filterPanel.value?.hide();
   handleSearch();
