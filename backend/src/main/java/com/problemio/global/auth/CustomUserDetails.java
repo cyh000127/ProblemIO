@@ -16,10 +16,10 @@ public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
-    // 권한 반환  (!!임시 : "ROLE_USER"만 반환)
+    // 권한 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority(user.getRole()));
     }
 
     @Override

@@ -19,9 +19,9 @@ public interface CommentService {
     void updateComment(Long commentId, Long userId, CommentUpdateRequest request);
 
     /**
-     * 댓글 삭제 (소프트 삭제, 작성자만 가능)
+     * 댓글 삭제 (소프트 삭제, 작성자 또는 관리자 가능)
      */
-    void deleteComment(Long commentId, Long userId, String guestPassword);
+    void deleteComment(Long commentId, com.problemio.user.domain.User user, String guestPassword);
 
     /**
      * 퀴즈별 댓글 목록 조회 (페이징)

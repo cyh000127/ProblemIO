@@ -38,6 +38,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/reissue").permitAll()
                         .requestMatchers("/api/auth/email/**").permitAll() // 이메일 인증 관련
 
+                        // [Admin] 관리자 전용
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         // 2. Static/file access
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/theme/**").permitAll()    

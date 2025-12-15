@@ -61,7 +61,7 @@
 
       <!-- 수정 -->
       <button
-        v-if="canEditDelete"
+        v-if="canEdit"
         class="action-btn text-blue-600"
         @click="startEdit"
       >
@@ -70,7 +70,7 @@
 
       <!-- 삭제 -->
       <button
-        v-if="canEditDelete"
+        v-if="canDelete"
         class="action-btn text-red-600"
         @click="remove"
       >
@@ -187,13 +187,23 @@ const likedByMe = computed(() =>
 const isGuest = computed(
   () => !props.comment.userId && (props.comment.isGuest ?? true)
 );
-const canEditDelete = computed(() => {
+const isAdmin = computed(() => authStore.user?.role === 'ROLE_ADMIN');
+
+const canEdit = computed(() => {
   if (props.comment.userId) {
     return !!props.comment.mine;
   }
-  // 게스트 댓글은 비밀번호를 알고 있는 경우만 가능하므로 버튼은 노출, 비밀번호 입력으로 진입 통제
   return true;
 });
+
+const canDelete = computed(() => {
+  if (isAdmin.value) return true;
+  if (props.comment.userId) {
+    return !!props.comment.mine;
+  }
+  return true;
+});
+
 const heartClass = computed(() =>
   likedByMe.value ? "liked-heart" : "unliked-heart"
 );
@@ -253,16 +263,21 @@ async function remove() {
   const commentId = resolveCommentId();
   if (!commentId) return;
 
-  // 작성자만 삭제 허용
-  if (props.comment.userId && !props.comment.mine) {
-    return;
-  }
+  // Admin bypass
+  if (isAdmin.value) {
+     // Admin can delete immediately
+  } else {
+    // 작성자만 삭제 허용
+    if (props.comment.userId && !props.comment.mine) {
+      return;
+    }
 
-  // 게스트면 모달로 비밀번호 입력
-  if (isGuest.value) {
-    modalMode.value = "delete";
-    showPasswordModal.value = true;
-    return;
+    // 게스트면 모달로 비밀번호 입력
+    if (isGuest.value) {
+      modalMode.value = "delete";
+      showPasswordModal.value = true;
+      return;
+    }
   }
 
   await deleteComment(commentId);

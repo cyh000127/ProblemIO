@@ -114,22 +114,37 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void deleteComment(Long commentId, Long userId, String guestPassword) {
+    public void deleteComment(Long commentId, com.problemio.user.domain.User user, String guestPassword) {
         Comment existing = commentMapper.findById(commentId);
         if (existing == null || existing.isDeleted()) {
             throw new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
         }
 
         if (existing.getUserId() != null) {
-            if (userId == null || !existing.getUserId().equals(userId)) {
+            // 회원 댓글
+            if (user == null) {
+                throw new BusinessException(ErrorCode.COMMENT_FORBIDDEN); // 남의 댓글 삭제 시도 (로그인 안함)
+            }
+
+            // 본인이 아니고 관리자도 아니면 거부
+            boolean isOwner = existing.getUserId().equals(user.getId());
+            boolean isAdmin = "ROLE_ADMIN".equals(user.getRole());
+
+            if (!isOwner && !isAdmin) {
                 throw new BusinessException(ErrorCode.COMMENT_FORBIDDEN);
             }
         } else {
-            if (guestPassword == null || guestPassword.isBlank()) {
-                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_REQUIRED);
-            }
-            if (!passwordEncoder.matches(guestPassword, existing.getGuestPasswordHash())) {
-                throw new BusinessException(ErrorCode.COMMENT_PASSWORD_MISMATCH);
+            // 게스트 댓글
+            // 관리자면 비밀번호 없이 삭제 가능
+            boolean isAdmin = user != null && "ROLE_ADMIN".equals(user.getRole());
+
+            if (!isAdmin) {
+                if (guestPassword == null || guestPassword.isBlank()) {
+                    throw new BusinessException(ErrorCode.COMMENT_PASSWORD_REQUIRED);
+                }
+                if (!passwordEncoder.matches(guestPassword, existing.getGuestPasswordHash())) {
+                    throw new BusinessException(ErrorCode.COMMENT_PASSWORD_MISMATCH);
+                }
             }
         }
 
