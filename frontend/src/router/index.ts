@@ -132,7 +132,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: () => import('@/views/admin/AdminPageView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     // Redirect old routes
     {
@@ -154,6 +154,11 @@ const router = createRouter({
     {
       path: '/profile',
       redirect: '/mypage',
+    },
+    // Catch-all for 404
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
     },
   ],
 })
@@ -178,6 +183,12 @@ router.beforeEach((to, from, next) => {
             name: 'login',
             query: { redirect: to.fullPath },
         })
+    }
+
+    // [Admin Security] 관리자 권한 확인
+    if (to.meta.requiresAdmin && authStore.user?.role !== 'ROLE_ADMIN') {
+        // alert('관리자 권한이 필요합니다.'); // UX상 조용히 홈으로 보내거나 404처럼 처리하는게 나을 수 있음
+        return next({ name: 'home' });
     }
 
     next()

@@ -17,6 +17,7 @@
         <result property="profileTheme" column="profile_theme"/>
         <result property="avatarDecoration" column="avatar_decoration"/>
         <result property="popoverDecoration" column="popover_decoration"/>
+        <result property="role" column="role"/>
     </resultMap>
 
     <!-- 유저 팝오버용 결과 매핑 -->
@@ -33,13 +34,13 @@
     </resultMap>
 
     <select id="findById" resultMap="UserResponseMap">
-        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration
+        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration, role
         FROM users
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="findByIds" resultMap="UserResponseMap">
-        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration
+        SELECT id, email, nickname, profile_image_url, status_message, profile_theme, avatar_decoration, popover_decoration, role
         FROM users
         WHERE is_deleted = 0
           AND id IN
@@ -149,6 +150,7 @@
             u.profile_theme,
             u.avatar_decoration,
             u.popover_decoration,
+            u.role,
             (SELECT COUNT(*)
              FROM follows f1
              JOIN users uf1 ON uf1.id = f1.follower_id
