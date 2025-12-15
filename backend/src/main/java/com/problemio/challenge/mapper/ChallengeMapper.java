@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ChallengeMapper {
     List<Challenge> findAll();
     Optional<Challenge> findById(Long id);
+    void insert(Challenge challenge);
 }

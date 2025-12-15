@@ -53,4 +53,13 @@ public interface QuizMapper {
             @Param("offset") int offset,
             @Param("limit") int limit
     );
+
+    // 관리자용 퀴즈 조회
+    List<Quiz> findAdminQuizzes(
+            @Param("offset") int offset,
+            @Param("size") int size,
+            @Param("keyword") String keyword
+    );
+
+    int countAdminQuizzes(@Param("keyword") String keyword);
 }

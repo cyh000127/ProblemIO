@@ -242,7 +242,22 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .build();
     }
 
+    private final com.problemio.quiz.mapper.QuizMapper quizMapper;
+
     private ChallengeDto toDto(Challenge challenge) {
+        // Fetch target quiz
+        com.problemio.quiz.domain.Quiz quiz = quizMapper.findById(challenge.getTargetQuizId()).orElse(null);
+        com.problemio.quiz.dto.QuizResponse quizResponse = null;
+        
+        if (quiz != null) {
+            quizResponse = com.problemio.quiz.dto.QuizResponse.builder()
+                .id(quiz.getId())
+                .title(quiz.getTitle())
+                .thumbnailUrl(quiz.getThumbnailUrl())
+                // Basic fields enough for thumbnail display
+                .build();
+        }
+
         return ChallengeDto.builder()
                 .id(challenge.getId())
                 .title(challenge.getTitle())
@@ -251,6 +266,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .timeLimit(challenge.getTimeLimit())
                 .startAt(challenge.getStartAt())
                 .endAt(challenge.getEndAt())
+                .targetQuiz(quizResponse)
                 .build();
     }
 }

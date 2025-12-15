@@ -24,4 +24,5 @@ public class UserResponse {
     private int followingCount;
     private int quizCount;
     private Boolean isFollowedByMe;
+    private String role;
 }

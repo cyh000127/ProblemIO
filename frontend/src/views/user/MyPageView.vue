@@ -24,14 +24,27 @@
                   </p>
                 </div>
 
-                <!-- 설정 버튼 (/mypage/edit 이동) -->
-                <Button
-                  icon="pi pi-cog"
-                  rounded
-                  outlined
-                  @click="goToEditProfile"
-                  aria-label="프로필 설정"
-                />
+                <div class="flex gap-2">
+                   <!-- 관리자 버튼 -->
+                  <Button
+                    v-if="me?.role === 'ROLE_ADMIN'"
+                    icon="pi pi-shield"
+                    rounded
+                    outlined
+                    severity="danger"
+                    @click="goToAdmin"
+                    aria-label="관리자 페이지"
+                    v-tooltip.bottom="'관리자 페이지'"
+                  />
+                  <!-- 설정 버튼 (/mypage/edit 이동) -->
+                  <Button
+                    icon="pi pi-cog"
+                    rounded
+                    outlined
+                    @click="goToEditProfile"
+                    aria-label="프로필 설정"
+                  />
+                </div>
               </div>
 
               <!-- 통계 영역 -->
@@ -196,6 +209,10 @@ const me = computed(() => authStore.user);
 
 const goToEditProfile = () => {
   router.push("/mypage/edit"); 
+};
+
+const goToAdmin = () => {
+  router.push("/admin");
 };
 
 // 활성 탭 상태

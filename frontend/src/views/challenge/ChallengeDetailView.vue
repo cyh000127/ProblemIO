@@ -18,8 +18,14 @@
             <Card class="challenge-info-card shadow-lg border-0 rounded-2xl overflow-hidden">
                 <template #header>
                     <div class="aspect-video bg-surface-100 overflow-hidden thumbnail-frame relative">
-                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-gray-400">
-                            <!-- Placeholder Icon or Image -->
+                         <img 
+                            v-if="challenge.targetQuiz?.thumbnailUrl" 
+                            :src="resolveImageUrl(challenge.targetQuiz.thumbnailUrl)" 
+                            class="w-full h-full object-cover" 
+                            alt="Challenge Thumbnail" 
+                         />
+                         <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-gray-400">
+                            <!-- Placeholder Icon -->
                             <i class="pi pi-bolt text-6xl text-indigo-300"></i>
                          </div>
                          <div class="absolute top-4 left-4 flex gap-2">
@@ -79,6 +85,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 // import { useToast } from "primevue/usetoast";
 import { getChallenge } from "@/api/challenge";
+import { resolveImageUrl } from "@/lib/image";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import Tag from "primevue/tag";

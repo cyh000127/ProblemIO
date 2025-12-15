@@ -49,9 +49,9 @@ public class CommentController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody(required = false) CommentDeleteRequest request
     ) {
-        Long userId = userDetails != null ? userDetails.getUser().getId() : null;
+        com.problemio.user.domain.User user = userDetails != null ? userDetails.getUser() : null;
         String guestPassword = request != null ? request.getPassword() : null;
-        commentService.deleteComment(commentId, userId, guestPassword);
+        commentService.deleteComment(commentId, user, guestPassword);
     }
 
     @GetMapping("/quizzes/{quizId}/comments")

@@ -15,4 +15,5 @@ public class ChallengeDto {
     private Integer timeLimit;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
+    private com.problemio.quiz.dto.QuizResponse targetQuiz;
 }

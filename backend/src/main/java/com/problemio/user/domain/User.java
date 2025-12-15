@@ -18,4 +18,5 @@ public class User {
     private boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String role; // ROLE_USER, ROLE_ADMIN
 }

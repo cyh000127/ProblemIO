@@ -23,4 +23,5 @@ public class QuizResponse {
     private UserResponse author;
     private Boolean isLikedByMe;
     private Boolean isFollowedByMe;
+    private boolean isHidden;
 }

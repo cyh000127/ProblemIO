@@ -128,6 +128,12 @@ const router = createRouter({
       component: ProfileEditView,
       meta: { requiresAuth: true },
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/admin/AdminPageView.vue'),
+      meta: { requiresAuth: true },
+    },
     // Redirect old routes
     {
       path: '/feed',

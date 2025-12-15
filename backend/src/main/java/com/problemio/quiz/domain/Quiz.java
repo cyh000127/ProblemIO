@@ -17,6 +17,7 @@ public class Quiz {
     private boolean isPublic;
     private int likeCount;
     private int playCount;
+    private boolean isHidden;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
