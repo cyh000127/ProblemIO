@@ -64,7 +64,7 @@ public class RankingServiceImpl implements RankingService {
 
     private int calcScore(RankingRowDto r) {
         double smoothedAccuracy = calcSmoothedAccuracy(r.getTotalCorrect(), r.getTotalQuestions());
-        double score = r.getSolvedQuizCount() * (ACCURACY_BASE + ACCURACY_WEIGHT * smoothedAccuracy);
+        double score = r.getSolvedQuizCount() * (ACCURACY_BASE + ACCURACY_WEIGHT * smoothedAccuracy) * 10;
         return (int) Math.round(score);
     }
 
