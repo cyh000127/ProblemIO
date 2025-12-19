@@ -1,5 +1,5 @@
 <template>
-  <Card class="h-full hover:shadow-lg transition-duration-200 cursor-pointer" @click="$emit('click')">
+  <Card class="h-full hover:shadow-lg transition-duration-200 cursor-pointer" :class="{ 'opacity-75 grayscale-0': isExpired }" @click="handleClick">
     <template #header>
       <div v-if="challenge.challengeType === 'TIME_ATTACK'" class="bg-red-100 text-red-600 px-3 py-1 font-bold text-center">
         TIME ATTACK
@@ -26,8 +26,14 @@
       </div>
     </template>
 
-    <template #footer>
-        <Button label="도전하기" class="w-full" icon="pi pi-bolt" />
+<template #footer>
+        <Button 
+          :label="isExpired ? '종료됨' : '도전하기'" 
+          :class="['w-full', isExpired ? 'opacity-60' : '']" 
+          :icon="isExpired ? 'pi pi-lock' : 'pi pi-bolt'" 
+          :disabled="isExpired" 
+          :severity="isExpired ? 'secondary' : 'primary'"
+        />
     </template>
   </Card>
 </template>
@@ -45,7 +51,19 @@ const props = defineProps({
   }
 })
 
-defineEmits(['click'])
+const emit = defineEmits(['click'])
+
+const isExpired = computed(() => {
+    if (!props.challenge.endAt) return false;
+    const end = new Date(props.challenge.endAt);
+    const now = new Date();
+    return now > end;
+});
+
+const handleClick = () => {
+    if (isExpired.value) return; // Prevent click if expired
+    emit('click');
+}
 
 const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60)
