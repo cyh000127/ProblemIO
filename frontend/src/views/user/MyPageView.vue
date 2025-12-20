@@ -2,66 +2,34 @@
 
   <div class="mypage-container">
     <div class="container mx-auto px-4">
-      <!-- 프로필 헤더 -->
-      <!-- 프로필 헤더 -->
-      <ProfileBackground :user="me" class="mb-8 p-6 shadow-4 profile-card-content">
-          <!-- [수정] 텍스트 색상을 확실하게 적용하기 위해 내부 div에 color 스타일 바인딩 -> Component handles it now -->
-          <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
-            <UserAvatar class="w-32 h-32" />
-            <div class="flex-1 text-center md:text-left">
-              <!-- 닉네임 / 상태메시지 + 우측 상단 설정 버튼 -->
-              <div class="flex justify-between items-start">
-                <div>
-                  <h1 class="text-3xl font-bold mb-2">{{ me?.nickname }}</h1>
-                  <p
-                    v-if="me?.statusMessage"
-                    class="text-lg opacity-80 mb-4"
-                  >
-                    {{ me.statusMessage }}
-                  </p>
-                </div>
 
-                <div class="flex gap-2">
-                   <!-- 관리자 버튼 -->
-                  <Button
-                    v-if="me?.role === 'ROLE_ADMIN'"
-                    icon="pi pi-shield"
-                    rounded
-                    outlined
-                    severity="danger"
-                    @click="goToAdmin"
-                    aria-label="관리자 페이지"
-                    v-tooltip.bottom="'관리자 페이지'"
-                  />
-                  <!-- 설정 버튼 (/mypage/edit 이동) -->
-                  <Button
-                    icon="pi pi-cog"
-                    rounded
-                    outlined
-                    @click="goToEditProfile"
-                    aria-label="프로필 설정"
-                  />
-                </div>
-              </div>
-
-              <!-- 통계 영역 -->
-<div class="flex justify-center md:justify-start gap-8 mt-2">
-  <div class="stat-box">
-    <p class="text-2xl font-bold m-0">{{ myQuizCount }}</p>
-    <p class="text-sm opacity-80 m-0">만든 퀴즈</p>
-  </div>
-  <div class="stat-box">
-    <p class="text-2xl font-bold m-0">{{ me?.followerCount ?? 0 }}</p>
-    <p class="text-sm opacity-80 m-0">팔로워</p>
-  </div>
-  <div class="stat-box">
-    <p class="text-2xl font-bold m-0">{{ me?.followingCount ?? 0 }}</p>
-    <p class="text-sm opacity-80 m-0">팔로잉</p>
-  </div>
-</div>
-            </div>
-          </div>
-      </ProfileBackground>
+      <!-- 프로필 헤더 -->
+      <ProfileHeader 
+        :user="me" 
+        :quizCount="myQuizCount"
+      >
+        <template #actions>
+           <!-- 관리자 버튼 -->
+          <Button
+            v-if="me?.role === 'ROLE_ADMIN'"
+            icon="pi pi-shield"
+            rounded
+            outlined
+            severity="danger"
+            @click="goToAdmin"
+            aria-label="관리자 페이지"
+            v-tooltip.bottom="'관리자 페이지'"
+          />
+          <!-- 설정 버튼 (/mypage/edit 이동) -->
+          <Button
+            icon="pi pi-cog"
+            rounded
+            outlined
+            @click="goToEditProfile"
+            aria-label="프로필 설정"
+          />
+        </template>
+      </ProfileHeader>
 
       <!-- Navbar 스타일의 탭 네비게이션 -->
       <div class="tab-navbar">
@@ -192,8 +160,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useAuthStore } from "@/stores/auth";
 import { getFollowingQuizzes, getMyLikedQuizzes } from "@/api/user";
 import { getMyQuizzes, deleteQuiz } from "@/api/quiz";
-import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
-import ProfileBackground from '@/components/user/ProfileBackground.vue';
+import ProfileHeader from '@/components/user/ProfileHeader.vue';
 import { resolveImageUrl } from "@/lib/image"; 
 
 const router = useRouter();

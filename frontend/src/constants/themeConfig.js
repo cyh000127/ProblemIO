@@ -22,5 +22,70 @@ export const PROFILE_THEMES = {
       border: '2px solid #00eaff',
       animation: 'neon-pulse 2s infinite ease-in-out, border-flow 4s infinite linear'
     }
+  },
+  aurora_night: {
+    name: 'Aurora Night',
+    textColor: '#e0f7ff',
+    style: {
+      background: 'linear-gradient(270deg, #1c1c3c, #3b2f63, #355c7d, #1c1c3c)',
+      backgroundSize: '400% 400%',
+      animation: 'gradient-move 10s ease infinite'
+    }
+  },
+  sunset_vibes: {
+    name: 'Sunset Vibes',
+    textColor: '#5d3a3a',
+    style: {
+      background: 'linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%)',
+      backgroundSize: '200% 200%',
+      animation: 'gradient-move 5s ease infinite alternate'
+    }
+  },
+  cyber_punk: {
+    name: 'Cyber Punk',
+    textColor: '#00ff41',
+    style: {
+      backgroundColor: '#050505',
+      backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(0, 255, 0, .05) 25%, rgba(0, 255, 0, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .05) 75%, rgba(0, 255, 0, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 255, 0, .05) 25%, rgba(0, 255, 0, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 0, .05) 75%, rgba(0, 255, 0, .05) 76%, transparent 77%, transparent)',
+      backgroundSize: '50px 50px',
+      boxShadow: 'inset 0 0 50px #000'
+    }
+  },
+  golden_luxury: {
+    name: 'Golden Luxury',
+    textColor: '#5a3e1a',
+    style: {
+        background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
+        position: 'relative'
+    }
+    // Note: ::after psuedo-element cannot be inline styled easily in Vue without specific component support.
+    // However, we added 'shimmer' keyframe. We might need a way to support overlay or just simplify.
+    // For now, I'll stick to basic background. If the user wants the shimmer overlay, we'd need a specific class or structure change.
+    // Given the constraints, I will simplify or rely on the gradient.
+  },
+
+
+  matrix_code: {
+    name: 'Matrix Code',
+    textColor: '#00FF00',
+    style: {
+      backgroundColor: '#000',
+      fontFamily: 'monospace',
+      border: '2px solid #00FF00'
+    }
+  },
+
+
+  minimalist_float: {
+    name: 'Minimalist Float',
+    textColor: '#111827',
+    style: {
+      backgroundColor: '#fff',
+      backgroundImage: 'radial-gradient(#e5e7eb 2px, transparent 2px)',
+      backgroundSize: '20px 20px',
+      // The floating animation was on .mock-avatar in example, but here we apply to background container? 
+      // If we want the whole card to float, we can add animation here.
+      animation: 'floating 3s ease-in-out infinite' 
+    }
   }
 };

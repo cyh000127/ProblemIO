@@ -337,3 +337,54 @@ p, span, label, small {
 }
 
 /* Pastel Animations Removed */
+
+/* =========================================
+   [KEYFRAMES DEFINITION] 
+   ========================================= */
+
+/* 1. Gradient Move */
+@keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 2. Neon Pulse - Merged/Updated */
+@keyframes text-neon-pulse {
+    0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-color), 0 0 20px var(--neon-color); }
+    50% { text-shadow: 0 0 2px #fff, 0 0 5px var(--neon-color), 0 0 10px var(--neon-color); }
+}
+
+/* 3. Floating */
+@keyframes floating {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* 4. Shimmer */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* 5. Rainbow Border */
+@keyframes rainbow-border {
+    0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+    20% { border-color: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+    40% { border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+    60% { border-color: #00ffff; box-shadow: 0 0 10px #00ffff; }
+    80% { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+    100% { border-color: #ffff00; box-shadow: 0 0 10px #ffff00; }
+}
+
+/* 6. Glitch Skew */
+@keyframes glitch-skew {
+    0% { transform: skew(0deg); }
+    20% { transform: skew(-2deg); }
+    40% { transform: skew(2deg); }
+    60% { transform: skew(-1deg); }
+    80% { transform: skew(1deg); }
+    100% { transform: skew(0deg); }
+}
+
+
