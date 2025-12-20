@@ -196,47 +196,16 @@
 
 
                    <!-- Theme Preview -->
-                   <ProfileBackground 
-                      v-if="customType === 'THEME'" 
-                      :user="tempPreviewUser"
-                      :previewThemeId="tempSelection"
-                      class="w-full border shadow-sm p-4 h-60"
-                    >
-                       <!-- Simulate Profile Header Content inside Theme -->
-                       <!-- Scale down content to fit while maintaining layout -->
-                       <!-- Scale content to fill the container perfectly -->
-                       <!-- We want the content to render as if on a larger screen (approx 700px) and scale down to fit the modal (approx 500px) -->
-                       <!-- 700px * 0.7 ~= 490px. -->
-                       <div class="origin-top-left transform scale-[0.6] w-[166%] h-[166%] flex items-center justify-center pointer-events-none">
-                           <div class="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left w-full px-8"> 
-                                <UserAvatar :user="tempPreviewUser" class="w-32 h-32 flex-shrink-0" />
-                                <div class="flex-1 min-w-0">
-                                    <h1 class="text-3xl font-bold mb-2 truncate">{{ tempPreviewUser.nickname }}</h1>
-                                    <p v-if="tempPreviewUser.statusMessage" class="opacity-80 text-lg mb-4 break-words line-clamp-2">
-                                        {{ tempPreviewUser.statusMessage }}
-                                    </p>
-                                    <div class="flex gap-6 text-sm justify-center md:justify-start">
-                                        <div class="text-center">
-                                            <p class="font-bold text-xl">0</p>
-                                            <p class="text-xs opacity-70">만든 퀴즈</p>
-                                        </div>
-                                        <div class="text-center">
-                                            <p class="font-bold text-xl">{{ tempPreviewUser.followerCount }}</p>
-                                            <p class="text-xs opacity-70">팔로워</p>
-                                        </div>
-                                        <div class="text-center">
-                                            <p class="font-bold text-xl">{{ tempPreviewUser.followingCount }}</p>
-                                            <p class="text-xs opacity-70">팔로잉</p>
-                                        </div>
-                                    </div>
-                                </div>
-                           </div>
-                       </div>
-                       
-                       <span class="absolute top-2 right-2 bg-white/80 px-2 py-0.5 rounded text-xs font-bold shadow-sm text-black z-20">
-                           <i class="pi pi-eye mr-1"></i>미리보기
-                       </span>
-                   </ProfileBackground>
+                   <div v-if="customType === 'THEME'" class="w-full overflow-hidden rounded-xl border relative bg-gray-50 dark:bg-gray-900" style="height: 300px;">
+                       <!-- Scaled Container for Desktop View equivalent -->
+                        <div class="origin-top-left transform scale-[0.65] w-[154%] h-[154%] p-4">
+                           <ProfileHeader 
+                              :user="tempPreviewUser"
+                              :previewThemeId="tempSelection"
+                              class="!mb-0 shadow-lg" 
+                           />
+                        </div>
+                   </div>
 
                    <!-- Popover Preview -->
                    <div v-if="customType === 'POPOVER'" class="text-center p-4">
@@ -306,8 +275,7 @@ import { useToast } from "primevue/usetoast";
 import { useAuthStore } from "@/stores/auth";
 import { useCustomItemStore } from "@/stores/customItemStore"; // Import Store
 import { updateMyProfile, changePassword, deleteAccount, getMe, checkNickname } from "@/api/user";
-import UserAvatar from '@/components/common/UserAvatar.vue'
-import ProfileBackground from '@/components/user/ProfileBackground.vue'
+import ProfileHeader from '@/components/user/ProfileHeader.vue'
 import UserPopoverCard from '@/components/common/UserPopoverCard.vue'
 import { resolveImageUrl } from "@/lib/image";
 import Button from 'primevue/button';
@@ -405,9 +373,11 @@ onMounted(async () => {
 
 // Computed available items based on type
 const availableItems = computed(() => {
-    if (customType.value === 'THEME') return Object.values(customItemStore.themeItems);
-    if (customType.value === 'POPOVER') return Object.values(customItemStore.popoverItems);
-    return [];
+    let items = [];
+    if (customType.value === 'THEME') items = Object.values(customItemStore.themeItems);
+    else if (customType.value === 'POPOVER') items = Object.values(customItemStore.popoverItems);
+    
+    return items;
 });
 
 const customDialogTitle = computed(() => {
