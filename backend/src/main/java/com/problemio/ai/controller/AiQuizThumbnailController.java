@@ -48,7 +48,7 @@ public class AiQuizThumbnailController {
         if (userDetails == null) {
             throw new BusinessException(ErrorCode.LOGIN_REQUIRED);
         }
-        Long userId = userDetails.getId();
+        Long userId = userDetails.getUser().getId();
         AiThumbnailConfirmResponse response = aiQuizThumbnailService.confirmCandidate(
                 request.getCandidateId(),
                 userId
