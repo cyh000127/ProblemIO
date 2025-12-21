@@ -309,17 +309,17 @@
                                     <label class="block text-sm font-bold mb-3 opacity-80 flex items-center gap-2">
                                         <i class="pi pi-bolt"></i> 애니메이션 효과
                                     </label>
-                                    <Dropdown 
-                                        v-model="builderForm.animationName" 
+                                    <MultiSelect 
+                                        v-model="builderForm.animationNames" 
                                         :options="animationOptions" 
                                         optionLabel="label" 
                                         optionValue="value" 
-                                        placeholder="효과 선택..." 
-                                        class="w-full mb-4 p-dropdown"
-                                        showClear
+                                        placeholder="효과 선택 (다중 선택 가능)..." 
+                                        class="w-full mb-4"
+                                        display="chip"
                                     />
                                     
-                                    <div v-if="builderForm.animationName && builderForm.animationName !== 'none'" class="bg-surface-ground p-3 rounded-lg">
+                                    <div v-if="builderForm.animationNames && builderForm.animationNames.length > 0" class="bg-surface-ground p-3 rounded-lg">
                                         <div class="flex justify-between text-xs mb-2 opacity-70">
                                             <span>빠르게 (0.5s)</span>
                                             <span>느리게 (5s)</span>
@@ -369,9 +369,9 @@
               <div v-for="item in customItems" :key="item.id" class="p-4 border rounded-lg bg-surface-card relative group" style="background:var(--color-background-soft); border-color:var(--color-border)">
                   <div class="font-bold text-lg" style="color:var(--color-heading)">
                       {{ item.name }}
-                      <span v-if="item.isDefault" class="ml-2 text-xs bg-primary text-white px-2 py-0.5 rounded-full align-middle">
-                          Default
-                      </span>
+                  </div>
+                  <div v-if="item.isDefault" class="default-item-badge absolute top-2 right-2 bg-primary/90 text-xs px-2 py-1 rounded shadow-sm font-bold z-10">
+                      Default
                   </div>
                   <div class="text-sm mb-2" style="color:var(--text-color-secondary)">{{ item.itemType }}</div>
                   <!-- Mini Preview of JSON for reference, or removed if too cluttered. Keeping for admin debug. -->
@@ -506,6 +506,7 @@ import { useToast } from 'primevue/usetoast';
 import ColorPicker from 'primevue/colorpicker';
 import Slider from 'primevue/slider';
 import InputSwitch from 'primevue/inputswitch';
+import MultiSelect from 'primevue/multiselect';
 
 const toast = useToast();
 const activeTab = ref('quizzes');
@@ -560,7 +561,11 @@ const builderForm = reactive({
     borderColor: 'cccccc',
     borderWidth: 1,
     shadowColor: '000000',
-    animationName: 'none',
+    borderColor: 'cccccc',
+    borderWidth: 1,
+    shadowColor: '000000',
+    animationNames: [], // Changed from animationName string to array
+    animationDuration: 2,
     animationDuration: 2,
     useGradient: false,
     gradientStart: 'ffffff',
@@ -644,12 +649,29 @@ const parseConfigToBuilder = () => {
         
         // Animation
         if (style.animation) {
-            // "bounce 2s infinite linear"
-            const parts = style.animation.split(' ');
-            if (parts.length > 0) builderForm.animationName = parts[0];
-            if (parts.length > 1) builderForm.animationDuration = parseFloat(parts[1]);
+            // "bounce 2s infinite linear, pulse 2s infinite linear"
+            // Split by comma
+            const anims = style.animation.split(',');
+            const names = [];
+            let duration = 2;
+            
+            anims.forEach(animStr => {
+                 const parts = animStr.trim().split(' ');
+                 if (parts.length > 0) {
+                     const name = parts[0];
+                     if(name !== 'gradient-flow') { // internal use
+                        names.push(name);
+                     }
+                     if (parts.length > 1) {
+                         const d = parseFloat(parts[1]);
+                         if (!isNaN(d)) duration = d;
+                     }
+                 }
+            });
+            builderForm.animationNames = names;
+            builderForm.animationDuration = duration;
         } else {
-            builderForm.animationName = 'none';
+            builderForm.animationNames = [];
         }
         
     } catch (e) {
@@ -688,20 +710,33 @@ const generateConfigFromBuilder = () => {
     }
     
     // Animation
-    if (builderForm.animationName && builderForm.animationName !== 'none') {
+    // Animation
+    // Multiple animations joined by comma
+    if (builderForm.animationNames && builderForm.animationNames.length > 0) {
         const duration = builderForm.animationDuration || 2;
-        let animLine = `${builderForm.animationName} ${duration}s infinite linear`;
         
-        if (['bounce', 'pulse', 'shake', 'swing', 'rubberBand', 'jello'].includes(builderForm.animationName)) {
-            animLine = `${builderForm.animationName} ${duration}s infinite ease-in-out`;
+        const animStrings = builderForm.animationNames.map(name => {
+             if (name === 'none') return null;
+             
+             let timing = 'linear';
+             if (['bounce', 'pulse', 'shake', 'swing', 'rubberBand', 'jello'].includes(name)) {
+                timing = 'ease-in-out';
+             }
+             return `${name} ${duration}s infinite ${timing}`;
+        }).filter(s => s !== null);
+        
+        if (animStrings.length > 0) {
+            // Should valid CSS animation syntax: anim1, anim2
+            style.animation = animStrings.join(', ') + ' !important';
         }
-        style.animation = `${animLine} !important`;
     }
     
     const config = {
         style: style,
         textColor: `#${builderForm.textColor}`, 
-        image: localPreviewUrl.value || uploadedImageUrl.value || null 
+        // Fix: Do NOT include localPreviewUrl (Blob) in configStr to prevent saving it to DB.
+        // applyPreview() handles the visual preview of the Blob separately.
+        image: uploadedImageUrl.value || null 
     };
     
     newItem.configStr = JSON.stringify(config, null, 2);
@@ -1317,6 +1352,14 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.default-item-badge {
+    color: #000000 !important;
+}
+
+[data-theme="dark"] .default-item-badge {
+    color: #ffffff !important;
 }
 
 .quiz-stat {
