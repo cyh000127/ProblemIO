@@ -25,6 +25,8 @@ import com.problemio.user.dto.UserResponse;
 import com.problemio.user.mapper.UserMapper;
 import com.problemio.comment.mapper.CommentMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,8 @@ public class QuizServiceImpl implements QuizService {
     private final CommentMapper commentMapper;
     // 댓글 좋아요 정리용
     private final CommentLikeMapper commentLikeMapper;
+    // 캐시 관리자 (userProfile 캐시 활용)
+    private final CacheManager cacheManager;
 
     /**
      * 퀴즈 목록 조회 (페이징 + 정렬 + 검색)
@@ -400,32 +404,74 @@ public class QuizServiceImpl implements QuizService {
 
     private List<QuestionResponse> loadQuestions(Long quizId) {
         List<Question> questions = questionMapper.findByQuizId(quizId);
+        Map<Long, List<QuestionAnswerDto>> answersByQuestion = loadAnswersByQuestionIds(
+                questions.stream().map(Question::getId).toList()
+        );
         return questions.stream()
                 .map(q -> QuestionResponse.builder()
                         .id(q.getId())
                         .order(q.getQuestionOrder())
                         .description(q.getDescription())
                         .imageUrl(q.getImageUrl())
-                        .answers(loadAnswers(q.getId()))
+                        .answers(answersByQuestion.getOrDefault(q.getId(), List.of()))
                         .build())
                 .collect(Collectors.toList());
     }
 
-    private List<QuestionAnswerDto> loadAnswers(Long questionId) {
-        List<QuestionAnswer> answers = questionAnswerMapper.findByQuestionId(questionId);
-        return answers.stream()
-                .map(a -> {
-                    QuestionAnswerDto dto = new QuestionAnswerDto();
-                    dto.setId(a.getId());
-                    dto.setAnswerText(a.getAnswerText());
-                    dto.setSortOrder(a.getSortOrder());
-                    return dto;
-                })
+    private List<QuestionResponse> mapQuestionsWithAnswers(List<Question> questions) {
+        Map<Long, List<QuestionAnswerDto>> answersByQuestion = loadAnswersByQuestionIds(
+                questions.stream().map(Question::getId).toList()
+        );
+
+        final int[] orderSeq = {1};
+        return questions.stream()
+                .map(q -> QuestionResponse.builder()
+                        .id(q.getId())
+                        .order(orderSeq[0]++)
+                        .description(q.getDescription())
+                        .imageUrl(q.getImageUrl())
+                        .answers(answersByQuestion.getOrDefault(q.getId(), List.of()))
+                        .build())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 지정된 질문 ID들의 정답을 한 번에 조회해 맵으로 반환한다.
+     */
+    private Map<Long, List<QuestionAnswerDto>> loadAnswersByQuestionIds(List<Long> questionIds) {
+        if (questionIds == null || questionIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<QuestionAnswer> answers = questionAnswerMapper.findByQuestionIds(questionIds);
+
+        return answers.stream()
+                .collect(Collectors.groupingBy(
+                        QuestionAnswer::getQuestionId,
+                        Collectors.mapping(a -> {
+                            QuestionAnswerDto dto = new QuestionAnswerDto();
+                            dto.setId(a.getId());
+                            dto.setAnswerText(a.getAnswerText());
+                            dto.setSortOrder(a.getSortOrder());
+                            return dto;
+                        }, Collectors.toList())
+                ));
+    }
+
     private UserResponse findAuthor(Long userId) {
-        return userMapper.findById(userId).orElse(null);
+        Cache cache = cacheManager.getCache("userProfile");
+        if (cache != null) {
+            UserResponse cached = cache.get(userId, UserResponse.class);
+            if (cached != null) {
+                return cached;
+            }
+        }
+
+        UserResponse author = userMapper.findById(userId).orElse(null);
+        if (cache != null && author != null) {
+            cache.put(userId, author);
+        }
+        return author;
     }
 
     /**
@@ -469,17 +515,7 @@ public class QuizServiceImpl implements QuizService {
 
         int safeLimit = normalizeLimit(limit);
         List<Question> questions = questionMapper.findRandomByQuizId(quizId, safeLimit);
-
-        final int[] orderSeq = {1};
-        return questions.stream()
-                .map(q -> QuestionResponse.builder()
-                        .id(q.getId())
-                        .order(orderSeq[0]++)
-                        .description(q.getDescription())
-                        .imageUrl(q.getImageUrl())
-                        .answers(loadAnswers(q.getId()))
-                        .build())
-                .collect(Collectors.toList());
+        return mapQuestionsWithAnswers(questions);
     }
 
     private int normalizeLimit(Integer limit) {
