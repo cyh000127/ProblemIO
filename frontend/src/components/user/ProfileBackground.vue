@@ -53,7 +53,7 @@ const backgroundStyle = computed(() => {
       backgroundSize: 'cover !important',
       backgroundPosition: 'center !important',
       backgroundRepeat: 'no-repeat !important',
-      background: 'none !important', // Reset shorthand in case it was used in theme.style
+      // background: 'none !important', // Removing this as it overrides backgroundImage
       backgroundColor: 'transparent !important' // Ensure color doesn't conflict
     };
   }

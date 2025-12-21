@@ -18,6 +18,11 @@ export const resolveImageUrl = (url) => {
       return `${s3BaseUrl}/${cleanPath}`;
   }
 
+  // Local static assets (Frontend public folder)
+  if (url.startsWith('/theme/') || url.startsWith('/popover/')) {
+      return url;
+  }
+
   const prefix = url.startsWith('/') ? '' : '/'
   return `${staticBaseUrl}${prefix}${url}`
 }

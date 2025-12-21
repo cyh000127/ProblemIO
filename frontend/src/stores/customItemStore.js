@@ -18,15 +18,8 @@ export const useCustomItemStore = defineStore('customItem', () => {
     const fetchItemDefinitions = async () => {
         try {
             const res = await axios.get('/items/definitions');
-            // Convert list to map
             const defs = {};
             res.data.forEach(item => {
-                // item.config is Object or String?
-                // Backend returns list of objects.
-                // Assuming config is properly serialized/deserialized by Jackson if we used Object in DTO.
-                // Wait, Controller returns Domain Entity `CustomItem`. 
-                // Domain Entity `config` is String (JSON).
-                // So we need to parse it if it is a string.
                 let config = item.config;
                 if (typeof config === 'string') {
                     try {
@@ -36,15 +29,8 @@ export const useCustomItemStore = defineStore('customItem', () => {
                     }
                 }
                 
-                // Overwrite 'Cybercity' config with local constant to ensure animation updates apply immediately
-                // regardless of stale DB data.
-                if (item.name === 'Cybercity') {
-                   if (item.itemType === 'POPOVER' && POPOVER_DECORATIONS.cybercity) {
-                       config = { ...config, ...POPOVER_DECORATIONS.cybercity };
-                   } else if (item.itemType === 'THEME' && PROFILE_THEMES.cybercity) {
-                       config = { ...config, ...PROFILE_THEMES.cybercity };
-                   }
-                }
+                // Note: We no longer override Cybercity here because we treat it as purely static in fetchUserItems.
+                // If backend returns Cybercity, it will be handled (ignored) there or coexist.
                 
                 defs[item.id] = {
                     id: item.id,
@@ -61,8 +47,7 @@ export const useCustomItemStore = defineStore('customItem', () => {
 
     const fetchUserItems = async () => {
         loading.value = true
-        // Ensure definitions are loaded first or in parallel, but we need them for rendering "others" anyway.
-        // Actually, let's load definitions if empty.
+        // Ensure definitions are loaded for shared context if needed
         if (Object.keys(itemDefinitions.value).length === 0) {
             await fetchItemDefinitions();
         }
@@ -75,25 +60,9 @@ export const useCustomItemStore = defineStore('customItem', () => {
                 axios.get('/items/my', { params: { type: 'THEME' } })
             ]);
 
-            // Merge owned items with definitions or static defaults
-            // Actually, `getMyItems` returns CustomItemResponse which HAS config.
-            // But we might want to unify the source of truth for "what exists" vs "what I have".
-            // The existing `avatarConfig` logic expects an Object of "Available Items".
-            
-            // For now, let's just make the "Available Items" be the defaults + what I own.
-            // Wait, the requirement is "Everyone can see others' themes". 
-            // So if I view someone else's profile, I need to know what "Theme ID 5" is.
-            // That comes from `fetchItemDefinitions`.
-            
-            // So `avatarItems` state should probably be `All Definitions` (for rendering) 
-            // OR `My Available Choices` (for editing).
-            
-            // `UserAvatar` component uses `AVATAR_DECORATIONS`. 
-            // We should replace that usage with `store.getAvatarConfig(id)`.
-            
-            // For editing profile, we need "My Owned Items".
-            
-            // Let's store "My Items" separately.
+            // Merge Logic:
+            // 1. Static Defaults (always available, local assets)
+            // 2. Backend Items (dynamic, S3 assets)
             
             avatarItems.value = formatMyItems(avatars.data, AVATAR_DECORATIONS)
             popoverItems.value = formatMyItems(popovers.data, POPOVER_DECORATIONS)
@@ -101,7 +70,7 @@ export const useCustomItemStore = defineStore('customItem', () => {
 
         } catch (error) {
             console.error('Failed to fetch user items', error)
-            // Even in error case, we must inject keys into static items
+            // Fallback to just static defaults
             avatarItems.value = formatMyItems([], AVATAR_DECORATIONS)
             popoverItems.value = formatMyItems([], POPOVER_DECORATIONS)
             themeItems.value = formatMyItems([], PROFILE_THEMES)
@@ -113,32 +82,58 @@ export const useCustomItemStore = defineStore('customItem', () => {
     const formatMyItems = (backendItems, staticDefaults) => {
         const result = {};
 
-        // 1. UI 루프를 위해 정적 기본값에 키 주입
+        // 1. Static Defaults Injection
+        // These are local items that are always available and "Owned".
         if (staticDefaults) {
             Object.keys(staticDefaults).forEach(key => {
                 const item = staticDefaults[key];
                 result[key] = {
-                    key: key,      // 중요: UI 루프를 위한 키 주입
-                    id: key,       // UI 통일성을 위해 키를 ID로 사용
+                    key: key,      
+                    id: key,       // Use key as ID for static items
+                    isDefault: true, // Mark as default
+                    isOwned: true,   // Always owned
                     ...item
                 };
             });
         }
 
-        // 2. 백엔드 아이템 병합 (이미 'id'를 가지고 있음)
+        // 2. Backend Items Merge
         if (backendItems) {
             backendItems.forEach(item => {
                  let config = item.config;
                  if (typeof config === 'string') {
                      try { config = JSON.parse(config); } catch(e){}
                  }
-                 result[item.id] = {
-                    id: item.id,
-                    name: item.name,
-                    description: item.description,
-                    isDefault: item.isDefault,
-                    isOwned: item.isOwned,
-                    ...config
+                 
+                 // If the backend item has the same ID as a static item (e.g. 'cybercity'), 
+                 // we DO NOT overwrite the static item because we want the Local version to persist.
+                 // However, we might want to capture the 'isDefault' flag from DB if it tracks user selection?
+                 // No, `isDefault` here probably means "Is this the user's currently selected theme?".
+                 // Wait, `CustomItemResponse` usually has `isDefault` (meaning System Default) or `selected`?
+                 // Checking the DTO in previous turns: `isDefault` usually means "Default Item for everyone".
+                 // `isOwned` means "User owns this".
+                 
+                 // If there is a key collision, we respect the Static definition for the CONFIG/IMAGE,
+                 // but we might accept metadata if absolutely necessary. for now, strict separation means we skip if exists.
+                 // Actually, let's just overwrite ONLY if it's NOT a static key.
+                 // But wait, the user said "Cybercity should be separated".
+                 // So if backend returns 'cybercity', we ignore it.
+                 
+                 // Simple check: if keys collide, do nothing (keep static).
+                 // If keys don't collide, add it.
+                 
+                 // But what if backend sends numeric IDs (1, 2, 3) and static usages string keys ('cybercity')?
+                 // Then they won't collide, and they will coexist. That is perfect.
+                 
+                 if (!result[item.id]) {
+                     result[item.id] = {
+                        id: item.id,
+                        name: item.name,
+                        description: item.description,
+                        isDefault: item.isDefault,
+                        isOwned: true, // If it comes from 'my items' endpoint, I own it.
+                        ...config
+                     }
                  }
             });
         }
