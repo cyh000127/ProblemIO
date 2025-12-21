@@ -140,8 +140,38 @@ public class CustomItemService {
                 .collect(Collectors.toList());
     }
 
+    @Autowired
+    private com.problemio.global.service.S3Service s3Service;
+
     @Transactional
     public void deleteItem(Long itemId) {
+        // 1. Fetch item to get image path from config
+        CustomItem item = customItemMapper.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found"));
+        
+        try {
+            // Parse config to find image path
+            if (item.getConfig() != null) {
+                // Config is stored as String JSON
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> configMap = objectMapper.readValue(item.getConfig(), java.util.Map.class);
+                
+                if (configMap.containsKey("image")) {
+                    String imagePath = (String) configMap.get("image");
+                    // Check if it's an S3 path (starts with public/)
+                    if (imagePath != null && (imagePath.startsWith("public/") || imagePath.startsWith("/public/"))) {
+                         // Remove leading slash if present for S3 key consistency
+                         if (imagePath.startsWith("/")) imagePath = imagePath.substring(1);
+                         
+                         s3Service.delete(imagePath);
+                    }
+                }
+            }
+        } catch (Exception e) {
+             // Log but don't fail the transaction just because S3 delete failed (or decide policy)
+             log.warn("Failed to delete S3 image for item " + itemId, e);
+        }
+
         // FK 제약조건으로 인해 할당된 유저 정보 먼저 삭제
         customItemMapper.deleteUserItemsByItemId(itemId);
         customItemMapper.deleteItem(itemId);

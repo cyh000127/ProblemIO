@@ -80,63 +80,54 @@ export const useCustomItemStore = defineStore('customItem', () => {
     }
 
     const formatMyItems = (backendItems, staticDefaults) => {
-        const result = {};
+        const result = [];
+        const addedIds = new Set();
 
-        // 1. Static Defaults Injection
-        // These are local items that are always available and "Owned".
+        // 1. Static Defaults Injection (Always First)
         if (staticDefaults) {
             Object.keys(staticDefaults).forEach(key => {
                 const item = staticDefaults[key];
-                result[key] = {
-                    key: key,      
-                    id: key,       // Use key as ID for static items
-                    isDefault: true, // Mark as default
-                    isOwned: true,   // Always owned
-                    ...item
-                };
+                // Check if already added to avoid duplicates if staticDefaults contains duplicates (unlikely)
+                if(!addedIds.has(key)) {
+                    result.push({
+                        key: key,      
+                        id: key,       // Use key as ID for static items
+                        isDefault: true, // Mark as default
+                        isOwned: true,   // Always owned
+                        ...item
+                    });
+                    addedIds.add(key);
+                }
             });
         }
 
-        // 2. Backend Items Merge
+        // 2. Backend Items Merge (Append to end)
         if (backendItems) {
-            backendItems.forEach(item => {
+            // User requested to simply append backend items after static defaults without explicit re-sorting.
+            // Assuming backend returns them in an acceptable order (e.g., creation order).
+            const sortedBackend = backendItems; 
+            
+            sortedBackend.forEach(item => {
                  let config = item.config;
                  if (typeof config === 'string') {
                      try { config = JSON.parse(config); } catch(e){}
                  }
                  
-                 // If the backend item has the same ID as a static item (e.g. 'cybercity'), 
-                 // we DO NOT overwrite the static item because we want the Local version to persist.
-                 // However, we might want to capture the 'isDefault' flag from DB if it tracks user selection?
-                 // No, `isDefault` here probably means "Is this the user's currently selected theme?".
-                 // Wait, `CustomItemResponse` usually has `isDefault` (meaning System Default) or `selected`?
-                 // Checking the DTO in previous turns: `isDefault` usually means "Default Item for everyone".
-                 // `isOwned` means "User owns this".
-                 
-                 // If there is a key collision, we respect the Static definition for the CONFIG/IMAGE,
-                 // but we might accept metadata if absolutely necessary. for now, strict separation means we skip if exists.
-                 // Actually, let's just overwrite ONLY if it's NOT a static key.
-                 // But wait, the user said "Cybercity should be separated".
-                 // So if backend returns 'cybercity', we ignore it.
-                 
-                 // Simple check: if keys collide, do nothing (keep static).
-                 // If keys don't collide, add it.
-                 
-                 // But what if backend sends numeric IDs (1, 2, 3) and static usages string keys ('cybercity')?
-                 // Then they won't collide, and they will coexist. That is perfect.
-                 
-                 if (!result[item.id]) {
-                     result[item.id] = {
+                 // Avoid collision with static items if IDs conflict
+                 if (!addedIds.has(item.id) && !addedIds.has(String(item.id))) {
+                     result.push({
                         id: item.id,
                         name: item.name,
                         description: item.description,
                         isDefault: item.isDefault,
-                        isOwned: true, // If it comes from 'my items' endpoint, I own it.
+                        isOwned: true, 
                         ...config
-                     }
+                     });
+                     addedIds.add(item.id);
                  }
             });
         }
+        
         return result;
     }
 
