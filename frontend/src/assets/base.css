@@ -503,7 +503,7 @@ p, span, label, small {
 
 /* Dark Mode fix for Custom Themes */
 [data-theme="dark"] .p-card.EditCustom {
-  background: initial !important; 
-  color: initial !important;
-  border-color: initial !important;
+  background: unset !important; 
+  color: unset !important;
+  border-color: unset !important;
 }

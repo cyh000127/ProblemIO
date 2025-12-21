@@ -22,10 +22,10 @@ export const PROFILE_THEMES = {
     image: '/theme/cybercity.jpg',
     textColor: '#ffffff',
     style: {
-      textShadow: '0 0 5px #00eaff, 0 0 10px #00eaff',
+      textShadow: '0 0 5px #00eaff, 0 0 10px #00eaff !important',
       WebkitTextStroke: '1px #00eaff',
-      border: '2px solid #00eaff',
-      animation: 'neon-pulse 2s infinite ease-in-out, border-flow 4s infinite linear'
+      border: '2px solid #00eaff !important',
+      animation: 'neon-pulse 2s infinite ease-in-out, border-flow 4s infinite linear !important'
     }
   },
 
