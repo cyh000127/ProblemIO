@@ -9,31 +9,14 @@
     <div v-else>
       <!-- 상단 퀴즈 메타 + 저장 버튼 -->
       <div class="top-bar">
-        <Button
-          label="퀴즈 기본 정보"
-          icon="pi pi-sliders-h"
-          class="mr-2"
-          @click="metaDialogVisible = true"
-        />
+        <Button label="퀴즈 기본 정보" icon="pi pi-sliders-h" class="mr-2" @click="metaDialogVisible = true" />
         <div class="flex-1" />
-        <Button
-          label="취소"
-          severity="secondary"
-          outlined
-          class="mr-2"
-          @click="handleCancel"
-        />
+        <Button label="취소" severity="secondary" outlined class="mr-2" @click="handleCancel" />
         <Button
           :label="mode === 'create' ? '저장' : '수정 완료'"
           icon="pi pi-check"
           :loading="submitting"
-          :disabled="
-            !isFormValid ||
-            thumbnailUploading ||
-            questionUploadingIndex !== null ||
-            isGenerating ||
-            isConfirming
-          "
+          :disabled="!isFormValid || thumbnailUploading || questionUploadingIndex !== null || isGenerating || isConfirming"
           @click="handleSubmit"
         />
       </div>
@@ -53,32 +36,17 @@
             @drop.prevent.stop="handleQuestionDrop(index, $event)"
           >
             <div class="card-image-wrapper">
-              <img
-                v-if="question.imageUrl"
-                :src="getImagePreview(question.imageUrl)"
-                alt="question image"
-              />
+              <img v-if="question.imageUrl" :src="getImagePreview(question.imageUrl)" alt="question image" />
               <div v-else class="no-image">이미지를 설정해주세요</div>
 
               <!-- 설명 + 정답이 모두 세팅 안 된 경우 느낌표 표시 -->
-              <span
-                v-if="!isQuestionConfigured(question)"
-                class="badge-warning"
-              >
-                !
-              </span>
+              <span v-if="!isQuestionConfigured(question)" class="badge-warning">!</span>
             </div>
             <div class="card-footer">
               <span class="card-title">
                 {{ question.description || `Question ${question.questionOrder}` }}
               </span>
-              <Button
-                icon="pi pi-trash"
-                severity="danger"
-                text
-                rounded
-                @click.stop="removeQuestion(index)"
-              />
+              <Button icon="pi pi-trash" severity="danger" text rounded @click.stop="removeQuestion(index)" />
             </div>
           </div>
 
@@ -91,58 +59,30 @@
         </div>
 
         <!-- 문제 하나도 없을 때 안내 문구 -->
-        <div
-          v-if="quizForm.questions.length === 0"
-          class="empty-helper text-color-secondary"
-        >
-          아직 등록된 문제가 없습니다. 오른쪽 <strong>+</strong> 카드를 눌러
-          첫 문제를 추가해보세요.
+        <div v-if="quizForm.questions.length === 0" class="empty-helper text-color-secondary">
+          아직 등록된 문제가 없습니다. 오른쪽
+          <strong>+</strong>
+          카드를 눌러 첫 문제를 추가해보세요.
         </div>
       </div>
 
       <!-- 숨겨진 파일 인풋: 문제 이미지 업로드용 -->
-      <input
-        ref="questionImageInputRef"
-        type="file"
-        accept="image/*"
-        class="hidden-file-input"
-        @change="handleQuestionImageChange"
-      />
+      <input ref="questionImageInputRef" type="file" accept="image/*" class="hidden-file-input" @change="handleQuestionImageChange" />
 
       <!-- 숨겨진 파일 인풋: 썸네일 업로드용 -->
-      <input
-        ref="thumbnailInputRef"
-        type="file"
-        accept="image/*"
-        class="hidden-file-input"
-        @change="handleThumbnailChange"
-      />
+      <input ref="thumbnailInputRef" type="file" accept="image/*" class="hidden-file-input" @change="handleThumbnailChange" />
 
       <!-- 퀴즈 메타 정보 모달 -->
-      <Dialog
-        v-model:visible="metaDialogVisible"
-        :header="mode === 'create' ? '퀴즈 만들기' : '퀴즈 수정하기'"
-        :modal="true"
-        :style="{ width: '480px' }"
-      >
+      <Dialog v-model:visible="metaDialogVisible" :header="mode === 'create' ? '퀴즈 만들기' : '퀴즈 수정하기'" :modal="true" :style="{ width: '480px' }">
         <div class="meta-form">
           <div class="field">
             <label class="field-label">제목 *</label>
-            <InputText
-              v-model="quizForm.title"
-              placeholder="퀴즈 제목을 입력하세요"
-              class="w-full"
-            />
+            <InputText v-model="quizForm.title" placeholder="퀴즈 제목을 입력하세요" class="w-full" />
           </div>
 
           <div class="field">
             <label class="field-label">설명</label>
-            <Textarea
-              v-model="quizForm.description"
-              rows="3"
-              placeholder="퀴즈에 대한 설명을 입력하세요"
-              class="w-full"
-            />
+            <Textarea v-model="quizForm.description" rows="3" placeholder="퀴즈에 대한 설명을 입력하세요" class="w-full" />
           </div>
 
           <div class="field">
@@ -155,11 +95,7 @@
               @dragleave.prevent="thumbnailDragOver = false"
               @drop.prevent="handleThumbnailDrop"
             >
-              <img
-                v-if="thumbnailPreview"
-                :src="thumbnailPreview"
-                alt="thumbnail"
-              />
+              <img v-if="thumbnailPreview" :src="thumbnailPreview" alt="thumbnail" />
               <div v-else class="thumbnail-placeholder">
                 <span class="plus-icon">+</span>
                 <span>썸네일을 추가해보세요. (설정하지 않으면 첫 문제 이미지)</span>
@@ -177,12 +113,8 @@
                 :disabled="!canGenerateAiThumbnail || isGenerating || isConfirming"
                 @click="handleGenerateAiCandidates"
               />
-              <small v-if="!canGenerateAiThumbnail" class="text-color-secondary ai-helper">
-                제목/설명을 조금 더 입력하면 정확한 썸네일을 추천할 수 있어요.
-              </small>
-              <small v-else-if="thumbnailPreview" class="text-color-secondary ai-helper">
-                AI 적용 시 현재 썸네일이 교체됩니다.
-              </small>
+              <small v-if="!canGenerateAiThumbnail" class="text-color-secondary ai-helper">제목/설명을 조금 더 입력하면 정확한 썸네일을 추천할 수 있어요.</small>
+              <small v-else-if="thumbnailPreview" class="text-color-secondary ai-helper">AI 적용 시 현재 썸네일이 교체됩니다.</small>
             </div>
 
             <div v-if="aiCandidates.length > 0" class="ai-candidate-panel">
@@ -196,28 +128,12 @@
                   @click="selectAiCandidate(candidate.candidateId)"
                 >
                   <img :src="candidate.previewDataUrl" alt="AI thumbnail" />
-                  <span v-if="selectedCandidateId === candidate.candidateId" class="ai-selected-badge">
-                    선택됨
-                  </span>
+                  <span v-if="selectedCandidateId === candidate.candidateId" class="ai-selected-badge">선택됨</span>
                 </button>
               </div>
               <div class="ai-candidate-footer">
-                <Button
-                  label="다시 생성"
-                  icon="pi pi-refresh"
-                  severity="secondary"
-                  outlined
-                  :loading="isGenerating"
-                  :disabled="isConfirming"
-                  @click="handleGenerateAiCandidates"
-                />
-                <Button
-                  label="이 썸네일 적용"
-                  icon="pi pi-check"
-                  :loading="isConfirming"
-                  :disabled="!selectedCandidateId || isGenerating"
-                  @click="applyAiCandidate"
-                />
+                <Button label="다시 생성" icon="pi pi-refresh" severity="secondary" outlined :loading="isGenerating" :disabled="isConfirming" @click="handleGenerateAiCandidates" />
+                <Button label="이 썸네일 적용" icon="pi pi-check" :loading="isConfirming" :disabled="!selectedCandidateId || isGenerating" @click="applyAiCandidate" />
               </div>
             </div>
           </div>
@@ -230,12 +146,7 @@
       </Dialog>
 
       <!-- 문제 편집 모달 -->
-      <Dialog
-        v-model:visible="questionDialogVisible"
-        header="문제 편집"
-        :modal="true"
-        :style="{ width: '720px' }"
-      >
+      <Dialog v-model:visible="questionDialogVisible" header="문제 편집" :modal="true" :style="{ width: '720px' }">
         <div v-if="editingQuestionIndex !== null" class="question-edit">
           <div
             class="question-image-preview"
@@ -244,45 +155,22 @@
             @dragleave.prevent="handleQuestionDialogDragLeave"
             @drop.prevent="handleQuestionDialogDrop"
           >
-            <img
-              v-if="currentQuestion.imageUrl"
-              :src="getImagePreview(currentQuestion.imageUrl)"
-              alt="question"
-            />
+            <img v-if="currentQuestion.imageUrl" :src="getImagePreview(currentQuestion.imageUrl)" alt="question" />
             <div v-else class="no-image large">
               아직 이미지가 없습니다.
-              <Button
-                label="이미지 선택"
-                size="small"
-                class="mt-2"
-                @click="triggerQuestionImageSelect"
-              />
+              <Button label="이미지 선택" size="small" class="mt-2" @click="triggerQuestionImageSelect" />
             </div>
           </div>
 
           <div class="field mt-3">
             <label class="field-label">질문 설명</label>
-            <Textarea
-              v-model="questionForm.description"
-              rows="2"
-              placeholder="이 이미지에 대한 설명(힌트)을 입력하세요."
-              class="w-full"
-            />
+            <Textarea v-model="questionForm.description" rows="2" placeholder="이 이미지에 대한 설명(힌트)을 입력하세요." class="w-full" />
           </div>
 
           <div class="field">
             <label class="field-label">정답 *</label>
-            <small class="text-color-secondary mb-2 block"
-              >여러 개의 정답(동의어, 변형)을 입력할 수 있습니다. 엔터를
-              눌러 추가하세요.</small
-            >
-            <Chips
-              v-model="questionForm.answers"
-              placeholder="정답을 입력하고 Enter"
-              class="w-full answer-chips"
-              :allow-duplicate="false"
-              @add="handleAnswerAdd"
-            />
+            <small class="text-color-secondary mb-2 block">여러 개의 정답(동의어, 변형)을 입력할 수 있습니다. 엔터를 눌러 추가하세요.</small>
+            <Chips v-model="questionForm.answers" placeholder="정답을 입력하고 Enter" class="w-full answer-chips" :allow-duplicate="false" @add="handleAnswerAdd" />
           </div>
 
           <div class="flex justify-end gap-2 mt-4">
@@ -339,9 +227,7 @@ const thumbnailInputRef = ref<HTMLInputElement | null>(null);
 
 const quizForm = computed(() => quizStore.quizForm);
 const buildImageUrl = (path?: string) => resolveImageUrl(path);
-const thumbnailPreview = computed(() =>
-  buildImageUrl(quizForm.value.thumbnailUrl)
-);
+const thumbnailPreview = computed(() => buildImageUrl(quizForm.value.thumbnailUrl));
 const canGenerateAiThumbnail = computed(() => {
   const titleLength = quizForm.value.title?.trim().length || 0;
   const descriptionLength = quizForm.value.description?.trim().length || 0;
@@ -374,10 +260,7 @@ const applyAnswerNormalization = () => {
   const current = questionForm.answers;
   const normalized = normalizeAnswers(current);
 
-  if (
-    normalized.length !== current.length ||
-    normalized.some((v, i) => v !== current[i])
-  ) {
+  if (normalized.length !== current.length || normalized.some((v, i) => v !== current[i])) {
     questionForm.answers = [...normalized];
   }
 };
@@ -509,10 +392,7 @@ const handleGenerateAiCandidates = async () => {
 
   isGenerating.value = true;
   try {
-    const data = await createCandidates(
-      quizForm.value.title?.trim() || "",
-      quizForm.value.description?.trim() || ""
-    );
+    const data = await createCandidates(quizForm.value.title?.trim() || "", quizForm.value.description?.trim() || "");
     aiCandidates.value = data?.candidates || [];
     selectedCandidateId.value = null;
   } catch (error: any) {
@@ -768,11 +648,7 @@ const handleSubmit = async () => {
     toast.add({
       severity: "error",
       summary: "Error",
-      detail:
-        error.response?.data?.message ||
-        (props.mode === "create"
-          ? "퀴즈 생성에 실패했습니다."
-          : "퀴즈 수정에 실패했습니다."),
+      detail: error.response?.data?.message || (props.mode === "create" ? "퀴즈 생성에 실패했습니다." : "퀴즈 수정에 실패했습니다."),
       life: 3000,
     });
   } finally {
@@ -830,9 +706,7 @@ onMounted(() => {
 :global([data-theme="dark"] .question-list-wrapper) {
   background: #121212;
   border: 1px solid #2c2c2c;
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 /* 문제 카드 그리드 */
@@ -883,9 +757,7 @@ onMounted(() => {
 
 :global([data-theme="dark"] .question-card:hover) {
   background: #1d1d1d;
-  box-shadow:
-    0 14px 28px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .card-image-wrapper {
@@ -1156,28 +1028,35 @@ onMounted(() => {
   box-shadow: 0 0 0 1px var(--color-border-hover);
 }
 
-:deep(.answer-chips .p-chips-multiple-container) {
-  background: transparent;
+:deep(.answer-chips .p-chip-list),
+:deep(.answer-chips .p-inputchips-input) {
+  background: transparent !important;
   border: 0;
   padding: 0;
 }
 
-:deep(.answer-chips .p-chips-token) {
+:deep(.answer-chips .p-chip) {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--color-border);
   color: var(--color-heading);
 }
 
-:deep(.answer-chips .p-chips-token .p-chips-token-label) {
+:deep(.answer-chips .p-chip-label) {
   color: inherit;
 }
 
-:deep(.answer-chips .p-chips-input-token input) {
+:deep(.answer-chips .p-chip-input) {
   color: var(--color-heading);
 }
 
-:deep(.answer-chips .p-chips-input-token input::placeholder) {
+:deep(.answer-chips .p-chip-input::placeholder) {
   color: var(--color-text);
   opacity: 0.8;
+}
+
+/* Explicit fallback for new structure based on screenshot */
+:global([data-theme="dark"] .p-inputchips-input) {
+  background-color: transparent !important;
+  color: var(--color-heading) !important;
 }
 </style>
