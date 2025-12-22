@@ -28,11 +28,7 @@
       </div>
 
       <div v-else class="table-body">
-        <div
-          v-for="(row, idx) in topRankings"
-          :key="row.userId ?? idx"
-          :class="['table-row', rankClass(row.ranking)]"
-        >
+        <div v-for="(row, idx) in topRankings" :key="row.userId ?? idx" :class="['table-row', rankClass(row.ranking)]">
           <div class="col-rank rank-cell">
             <span class="rank-hash">#{{ row.ranking }}</span>
             <span class="rank-emoji">{{ rankEmoji(row.ranking) }}</span>
@@ -40,12 +36,7 @@
 
           <div class="col-avatar">
             <div class="avatar" :style="avatarStyle(displayName(row))">
-              <img
-                v-if="avatarUrl(row)"
-                :src="avatarUrl(row)"
-                :alt="displayName(row)"
-                @error="row.profileImageUrl = ''"
-              />
+              <img v-if="avatarUrl(row)" :src="avatarUrl(row)" :alt="displayName(row)" @error="row.profileImageUrl = ''" />
               <span v-else>{{ initial(displayName(row)) }}</span>
             </div>
           </div>
@@ -59,7 +50,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- My Ranking (Sticky Bottom) -->
       <div v-if="myRanking && !isMyRankingInTop" class="my-ranking-divider">
         <div class="divider-line"></div>
@@ -68,31 +59,25 @@
       </div>
 
       <div v-if="myRanking && !isMyRankingInTop" :class="['table-row', 'my-rank']">
-           <div class="col-rank rank-cell">
-            <span class="rank-hash">#{{ myRanking.ranking > 0 ? myRanking.ranking : '-' }}</span>
-          </div>
+        <div class="col-rank rank-cell">
+          <span class="rank-hash">#{{ myRanking.ranking > 0 ? myRanking.ranking : "-" }}</span>
+        </div>
 
-          <div class="col-avatar">
-            <div class="avatar" :style="avatarStyle(displayName(myRanking))">
-              <img
-                v-if="avatarUrl(myRanking)"
-                :src="avatarUrl(myRanking)"
-                :alt="displayName(myRanking)"
-                @error="myRanking.profileImageUrl = ''"
-              />
-              <span v-else>{{ initial(displayName(myRanking)) }}</span>
-            </div>
+        <div class="col-avatar">
+          <div class="avatar" :style="avatarStyle(displayName(myRanking))">
+            <img v-if="avatarUrl(myRanking)" :src="avatarUrl(myRanking)" :alt="displayName(myRanking)" @error="myRanking.profileImageUrl = ''" />
+            <span v-else>{{ initial(displayName(myRanking)) }}</span>
           </div>
+        </div>
 
-          <div class="col-main main-cell">
-            <div class="name-score">
-              <span class="nick-text">{{ displayName(myRanking) }}</span>
-              <span class="score-big">{{ myRanking.score?.toLocaleString() }}</span>
-            </div>
-             <div class="sub-line">{{ formatPlayTime(myRanking.playTime) }}</div>
+        <div class="col-main main-cell">
+          <div class="name-score">
+            <span class="nick-text">{{ displayName(myRanking) }}</span>
+            <span class="score-big">{{ myRanking.score?.toLocaleString() }}</span>
           </div>
+          <div class="sub-line">{{ formatPlayTime(myRanking.playTime) }}</div>
+        </div>
       </div>
-
     </div>
 
     <div class="ranking-footer">
@@ -105,6 +90,7 @@
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { getLeaderboard } from "@/api/challenge";
 import { resolveImageUrl } from "@/lib/image";
+import { useAuthStore } from "@/stores/auth";
 
 const props = defineProps({
   challengeId: {
@@ -124,22 +110,20 @@ const formatDateTime = (date) => {
   if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;
   const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(
-    d.getMinutes()
-  )}:${pad(d.getSeconds())}`;
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 };
 
 const lastUpdatedText = computed(() => formatDateTime(lastUpdated.value));
 
 const formatPlayTime = (ms) => {
-    if (ms === null || ms === undefined) return "-";
-    
-    // Check if it's a number
-    const val = Number(ms);
-    if (isNaN(val)) return "-";
+  if (ms === null || ms === undefined) return "-";
 
-    return `${val.toFixed(3)}s`;
-}
+  // Check if it's a number
+  const val = Number(ms);
+  if (isNaN(val)) return "-";
+
+  return `${val.toFixed(3)}s`;
+};
 
 const avatarUrl = (row) => {
   if (!row?.profileImageUrl) return "";
@@ -176,22 +160,35 @@ const avatarStyle = (name) => {
 };
 
 const isMyRankingInTop = computed(() => {
-    if (!myRanking.value || !topRankings.value) return false;
-    return topRankings.value.some(r => r.userId === myRanking.value.userId);
+  if (!myRanking.value || !topRankings.value) return false;
+  return topRankings.value.some((r) => r.userId === myRanking.value.userId);
 });
+
+const authStore = useAuthStore();
 
 const fetchRanking = async () => {
   if (!props.challengeId) return;
-  
+
   // Don't show loading on polling, only first load
   if (!lastUpdated.value) loading.value = true;
   error.value = "";
-  
+
   try {
     const data = await getLeaderboard(props.challengeId);
     // data structure: { topRankings: [], myRanking: {} }
     topRankings.value = data.topRankings || [];
-    myRanking.value = data.myRanking;
+
+    // Merge backend ranking data with local auth data for better display
+    if (data.myRanking) {
+      myRanking.value = {
+        ...data.myRanking,
+        nickname: authStore.user?.nickname || data.myRanking.nickname,
+        profileImageUrl: authStore.user?.profileImageUrl || data.myRanking.profileImageUrl,
+      };
+    } else {
+      myRanking.value = null;
+    }
+
     lastUpdated.value = new Date();
   } catch (e) {
     if (!lastUpdated.value) error.value = "랭킹을 불러오지 못했습니다.";
@@ -214,12 +211,15 @@ const setupPolling = () => {
   timerId.value = setInterval(fetchRanking, 10000);
 };
 
-watch(() => props.challengeId, (newId) => {
-  if (newId) {
+watch(
+  () => props.challengeId,
+  (newId) => {
+    if (newId) {
       fetchRanking();
       setupPolling();
+    }
   }
-});
+);
 
 onMounted(() => {
   fetchRanking();
@@ -285,7 +285,9 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.state-row.error { color: #ef4444; }
+.state-row.error {
+  color: #ef4444;
+}
 
 .table-body {
   display: flex;
@@ -339,7 +341,11 @@ onUnmounted(() => {
   font-size: 0.9rem;
   color: #1a1a1a;
 }
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .col-main {
   display: flex;
@@ -380,20 +386,20 @@ onUnmounted(() => {
 
 /* My Ranking Section */
 .my-ranking-divider {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 8px 0;
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 .divider-line {
-    flex: 1;
-    height: 1px;
-    background: var(--color-border);
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
 }
 .table-row.my-rank {
-    border: 2px solid #7c3aed;
-    background: rgba(124, 58, 237, 0.05);
+  border: 2px solid #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
 }
 </style>

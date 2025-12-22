@@ -1,86 +1,69 @@
 <template>
-  <ProfileBackground 
-    :user="user" 
-    :previewThemeId="previewThemeId"
-    :previewConfig="previewConfig"
-    class="mb-8 p-6 shadow-4 profile-card-content"
-  >
-      <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
-        <UserAvatar :user="user" class="w-32 h-32 flex-shrink-0" />
-        
-        <div class="flex-1 text-center md:text-left min-w-0 w-full">
-          <!-- 닉네임 / 상태메시지 + 우측 상단 버튼 슬롯 -->
-          <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 md:gap-0">
-            <div class="min-w-0 w-full md:w-auto">
-              <!-- truncate class added to prevent overflow -->
-              <h1 class="text-3xl font-bold mb-2 truncate">{{ user?.nickname || '닉네임 없음' }}</h1>
-              <p
-                v-if="user?.statusMessage"
-                class="text-lg opacity-80 mb-4 break-words"
-              >
-                {{ user.statusMessage }}
-              </p>
-            </div>
+  <ProfileBackground :user="user" :previewThemeId="previewThemeId" :previewConfig="previewConfig" class="mb-8 p-6 shadow-4 profile-card-content">
+    <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+      <UserAvatar :user="user" class="w-32 h-32 flex-shrink-0" />
 
-            <!-- Action Buttons Slot (MyPage only) -->
-            <div v-if="$slots.actions" class="flex gap-2 flex-shrink-0">
-               <slot name="actions"></slot>
-            </div>
+      <div class="flex-1 text-center md:text-left min-w-0 w-full">
+        <!-- 닉네임 / 상태메시지 + 우측 상단 버튼 슬롯 -->
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 md:gap-0">
+          <div class="min-w-0 w-full md:w-auto">
+            <!-- truncate class added to prevent overflow -->
+            <h1 class="text-3xl font-bold mb-2 truncate">{{ user?.nickname || "닉네임 없음" }}</h1>
+            <p v-if="user?.statusMessage" class="text-lg opacity-80 mb-4 break-words">
+              {{ user.statusMessage }}
+            </p>
           </div>
 
-          <!-- 통계 영역 -->
-          <div class="flex justify-center md:justify-start gap-8 mt-2">
-            <div class="stat-box">
-              <!-- myQuizCount is passed as prop or computed from user? 
-                   Issues: MyPage computes 'myQuizCount' from a separate list.
-                   The 'user' object from 'getMe' might not have 'quizCount'.
-                   Let's accept stats as props or slots if needed. 
-                   For now, check if user object has it, otherwise rely on caller to pass it or just show 0 if missing.
-                   Actually, let's use a slot for stats or props to be flexible.
-                   BUT, to keep it simple and reusable for preview (where data is fake/mocked),
-                   we should try to read from 'user' object.
-              -->
-              <p class="text-2xl font-bold m-0">{{ user?.quizCount ?? quizCount ?? 0 }}</p>
-              <p class="text-sm opacity-80 m-0">만든 퀴즈</p>
-            </div>
-            <div class="stat-box">
-              <p class="text-2xl font-bold m-0">{{ user?.followerCount ?? 0 }}</p>
-              <p class="text-sm opacity-80 m-0">팔로워</p>
-            </div>
-            <div class="stat-box">
-              <p class="text-2xl font-bold m-0">{{ user?.followingCount ?? 0 }}</p>
-              <p class="text-sm opacity-80 m-0">팔로잉</p>
-            </div>
+          <!-- Action Buttons Slot (MyPage only) -->
+          <div v-if="$slots.actions" class="flex gap-2 flex-shrink-0">
+            <slot name="actions"></slot>
+          </div>
+        </div>
+
+        <!-- 통계 영역 -->
+        <div class="flex justify-center md:justify-start gap-8 mt-2">
+          <div class="stat-box">
+            <p class="text-2xl font-bold m-0">{{ user?.quizCount ?? quizCount ?? 0 }}</p>
+            <p class="text-sm opacity-80 m-0">퀴즈 수</p>
+          </div>
+          <div class="stat-box">
+            <p class="text-2xl font-bold m-0">{{ user?.followerCount ?? 0 }}</p>
+            <p class="text-sm opacity-80 m-0">팔로워</p>
+          </div>
+          <div class="stat-box">
+            <p class="text-2xl font-bold m-0">{{ user?.followingCount ?? 0 }}</p>
+            <p class="text-sm opacity-80 m-0">팔로잉</p>
           </div>
         </div>
       </div>
+    </div>
   </ProfileBackground>
 </template>
 
 <script setup>
-import { } from 'vue';
-import ProfileBackground from '@/components/user/ProfileBackground.vue';
-import UserAvatar from '@/components/common/UserAvatar.vue';
-import Button from 'primevue/button';
+import {} from "vue";
+import ProfileBackground from "@/components/user/ProfileBackground.vue";
+import UserAvatar from "@/components/common/UserAvatar.vue";
+import Button from "primevue/button";
 
 const props = defineProps({
   user: {
     type: Object,
     required: true,
-    default: () => ({})
+    default: () => ({}),
   },
   previewThemeId: {
     type: [String, Number],
-    default: null
+    default: null,
   },
   previewConfig: {
     type: Object,
-    default: null
+    default: null,
   },
   quizCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 </script>
 
@@ -94,7 +77,7 @@ const props = defineProps({
 
 /* 통계 부분 */
 .stat-box {
-  width: 60px;          
+  width: 60px;
   text-align: center;
 }
 </style>
