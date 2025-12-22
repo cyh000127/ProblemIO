@@ -140,15 +140,40 @@ public class GmsGeminiClient {
 
     private String buildPrompt(String title, String description, String styleHint) {
         return String.format(
-                "Create a high-quality quiz thumbnail image.\n\n" +
+                "You are generating an image, not text.\n\n" +
+                        "Output requirements (STRICT):\n" +
+                        "- Generate exactly ONE image.\n" +
+                        "- The image must be a PNG.\n" +
+                        "- Respond with ONLY the raw base64-encoded PNG bytes.\n" +
+                        "- Do NOT include explanations, markdown, code fences, data URLs, or any extra characters.\n" +
+                        "- The response must be valid base64 and nothing else.\n\n" +
+                        "Image purpose:\n" +
+                        "- This image is a representative thumbnail for a quiz or trivia game.\n" +
+                        "- It is NOT a question image and must not contain clues or readable information.\n\n" +
+                        "Image requirements:\n" +
+                        "- Square aspect ratio (1:1), suitable for a quiz thumbnail.\n" +
+                        "- Simple, uncluttered composition with high contrast.\n" +
+                        "- Easy to recognize at small sizes.\n" +
+                        "- Do NOT include any text, letters, numbers, logos, watermarks, or signatures.\n" +
+                        "- Do NOT depict real people, identifiable faces, or specific individuals.\n" +
+                        "- Do NOT include copyrighted characters, brand logos, or trademarks.\n\n" +
+                        "Conceptual theme:\n" +
+                        "- An illustration representing a \"quiz\" or \"guessing game\" based on the given topic.\n" +
+                        "- Use abstract symbols, silhouettes, icons, or conceptual visuals related to the quiz subject.\n"
+                        +
+                        "- Emphasize curiosity, mystery, or challenge\n" +
+                        "  (e.g., silhouettes, shadows, spotlight lighting, abstract or symbolic shapes).\n" +
+                        "- Subject-related objects or environments may be included,\n" +
+                        "  but they must be generic and non-branded.\n\n" +
+                        "Visual style:\n" +
+                        "- Clean, modern illustration style.\n" +
+                        "- High contrast lighting with a dramatic or playful tone.\n" +
+                        "- Professional, game-like thumbnail aesthetic suitable for a quiz or trivia app.\n\n" +
+                        "Quiz context (for inspiration only, do NOT render as text):\n" +
                         "Title: %s\n" +
-                        "Description: %s\n" +
-                        "Style: %s\n\n" +
-                        "Key Requirements:\n" +
-                        "1. Square aspect ratio (1:1).\n" +
-                        "2. No text, letters, or numbers in the image.\n" +
-                        "3. Modern, clean, and eye-catching design.\n" +
-                        "4. Abstract or iconic representation of the quiz topic.",
+                        "Description: %s\n\n" +
+                        "Style variation (choose ONE for this generation):\n" +
+                        "- %s",
                 title, description, styleHint);
     }
 }

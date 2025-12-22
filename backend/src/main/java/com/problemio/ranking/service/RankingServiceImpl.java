@@ -78,7 +78,7 @@ public class RankingServiceImpl implements RankingService {
         double score = r.getSolvedQuizCount()
                 * (ACCURACY_BASE + ACCURACY_WEIGHT * smoothedAccuracy)
                 * questionAdjust
-                * 10;
+                * 100;
         return (int) Math.round(score);
     }
 

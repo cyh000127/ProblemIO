@@ -34,9 +34,8 @@ public class AiQuizThumbnailService {
         }
 
         List<String> styleHints = List.of(
-                "minimal flat illustration, bold shapes, soft gradient background",
-                "playful 3D clay style, warm colors, simple lighting"
-        );
+                "Minimal flat illustration.\nDark background with a single highlighted silhouette.\nStrong contrast and a calm, mysterious mood.",
+                "Colorful modern illustration.\nMultiple abstract elements related to the topic.\nEnergetic, playful quiz-game atmosphere.");
 
         List<AiThumbnailCandidateResponse.Candidate> candidates = styleHints.stream()
                 .map(style -> createCandidate(safeTitle, safeDescription, style))
@@ -70,8 +69,7 @@ public class AiQuizThumbnailService {
     private AiThumbnailCandidateResponse.Candidate createCandidate(
             String title,
             String description,
-            String styleHint
-    ) {
+            String styleHint) {
         byte[] bytes = gmsGeminiClient.generatePngBytes(title, description, styleHint);
         String candidateId = UUID.randomUUID().toString();
         candidateCache.put(candidateId, bytes);
