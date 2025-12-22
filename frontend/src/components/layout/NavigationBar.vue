@@ -18,14 +18,12 @@
           <Button label="퀴즈 만들기" icon="pi pi-plus" class="nav-ghost" text @click="goToCreateQuiz" />
 
           <Button @click="goToMyPage" class="nav-ghost flex align-items-center gap-2 p-button-text p-0" aria-label="My Page">
+            <UserAvatar class="mr-1 font-bold" :class="{ 'surface-200 text-700': !authStore.user?.profileImageUrl }" size="medium" />
 
-                <UserAvatar class="mr-1 font-bold" :class="{ 'surface-200 text-700': !authStore.user?.profileImageUrl }"
-                size="medium" />
-          
             <span class="text-color">{{ authStore.user?.nickname || "User" }}</span>
           </Button>
 
-          <Button label="로그아웃" icon="pi pi-sign-out" severity="danger" text class="logout-btn" @click="handleLogout" />
+          <Button label="로그아웃" icon="pi pi-sign-out" class="logout-btn" @click="handleLogout" />
         </template>
       </div>
     </template>
@@ -38,7 +36,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
-import UserAvatar from '@/components/common/UserAvatar.vue' // 유저 아바타 불러오기 
+import UserAvatar from "@/components/common/UserAvatar.vue"; // 유저 아바타 불러오기
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -120,9 +118,7 @@ const handleLogout = () => {
 }
 
 .app-header {
-  background:
-    linear-gradient(var(--app-header-bg-overlay), var(--app-header-bg-overlay)),
-    var(--app-header-bg-image);
+  background: linear-gradient(var(--app-header-bg-overlay), var(--app-header-bg-overlay)), var(--app-header-bg-image);
   background-color: var(--color-background-soft);
   background-size: cover;
   background-position: center center;
@@ -164,14 +160,18 @@ const handleLogout = () => {
 }
 
 .logout-btn {
+  border: none !important;
+  background: transparent !important;
   color: #dc2626 !important;
+  font-weight: 600;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
 .logout-btn:hover {
   background: rgba(220, 38, 38, 0.1) !important;
   color: #b91c1c !important;
-  transform: translateY(-1px);
+  transform: translateY(-2px); /* Slightly more movement for decoration */
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15); /* Add glow effect */
 }
 
 .text-dark {
