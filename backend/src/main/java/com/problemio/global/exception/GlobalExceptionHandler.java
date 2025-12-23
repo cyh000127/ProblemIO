@@ -25,6 +25,14 @@ public class GlobalExceptionHandler {
         };
     }
 
+    // 정적 자원 없음 (404) 처리
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException e) {
+        return ResponseEntity
+                .status(org.springframework.http.HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail("NOT_FOUND", "Resource not found: " + e.getResourcePath()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         // TODO: 로그 처리
