@@ -118,12 +118,9 @@ const handleLogout = () => {
 }
 
 .app-header {
-  background: linear-gradient(var(--app-header-bg-overlay), var(--app-header-bg-overlay)), var(--app-header-bg-image);
-  background-color: var(--color-background-soft);
-  background-size: cover;
-  background-position: center center;
-  border-bottom: 1px solid var(--color-border);
-  backdrop-filter: blur(10px);
+  background: transparent !important;
+  border-bottom: none !important;
+  backdrop-filter: none; /* 블러 효과도 제거 */
 }
 
 .app-header :deep(.p-menubar-root-list),
@@ -180,8 +177,8 @@ const handleLogout = () => {
 
 /* Dark theme header harmonization */
 :global([data-theme="dark"] .p-menubar) {
-  background: var(--color-background-soft) !important;
-  border-color: var(--color-border) !important;
+  background: transparent !important;
+  border-color: transparent !important;
   color: var(--color-heading) !important;
 }
 

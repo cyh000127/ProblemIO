@@ -170,7 +170,7 @@
           <div class="field">
             <label class="field-label">정답 *</label>
             <small class="text-color-secondary mb-2 block">여러 개의 정답(동의어, 변형)을 입력할 수 있습니다. 엔터를 눌러 추가하세요.</small>
-            <Chips v-model="questionForm.answers" placeholder="정답을 입력하고 Enter" class="w-full answer-chips" :allow-duplicate="false" @add="handleAnswerAdd" />
+            <Chips v-ime-fix v-model="questionForm.answers" placeholder="정답을 입력하고 Enter" class="w-full answer-chips" :allow-duplicate="false" @add="handleAnswerAdd" />
           </div>
 
           <div class="flex justify-end gap-2 mt-4">
@@ -192,6 +192,36 @@ import { createQuiz, getQuiz, updateQuiz } from "@/api/quiz";
 import { createCandidates, confirmCandidate } from "@/api/aiThumbnail";
 import { uploadFile } from "@/api/file";
 import { resolveImageUrl } from "@/lib/image";
+
+// 한글 IME 중복 입력 방지 디렉티브
+const vImeFix = {
+  mounted(el: HTMLElement) {
+    const input = el.querySelector("input");
+    if (input) {
+      let isComposing = false;
+
+      // IME 상태 수동 추적
+      input.addEventListener("compositionstart", () => {
+        isComposing = true;
+      });
+
+      input.addEventListener("compositionend", () => {
+        isComposing = false;
+      });
+
+      input.addEventListener(
+        "keydown",
+        (e: KeyboardEvent) => {
+          if ((e.isComposing || isComposing) && (e.key === "Enter" || e.code === "Enter")) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        },
+        true // Capture phase에서 가로채기
+      );
+    }
+  },
+};
 
 const props = defineProps<{
   mode: "create" | "edit";
