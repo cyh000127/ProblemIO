@@ -24,6 +24,8 @@ html, body {
   -ms-overflow-style: none;
 }
 
+
+
 /* 텍스트 영역 리사이즈 방지 (댓글, 상태메시지, 퀴즈설명 등) */
 textarea {
   resize: none !important;
@@ -48,9 +50,12 @@ textarea {
   --shadow-soft: none;
   --skeleton-bg: rgba(0, 0, 0, 0.06);
 
-  /* Background Config (Restored Logic) */
-  --app-bg-image: url('/bg-light.png');
+  /* Background Config (S3 Hosted / Fallback) */
+  --app-bg-image-light: url('/bg-light.png');
   --app-bg-image-dark: url('/bg-dark.png');
+  
+  /* Active Background Image (Default: Light) */
+  --app-bg-image: var(--app-bg-image-light);
   --app-bg-overlay: rgba(248, 250, 252, 0.78);
 
   /* Mapping old variables to new system for backward compatibility */

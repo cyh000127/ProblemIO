@@ -7,7 +7,7 @@
 
       <div v-else class="flex flex-col lg:flex-row justify-center gap-6 items-start relative">
         <!-- Main Result Card -->
-        <div class="w-full max-w-3xl flex flex-col gap-6 text-center py-8">
+        <div class="w-full max-w-3xl flex flex-col gap-6 text-center">
         <Card>
           <template #content>
             <div class="flex flex-col gap-6 items-center py-8">

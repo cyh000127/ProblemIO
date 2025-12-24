@@ -3,7 +3,7 @@
     <div class="ranking-header">
       <div class="title">
         <i class="pi pi-trophy text-amber-400 text-xl" style="color: var(--accent) !important"></i>
-        <span>Challenge Ranking</span>
+        <span>랭킹</span>
       </div>
       <div class="header-actions">
         <span class="live-badge">LIVE</span>

@@ -14,11 +14,11 @@
 
       <div v-else-if="challenge" class="flex flex-col lg:flex-row justify-center gap-6 items-start relative">
         <!-- Left Column: Challenge Info (Centered Fixed Width) -->
-        <div class="w-full max-w-3xl flex flex-col gap-6 py-6">
+        <div class="w-full max-w-3xl flex flex-col gap-6">
           <Card class="challenge-info-card shadow-lg border-0 rounded-2xl overflow-hidden">
             <template #header>
               <div class="aspect-video bg-surface-100 overflow-hidden thumbnail-frame relative">
-                <img v-if="challenge.targetQuiz?.thumbnailUrl" :src="resolveImageUrl(challenge.targetQuiz.thumbnailUrl)" class="w-full h-full object-cover" alt="Challenge Thumbnail" />
+                <img v-if="challenge.targetQuiz?.thumbnailUrl" :src="resolveImageUrl(challenge.targetQuiz.thumbnailUrl)" class="w-full h-full object-scale-down" alt="Challenge Thumbnail" />
                 <div v-else class="w-full h-full flex items-center justify-center bg-surface-100 text-gray-400">
                   <!-- Placeholder Icon -->
                   <i class="pi pi-bolt text-6xl text-gray-400"></i>

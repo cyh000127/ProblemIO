@@ -101,6 +101,17 @@ app.use(PrimeVue, {
   },
 });
 
+// [Environment Variable Setup]
+// Set global CSS variables for Start Background Images using Env Var
+const s3BaseUrl = import.meta.env.VITE_S3_BASE_URL;
+if (s3BaseUrl) {
+  const bgLight = `url('${s3BaseUrl}/public/asset/bg-light.png')`;
+  const bgDark = `url('${s3BaseUrl}/public/asset/bg-dark.png')`;
+  
+  document.documentElement.style.setProperty('--app-bg-image-light', bgLight);
+  document.documentElement.style.setProperty('--app-bg-image-dark', bgDark);
+}
+
 app.use(ToastService);
 app.use(ConfirmationService);
 app.use(pinia);

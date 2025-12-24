@@ -48,7 +48,7 @@
 
             <!-- 버튼 클릭 시에는 카드 클릭 이벤트 안 타게 stop -->
             <div class="quiz-actions" @click.stop>
-              <Button label="수정" icon="pi pi-pencil" severity="secondary" outlined size="small" class="flex-1 text-xs" @click="goToEdit(quiz.id)" />
+              <Button label="수정" icon="pi pi-pencil" severity="secondary" outlined size="small" class="flex-1 text-xs edit-btn" @click="goToEdit(quiz.id)" />
               <Button label="삭제" icon="pi pi-trash" severity="danger" outlined size="small" class="text-xs" @click="handleDelete(quiz.id)" />
             </div>
           </div>
@@ -446,5 +446,10 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   padding: 0 0.4rem 0.4rem;
+}
+
+:global([data-theme="dark"] .edit-btn) {
+  color: var(--text-main) !important;
+  border-color: var(--text-main) !important;
 }
 </style>
