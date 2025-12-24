@@ -1,5 +1,5 @@
 <template>
-  <Menubar :model="menuItems" class="border-bottom-1 surface-border app-header">
+  <Menubar :model="menuItems" class="app-header">
     <template #start>
       <router-link to="/" class="flex align-items-center gap-2 no-underline text-dark logo-link">
         <img src="/problemio-logo-light.png" alt="Problem.io" class="logo-img logo-light" />
@@ -98,7 +98,7 @@ const handleLogout = () => {
 }
 
 :deep(.p-button.p-button-text) {
-  color: var(--text-color);
+  color: var(--color-heading) !important;
 }
 :deep(.p-button.p-button-text:hover) {
   background-color: var(--surface-hover);
@@ -111,6 +111,12 @@ const handleLogout = () => {
   font-weight: 600;
 }
 
+/* Force ALL navigation text to use heading color */
+.app-header,
+.app-header :deep(*) {
+  color: var(--color-heading) !important;
+}
+
 .nav-ghost:hover {
   background: rgba(0, 150, 136, 0.08) !important; /* 아주 연한 틸 */
   color: #006f62 !important; /* 틸톤 텍스트 */
@@ -118,12 +124,9 @@ const handleLogout = () => {
 }
 
 .app-header {
-  background: linear-gradient(var(--app-header-bg-overlay), var(--app-header-bg-overlay)), var(--app-header-bg-image);
-  background-color: var(--color-background-soft);
-  background-size: cover;
-  background-position: center center;
-  border-bottom: 1px solid var(--color-border);
-  backdrop-filter: blur(10px);
+  background: transparent !important;
+  border-bottom: none !important;
+  backdrop-filter: none; /* 블러 효과도 제거 */
 }
 
 .app-header :deep(.p-menubar-root-list),
@@ -180,8 +183,8 @@ const handleLogout = () => {
 
 /* Dark theme header harmonization */
 :global([data-theme="dark"] .p-menubar) {
-  background: var(--color-background-soft) !important;
-  border-color: var(--color-border) !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
   color: var(--color-heading) !important;
 }
 

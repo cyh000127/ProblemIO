@@ -4,21 +4,13 @@
     <main class="main-content">
       <router-view />
     </main>
-    <AppFooter />
+
     <Toast />
     <ConfirmDialog />
-    <button
-      class="theme-toggle"
-      :aria-label="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`"
-      @click="toggleTheme"
-    >
+    <button class="theme-toggle" :aria-label="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`" @click="toggleTheme">
       <i :class="theme === 'light' ? 'pi pi-moon' : 'pi pi-sun'"></i>
     </button>
-    <button
-      class="scroll-top"
-      aria-label="Scroll to top"
-      @click="scrollToTop"
-    >
+    <button class="scroll-top" aria-label="Scroll to top" @click="scrollToTop">
       <i class="pi pi-arrow-up"></i>
     </button>
   </div>
@@ -27,8 +19,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import NavigationBar from '@/components/layout/NavigationBar.vue'
-import AppFooter from '@/components/layout/AppFooter.vue'
+import NavigationBar from "@/components/layout/NavigationBar.vue";
 
 const authStore = useAuthStore();
 const theme = ref(localStorage.getItem("theme") || "light");
@@ -53,7 +44,7 @@ const scrollToTop = () => {
 onMounted(() => {
   applyTheme(theme.value);
   if (authStore.isAuthenticated) {
-      authStore.refreshUser();
+    authStore.refreshUser();
   }
 });
 </script>
