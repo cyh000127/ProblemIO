@@ -693,7 +693,6 @@ onMounted(() => {
 .quiz-editor-page {
   min-height: calc(100vh - 120px);
   padding: 1.5rem 2rem;
-  background: var(--color-background);
   color: var(--color-heading);
 }
 
