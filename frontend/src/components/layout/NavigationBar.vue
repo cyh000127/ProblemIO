@@ -98,7 +98,7 @@ const handleLogout = () => {
 }
 
 :deep(.p-button.p-button-text) {
-  color: var(--text-color);
+  color: var(--color-heading) !important;
 }
 :deep(.p-button.p-button-text:hover) {
   background-color: var(--surface-hover);
@@ -109,6 +109,12 @@ const handleLogout = () => {
   background: transparent !important;
   color: var(--color-heading) !important;
   font-weight: 600;
+}
+
+/* Force ALL navigation text to use heading color */
+.app-header,
+.app-header :deep(*) {
+  color: var(--color-heading) !important;
 }
 
 .nav-ghost:hover {
