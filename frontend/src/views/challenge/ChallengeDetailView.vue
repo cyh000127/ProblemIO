@@ -156,6 +156,19 @@ onMounted(() => {
   padding: 1.5rem;
 }
 
+/* Force heading color for tags in Light Mode (Default) */
+.force-text-red,
+.force-text-red :deep(.p-tag-label),
+.force-text-red :deep(.p-tag-icon),
+.force-text-purple,
+.force-text-purple :deep(.p-tag-label),
+.force-text-purple :deep(.p-tag-icon),
+.force-text-gray,
+.force-text-gray :deep(.p-tag-label),
+.force-text-gray :deep(.p-tag-icon) {
+  color: var(--color-heading) !important;
+}
+
 /* Force specific color for tags to ensure readability in Dark Mode */
 :global([data-theme="dark"] .force-text-red),
 :global([data-theme="dark"] .force-text-red .p-tag-label),
