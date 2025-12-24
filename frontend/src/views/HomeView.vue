@@ -65,12 +65,19 @@
             </div>
           </div>
 
-          <div v-if="loading" class="text-center py-8">
-            <i class="pi pi-spin pi-spinner text-4xl"></i>
+          <div v-if="loading" class="quiz-grid-container mb-6">
+            <div v-for="i in 8" :key="i" class="quiz-card p-3">
+              <Skeleton height="200px" class="mb-3 rounded-xl" style="background-color: var(--skeleton-bg)"></Skeleton>
+              <Skeleton width="60%" height="1.5rem" class="mb-2" style="background-color: var(--skeleton-bg)"></Skeleton>
+              <div class="flex gap-2">
+                 <Skeleton width="4rem" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+                 <Skeleton width="4rem" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+              </div>
+            </div>
           </div>
 
           <div v-else-if="quizzes.length === 0" class="text-center py-8 empty-state">
-            <p class="text-color-secondary text-xl">No quizzes found</p>
+            <p class="text-color-secondary text-xl">퀴즈를 찾지 못했어요.</p>
           </div>
 
           <div v-else class="quiz-grid-container mb-6">
@@ -133,6 +140,7 @@ import OverlayPanel from "primevue/overlaypanel";
 import LiveRankingWidget from "@/components/LiveRankingWidget.vue";
 import HomeChallengeWidget from "@/components/challenge/HomeChallengeWidget.vue";
 import Paginator from "primevue/paginator";
+import Skeleton from "primevue/skeleton";
 
 const router = useRouter();
 const toast = useToast();
@@ -164,6 +172,7 @@ const loadQuizzes = async () => {
       page: currentPage.value,
       size: pageSize.value,
       sort: sort.value,
+      keyword: searchKeyword.value,
     });
     quizzes.value = response.content || [];
     totalPages.value = response.totalPages || 0;
@@ -185,9 +194,13 @@ const goToQuiz = (quizId: number) => {
 };
 
 const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    router.push({ name: "search", query: { q: searchKeyword.value, sort: searchSort.value } });
+  // ✅ 비동기 검색 (페이지 이동 X)
+  currentPage.value = 1;
+  // 검색바의 정렬 옵션을 메인 정렬 상태에 반영 (선택 사항, 사용자 경험상 동기화 추천)
+  if (searchSort.value) {
+      sort.value = searchSort.value;
   }
+  loadQuizzes();
 };
 
 const onPageChange = (event: any) => {
@@ -299,7 +312,8 @@ onMounted(() => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 18px;
-  align-items: start;
+  gap: 18px;
+  /* align-items: start; (제거) */
 }
 
 .home-main {
@@ -313,7 +327,9 @@ onMounted(() => {
 /* ✅ 랭킹 패널은 "컨테이너 안"에서 카드처럼 보이게 */
 .ranking-panel {
   position: sticky;
-  top: 140px; /* 헤더 높이에 따라 조절 */
+  top: 24px;
+  z-index: 10;
+  height: fit-content;
 }
 
 /* ✅ 화면 좁아지면 랭킹을 아래로 내리거나 숨김(선택) */
@@ -456,6 +472,7 @@ onMounted(() => {
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -481,6 +498,7 @@ onMounted(() => {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -521,6 +539,14 @@ onMounted(() => {
   background: rgba(244, 241, 236, 0.6);
   border-radius: 14px;
   padding: 2rem;
+}
+
+:root {
+  --skeleton-bg: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+  --skeleton-bg: rgba(255, 255, 255, 0.08);
 }
 </style>
 

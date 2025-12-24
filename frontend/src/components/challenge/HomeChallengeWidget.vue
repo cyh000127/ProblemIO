@@ -2,11 +2,10 @@
   <div class="challenge-widget">
     <div class="ranking-header">
       <div class="title">
-        <span class="flame">⚔️</span>
+        <i class="pi pi-bolt text-primary text-xl"></i>
         <span>Challenges</span>
-        <span class="flame">⚔️</span>
       </div>
-      <Button label="View All" text size="small" @click="router.push('/challenges')" />
+      <Button label="전체 조회" text size="small" @click="router.push('/challenges')" />
     </div>
     <ChallengeList
       :challenges="challenges"
@@ -33,7 +32,10 @@ const loadChallenges = async () => {
   try {
     const data = await getChallenges();
     const now = new Date();
-    challenges.value = data.filter((c: any) => !c.endAt || new Date(c.endAt) > now);
+    // 마감되지 않은 챌린지 중 최신순으로 2개만 표시
+    challenges.value = data
+      .filter((c: any) => !c.endAt || new Date(c.endAt) > now)
+      .slice(0, 2);
   } catch (error: any) {
     console.error(error);
   } finally {

@@ -2,9 +2,8 @@
   <div class="ranking-widget">
     <div class="ranking-header">
       <div class="title">
-        <span class="flame">🏆</span>
+        <i class="pi pi-trophy text-yellow-500 text-xl"></i>
         <span>Challenge Ranking</span>
-        <span class="flame">🏆</span>
       </div>
       <div class="header-actions">
         <span class="live-badge">LIVE</span>
@@ -31,7 +30,7 @@
         <div v-for="(row, idx) in topRankings" :key="row.userId ?? idx" :class="['table-row', rankClass(row.ranking)]">
           <div class="col-rank rank-cell">
             <span class="rank-hash">#{{ row.ranking }}</span>
-            <span class="rank-emoji">{{ rankEmoji(row.ranking) }}</span>
+            <i v-if="row.ranking <= 3" class="pi pi-crown text-sm ml-1" :class="getRankIconColor(row.ranking)"></i>
           </div>
 
           <div class="col-avatar">
@@ -138,9 +137,6 @@ const displayName = (row) => {
 };
 
 const rankEmoji = (rank) => {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
   return "";
 };
 
@@ -148,6 +144,13 @@ const rankClass = (rank) => {
   if (rank === 1) return "rank-top rank-gold";
   if (rank === 2) return "rank-top rank-silver";
   if (rank === 3) return "rank-top rank-bronze";
+  return "";
+};
+
+const getRankIconColor = (rank) => {
+  if (rank === 1) return "text-yellow-500";
+  if (rank === 2) return "text-gray-400";
+  if (rank === 3) return "text-orange-400";
   return "";
 };
 

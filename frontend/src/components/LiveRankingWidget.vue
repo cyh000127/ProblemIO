@@ -2,9 +2,8 @@
   <div class="ranking-widget">
     <div class="ranking-header">
       <div class="title">
-        <span class="flame">🔥</span>
+        <i class="pi pi-trophy text-yellow-500 text-xl"></i>
         <span>Ranking</span>
-        <span class="flame">🔥</span>
       </div>
 
       <div class="header-actions">
@@ -29,9 +28,15 @@
     </div>
 
     <div class="ranking-table">
-      <div v-if="loading" class="state-row">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>랭킹을 불러오는 중...</span>
+      <div v-if="loading" class="table-body">
+        <div v-for="i in 5" :key="i" class="table-row">
+           <Skeleton width="2rem" height="1.5rem" class="mr-2" style="background-color: var(--skeleton-bg)"></Skeleton>
+           <Skeleton shape="circle" size="2.5rem" class="mr-3" style="background-color: var(--skeleton-bg)"></Skeleton>
+           <div class="flex flex-col flex-1 gap-1">
+             <Skeleton width="60%" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+             <Skeleton width="40%" height="0.8rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+           </div>
+        </div>
       </div>
 
       <div v-else-if="error" class="state-row error">
@@ -52,7 +57,7 @@
         >
           <div class="col-rank rank-cell">
             <span class="rank-hash">#{{ idx + 1 }}</span>
-            <span class="rank-emoji">{{ rankEmoji(idx + 1) }}</span>
+            <i v-if="idx < 3" class="pi pi-crown text-sm ml-1" :class="getRankIconColor(idx + 1)"></i>
           </div>
 
           <div class="col-avatar">
@@ -91,6 +96,7 @@
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { getRanking } from "@/api/ranking";
 import { resolveImageUrl } from "@/lib/image";
+import Skeleton from "primevue/skeleton";
 
 const rankings = ref([]);
 const loading = ref(false);
@@ -133,16 +139,20 @@ const displayName = (row) => {
 };
 
 const rankEmoji = (rank) => {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
-  return "⭐";
+  return "";
 };
 
 const rankClass = (rank) => {
   if (rank === 1) return "rank-top rank-gold";
   if (rank === 2) return "rank-top rank-silver";
   if (rank === 3) return "rank-top rank-bronze";
+  return "";
+};
+
+const getRankIconColor = (rank) => {
+  if (rank === 1) return "text-yellow-500";
+  if (rank === 2) return "text-gray-400";
+  if (rank === 3) return "text-orange-400";
   return "";
 };
 
@@ -288,25 +298,28 @@ onUnmounted(() => {
 }
 
 .period-btn.active {
-  background: linear-gradient(135deg, #60a5fa, #22d3ee);
-  color: #0b1220;
-  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.4);
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--text-main);
+  font-weight: 800;
 }
 
 :global([data-theme="dark"] .period-btn.active) {
-  color: #04101b;
-  box-shadow: 0 8px 20px rgba(94, 234, 212, 0.45);
+  color: var(--text-main);
+  border-color: var(--text-main);
+  box-shadow: none;
 }
 
 .live-badge {
   padding: 4px 10px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ef4444, #f97316);
-  color: #fff;
+  background: transparent;
+  border: 1px solid var(--text-main);
+  color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.4px;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35), 0 6px 16px rgba(249, 115, 22, 0.35);
+  box-shadow: none;
 }
 
 /* Table */

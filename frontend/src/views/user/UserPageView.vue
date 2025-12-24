@@ -60,7 +60,7 @@
             <i class="pi pi-spin pi-spinner text-4xl"></i>
           </div>
           <div v-else-if="quizzes.length === 0" class="text-center py-8 text-color-secondary">
-            <p>No quizzes yet</p>
+            <p>문제가 아직 없네요.</p>
           </div>
           <div v-else class="quiz-grid-container">
             <div 

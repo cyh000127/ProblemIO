@@ -118,8 +118,8 @@ const handleLogout = () => {
 }
 
 .nav-ghost:hover {
-  background: rgba(0, 150, 136, 0.08) !important; /* 아주 연한 틸 */
-  color: #006f62 !important; /* 틸톤 텍스트 */
+  background: var(--bg-surface-hover, rgba(0, 0, 0, 0.05)) !important;
+  color: var(--color-heading) !important;
   border: none !important;
 }
 
@@ -165,16 +165,16 @@ const handleLogout = () => {
 .logout-btn {
   border: none !important;
   background: transparent !important;
-  color: #dc2626 !important;
+  color: var(--color-heading) !important;
   font-weight: 600;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
 .logout-btn:hover {
-  background: rgba(220, 38, 38, 0.1) !important;
-  color: #b91c1c !important;
-  transform: translateY(-2px); /* Slightly more movement for decoration */
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15); /* Add glow effect */
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--color-heading) !important;
+  transform: translateY(-2px);
+  box-shadow: none;
 }
 
 .text-dark {
@@ -203,8 +203,8 @@ const handleLogout = () => {
 }
 
 :global([data-theme="dark"] .p-menubar .p-inputtext:focus) {
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 1px rgba(26, 188, 156, 0.4);
+  border-color: var(--color-border) !important;
+  box-shadow: none;
 }
 
 :global([data-theme="dark"] .nav-ghost) {
@@ -212,17 +212,17 @@ const handleLogout = () => {
 }
 
 :global([data-theme="dark"] .nav-ghost:hover) {
-  background: rgba(26, 188, 156, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   color: var(--color-heading) !important;
 }
 
 :global([data-theme="dark"] .logout-btn) {
-  color: #fca5a5 !important;
+  color: var(--color-heading) !important;
 }
 
 :global([data-theme="dark"] .logout-btn:hover) {
-  background: rgba(239, 68, 68, 0.16) !important;
-  color: #fecdd3 !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--color-heading) !important;
+  box-shadow: none;
 }
 </style>

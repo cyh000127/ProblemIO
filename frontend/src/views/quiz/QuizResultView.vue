@@ -34,11 +34,11 @@
                   </div>
                   <div class="stat-chip">
                     <p class="stat-label">정답</p>
-                    <p class="stat-value text-success">{{ correctCount }}</p>
+                    <p class="stat-value text-main">{{ correctCount }}</p>
                   </div>
                   <div class="stat-chip">
                     <p class="stat-label">풀이 완료</p>
-                    <p class="stat-value text-info">{{ answeredCount }}</p>
+                    <p class="stat-value text-main">{{ answeredCount }}</p>
                   </div>
                 </div>
 
@@ -158,9 +158,8 @@ const goToHome = () => {
   overflow: hidden;
   padding: 2rem 1.5rem 2.5rem;
   border-radius: 24px;
-  background: radial-gradient(circle at 20% 20%, rgba(66, 153, 225, 0.18), transparent 25%),
-    radial-gradient(circle at 80% 0%, rgba(86, 204, 242, 0.18), transparent 20%),
-    linear-gradient(135deg, rgba(29, 100, 200, 0.18), rgba(76, 201, 240, 0.18));
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
 }
 
 .medal {
@@ -171,9 +170,10 @@ const goToHome = () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #ffda7a, #ffb347);
-  box-shadow: 0 20px 40px rgba(255, 179, 71, 0.35);
-  color: #7b4b00;
+  background: transparent;
+  border: 2px solid var(--text-main);
+  box-shadow: none;
+  color: var(--text-main);
   font-size: 3rem;
 }
 
@@ -186,7 +186,7 @@ const goToHome = () => {
 .score {
   font-size: 3.8rem;
   font-weight: 800;
-  color: var(--primary-color);
+  color: var(--text-main);
   margin: 0;
 }
 
@@ -256,7 +256,7 @@ const goToHome = () => {
   position: absolute;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 60%);
+  background: radial-gradient(circle, var(--text-main), transparent 60%);
   animation: float 10s ease-in-out infinite;
 }
 

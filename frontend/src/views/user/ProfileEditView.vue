@@ -11,7 +11,7 @@
           <div class="flex flex-col gap-8">
             <!-- SECTION 1: 닉네임 변경 & 상태메시지 수정 -->
             <section class="flex flex-col gap-6">
-              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">내 정보 수정</h2>
+              <h2 class="text-xl font-bold border-l-4 border-surface-900 dark:border-surface-0 pl-3">내 정보 수정</h2>
 
               <div class="flex flex-col gap-2 items-center my-8">
                 <div class="relative inline-block group cursor-pointer" @click="triggerFileUpload">
@@ -27,7 +27,7 @@
                 <!-- Hidden File Input -->
                 <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleFileChange" style="display: none" />
 
-                <span class="text-sm text-gray-500 cursor-pointer hover:text-primary underline" @click="triggerFileUpload">프로필 사진 바꾸기</span>
+                <span class="text-sm text-gray-500 cursor-pointer hover:text-white underline" @click="triggerFileUpload">프로필 사진 바꾸기</span>
               </div>
 
               <div class="grid gap-4">
@@ -65,7 +65,7 @@
 
             <!-- SECTION 2: 꾸미기 설정 버튼들 (모달 트리거) -->
             <section class="flex flex-col gap-6">
-              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">꾸미기</h2>
+              <h2 class="text-xl font-bold border-l-4 border-surface-900 dark:border-surface-0 pl-3">꾸미기</h2>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- 배경 테마 설정 -->
@@ -205,7 +205,7 @@
                 v-for="item in availableItems"
                 :key="item.id || item.key"
                 class="cursor-pointer border-2 rounded-lg p-2 aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-hover transition-all relative overflow-hidden group"
-                :class="{ 'border-primary ring-2 ring-primary/20': isItemSelected(item) }"
+                :class="{ 'border-surface-900 dark:border-surface-0 ring-2 ring-surface-900/20 dark:ring-surface-0/20': isItemSelected(item) }"
                 @click="selectItem(item)"
                 v-tooltip.bottom="item.description || item.name"
               >
@@ -222,7 +222,7 @@
                 </div>
 
                 <!-- Checkmark if selected -->
-                <div v-if="isItemSelected(item)" class="absolute top-1 right-1 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                <div v-if="isItemSelected(item)" class="absolute top-1 right-1 bg-surface-900 dark:bg-surface-0 text-surface-0 dark:text-surface-900 rounded-full w-5 h-5 flex items-center justify-center text-xs">
                   <i class="pi pi-check" style="font-size: 0.6rem"></i>
                 </div>
               </div>
