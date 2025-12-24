@@ -564,11 +564,11 @@ const handleSaveProfile = async () => {
 
 const handleChangePassword = async () => {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    toast.add({ severity: "warn", summary: "Warning", detail: "비밀번호가 일치하지 않습니다.", life: 3000 });
+    toast.add({ severity: "warn", summary: "주의", detail: "비밀번호가 일치하지 않습니다.", life: 3000 });
     return;
   }
   if (passwordForm.value.newPassword.length < 8) {
-    toast.add({ severity: "warn", summary: "Warning", detail: "비밀번호는 최소 8자 이상이어야 합니다.", life: 3000 });
+    toast.add({ severity: "warn", summary: "주의", detail: "비밀번호는 최소 8자 이상이어야 합니다.", life: 3000 });
     return;
   }
 
@@ -577,9 +577,9 @@ const handleChangePassword = async () => {
     await changePassword(passwordForm.value.currentPassword, passwordForm.value.newPassword);
     passwordForm.value = { currentPassword: "", newPassword: "", confirmPassword: "" };
     showPasswordDialog.value = false;
-    toast.add({ severity: "success", summary: "Success", detail: "비밀번호가 변경되었습니다.", life: 3000 });
+    toast.add({ severity: "success", summary: "성공", detail: "비밀번호가 변경되었습니다.", life: 3000 });
   } catch (error: any) {
-    toast.add({ severity: "error", summary: "Error", detail: error.response?.data?.message || "비밀번호 변경에 실패했습니다.", life: 3000 });
+    toast.add({ severity: "error", summary: "오류", detail: error.response?.data?.message || "비밀번호 변경에 실패했습니다.", life: 3000 });
   } finally {
     changingPassword.value = false;
   }
@@ -594,12 +594,12 @@ const handleDeleteAccount = async () => {
   deletingAccount.value = true;
   try {
     await deleteAccount(deletePassword.value);
-    toast.add({ severity: "success", summary: "Success", detail: "계정이 삭제되었습니다.", life: 3000 });
+    toast.add({ severity: "success", summary: "성공", detail: "계정이 삭제되었습니다.", life: 3000 });
     authStore.logoutUser();
     showDeleteDialog.value = false;
     router.push("/");
   } catch (error: any) {
-    toast.add({ severity: "error", summary: "Error", detail: error.response?.data?.message || "계정 삭제에 실패했습니다.", life: 3000 });
+    toast.add({ severity: "error", summary: "오류", detail: error.response?.data?.message || "계정 삭제에 실패했습니다.", life: 3000 });
   } finally {
     deletingAccount.value = false;
   }

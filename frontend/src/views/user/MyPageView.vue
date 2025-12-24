@@ -222,7 +222,7 @@ const goToCreateQuiz = () => {
 
 const handleDelete = (quizId: number) => {
   confirm.require({
-    message: "한번 지우면 되돌릴 수 없어요!!",
+    message: "한번 지우면 되돌릴 수 없어요!",
     header: "진짜 퀴즈를 지울거에요? ",
     icon: "pi pi-exclamation-triangle",
     accept: async () => {

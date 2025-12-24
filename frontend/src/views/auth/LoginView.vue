@@ -13,12 +13,12 @@
           <div class="flex flex-col gap-4">
             <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
-                <label for="email" class="text-sm font-medium">Email</label>
-                <InputText id="email" v-model="email" type="email" placeholder="ID" required class="w-full" />
+                <label for="email" class="text-sm font-medium">이메일</label>
+                <InputText id="email" v-model="email" type="email"  required class="w-full" />
               </div>
               <div class="flex flex-col gap-2">
-                <label for="password" class="text-sm font-medium">Password</label>
-                <Password id="password" v-model="password" toggleMask placeholder="••••••••" required class="w-full" inputClass="w-full" />
+                <label for="password" class="text-sm font-medium">비밀번호</label>
+                <Password id="password" v-model="password" toggleMask  required class="w-full" inputClass="w-full" />
               </div>
               <Button type="submit" label="로그인" :loading="loading" class="w-full" size="large" />
             </form>

@@ -153,7 +153,7 @@ const startTimer = () => {
 
 const handleTimeOver = () => {
     clearInterval(timerInterval.value)
-    toast.add({ severity: 'error', summary: 'Time Over', detail: '제한 시간이 초과되었습니다!', life: 3000 })
+    toast.add({ severity: 'error', summary: '시간 초과!', detail: '제한 시간이 초과되었습니다!', life: 3000 })
     // 자동 제출 로직이 필요하다면 추가, 혹은 바로 결과 화면으로
     router.push(`/challenges/${challengeId}/result`)
 }

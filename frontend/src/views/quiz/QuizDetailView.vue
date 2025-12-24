@@ -185,7 +185,7 @@ const handleLike = async () => {
   if (!authStore.isAuthenticated) {
     confirm.require({
       message: "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?",
-      header: "Login Required",
+      header: "로그인 필요",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
         router.push("/login");
@@ -228,7 +228,7 @@ const handleFollow = async () => {
   if (!authStore.isAuthenticated) {
     confirm.require({
       message: "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?",
-      header: "Login Required",
+      header: "로그인 필요",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
         router.push("/login");

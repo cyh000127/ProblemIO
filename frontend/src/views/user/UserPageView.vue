@@ -38,15 +38,15 @@
                 <div class="flex justify-center md:justify-start gap-8 mt-2">
                   <div class="stat-box">
                     <p class="text-2xl font-bold m-0">{{ user.quizCount || 0 }}</p>
-                    <p class="text-sm opacity-80 m-0">Quizzes</p>
+                    <p class="text-sm opacity-80 m-0">퀴즈 수</p>
                   </div>
                   <div class="stat-box">
                     <p class="text-2xl font-bold m-0">{{ user.followerCount || 0 }}</p>
-                    <p class="text-sm opacity-80 m-0">Followers</p>
+                    <p class="text-sm opacity-80 m-0">팔로워</p>
                   </div>
                   <div class="stat-box">
                     <p class="text-2xl font-bold m-0">{{ user.followingCount || 0 }}</p>
-                    <p class="text-sm opacity-80 m-0">Following</p>
+                    <p class="text-sm opacity-80 m-0">팔로잉</p>
                   </div>
                 </div>
               </div>
@@ -55,7 +55,7 @@
 
         <!-- User's Quizzes -->
         <div>
-          <h2 class="text-2xl font-bold mb-4">Quizzes</h2>
+          <h2 class="text-2xl font-bold mb-4">퀴즈</h2>
           <div v-if="loadingQuizzes" class="text-center py-8">
             <i class="pi pi-spin pi-spinner text-4xl"></i>
           </div>
@@ -154,7 +154,7 @@ const handleFollow = async () => {
   if (!authStore.isAuthenticated) {
     confirm.require({
       message: "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?",
-      header: "Login Required",
+      header: "로그인 필요",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
         router.push("/login");

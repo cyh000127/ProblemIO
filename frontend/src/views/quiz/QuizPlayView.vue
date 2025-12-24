@@ -5,93 +5,85 @@
         <i class="pi pi-spin pi-spinner text-4xl"></i>
       </div>
 
-      <div v-else class="flex flex-col gap-6">
-        <!-- 상단 제목 + 진행도 -->
-        <div class="mb-4">
-          <div class="flex justify-between items-center mb-2">
-            <h2 class="text-2xl font-bold m-0">
+      <div v-else class="flex flex-col gap-4 items-center">
+        <!-- 상단 제목 + 진행도 (Centered) -->
+        <div class="w-full max-w-2xl mb-1">
+          <div class="flex justify-between items-center mb-1">
+            <h2 class="text-2xl font-bold m-0 text-center w-full">
               {{ quizStore.currentQuiz.title }}
             </h2>
-            <Badge
-              :value="`${quizStore.currentQuestionIndex + 1} / ${quizStore.currentQuiz.questions.length}`"
-              severity="info"
-            />
           </div>
-          <ProgressBar :value="progressPercentage" class="h-1rem" />
+          <div class="text-right mt-1 text-sm text-color-secondary">
+            {{ quizStore.currentQuestionIndex + 1 }} / {{ quizStore.currentQuiz.questions.length }}
+          </div>
         </div>
 
-        <Card>
+        <!-- 1. Question Image (Separated & Fixed Size) -->
+        <div v-if="currentQuestion?.imageUrl" class="thumbnail-frame">
+          <img
+            :src="currentQuestion.imageUrl"
+            :alt="currentQuestion.description"
+            class="thumbnail-image"
+          />
+        </div>
+
+        <!-- 2. Content Card (Question & Input) -->
+        <Card class="quiz-card w-full max-w-2xl">
           <template #content>
-            <div class="flex flex-col gap-6">
+            <div class="flex flex-col h-full justify-between items-center text-center w-full">
               <!-- 1) 평소 문제 풀이 화면 -->
               <template v-if="!quizStore.showAnswerCard">
-                <div
-                  v-if="currentQuestion?.imageUrl"
-                  class="aspect-video bg-surface-100 overflow-hidden border-round"
-                >
-                  <img
-                    :src="currentQuestion.imageUrl"
-                    :alt="currentQuestion.description"
-                    class="w-full h-full object-contain" 
-                  />
+                <!-- Top Content: Description & Input -->
+                <div class="flex-1 flex flex-col justify-center items-center w-full max-w-md gap-6">
+                   <!-- Question Description -->
+                  <div v-if="currentQuestion?.description" class="text-xl font-medium leading-relaxed max-w-lg question-description">
+                    {{ currentQuestion.description }}
+                  </div>
+
+                  <!-- Input -->
+                  <div class="w-full">
+                    <label class="block text-left text-sm font-bold mb-2 ml-1 text-color-secondary">정답 입력</label>
+                    <InputText
+                      ref="answerInput"
+                      v-model="currentAnswer"
+                      placeholder="정답을 입력하세요"
+                      class="w-full text-center text-lg p-3"
+                    />
+                  </div>
                 </div>
 
-                <div v-if="currentQuestion?.description" class="text-xl">
-                  {{ currentQuestion.description }}
-                </div>
-
-                <div class="flex flex-col gap-3">
-                  <label class="text-lg font-semibold">Your Answer:</label>
-                  <InputText
-                    ref="answerInput"
-                    v-model="currentAnswer"
-                    placeholder="Enter your answer..."
-                    class="w-full"
-                  />
-                </div>
-
-                <div class="flex">
+                <!-- Bottom Action: Button -->
+                <div class="w-full max-w-md mt-4">
                   <Button
-                    label="제출"
+                    label="제출하기"
                     icon="pi pi-check"
-                    class="flex-1"
+                    class="w-full font-bold py-3"
                     :disabled="!currentAnswer.trim() || submitting"
                     :loading="submitting"
                     @click="submitAnswer"
-                  >
-                  </Button>
+                  />
                 </div>
               </template>
 
               <!-- 2) 한 문제에 대한 정답/오답 카드 -->
               <template v-else>
-                <!-- 문제 이미지도 같이 보여주기 -->
-                <div
-                  v-if="currentQuestion?.imageUrl"
-                  class="aspect-video bg-surface-100 overflow-hidden border-round"
-                >
-                  <img
-                    :src="currentQuestion.imageUrl"
-                    :alt="currentQuestion.description"
-                    class="w-full h-full object-contain"
-                  />
-                </div>
-
-                <div class="flex flex-col items-center text-center gap-4 py-6">
+                <!-- Top Content: Result Info -->
+                <div class="flex-1 flex flex-col justify-center items-center w-full max-w-md gap-2">
+                   <!-- Result Status -->
                   <div
-                    class="text-2xl font-bold"
+                    class="text-2xl font-extrabold"
                     :class="quizStore.lastAnswerResult.correct ? 'text-green-500' : 'text-red-500'"
                   >
-                    {{ quizStore.lastAnswerResult.correct ? '정답!' : '오답!' }}
+                    {{ quizStore.lastAnswerResult.correct ? '정답! ' : '오답!' }}
                   </div>
 
                   <!-- 정답 문구 -->
                   <div
                     v-if="quizStore.lastAnswerResult.correctAnswers && quizStore.lastAnswerResult.correctAnswers.length"
-                    class="text-lg"
+                    class="text-lg bg-surface-100 p-3 rounded-xl w-full"
                   >
-                    <div class="font-semibold mb-1">정답은</div>
-                    <div>
+                    <div class="font-bold mb-1 text-color-secondary text-sm">정답</div>
+                    <div class="font-bold text-xl text-primary">
                       {{ quizStore.lastAnswerResult.correctAnswers.join(', ') }}
                     </div>
                   </div>
@@ -99,32 +91,28 @@
                   <!-- 사용자가 입력한 답 -->
                   <div
                     v-if="quizStore.lastAnswerResult.userAnswer"
-                    class="text-sm text-surface-500"
+                    class="text-sm text-color-secondary"
                   >
-                    당신의 답: "{{ quizStore.lastAnswerResult.userAnswer }}"
+                    내가 쓴 답: <span class="font-medium text-color-main">"{{ quizStore.lastAnswerResult.userAnswer }}"</span>
                   </div>
+                </div>
 
-                  <div class="flex w-full mt-4">
-                    <!-- 마지막 문제가 아니면 다음 문제로 -->
-                    <Button
-                      v-if="!isLastQuestion"
-                      label="다음 문제"
-                      icon="pi pi-arrow-right"
-                      class="flex-1"
-                      @click="handleNextAfterAnswer"
-                    >
-                    </Button>
-
-                    <!-- 마지막 문제면 결과 페이지로 -->
-                    <Button
-                      v-else
-                      label="결과 보기"
-                      icon="pi pi-chart-bar"
-                      class="flex-1"
-                      @click="goToResult"
-                    >
-                    </Button>
-                  </div>
+                <!-- Bottom Action: Next Button -->
+                <div class="w-full max-w-md mt-2">
+                  <Button
+                    v-if="!isLastQuestion"
+                    label="다음 문제"
+                    icon="pi pi-arrow-right"
+                    class="w-full font-bold py-3"
+                    @click="handleNextAfterAnswer"
+                  />
+                  <Button
+                    v-else
+                    label="결과 보기"
+                    icon="pi pi-chart-bar"
+                    class="w-full font-bold py-3 p-button-success"
+                    @click="goToResult"
+                  />
                 </div>
               </template>
             </div>
@@ -159,15 +147,6 @@ const answerInput = ref<any>(null)
 const currentQuestion = computed(() => {
   if (!quizStore.currentQuiz) return null
   return quizStore.currentQuiz.questions[quizStore.currentQuestionIndex]
-})
-
-const progressPercentage = computed(() => {
-  if (!quizStore.currentQuiz) return 0
-  return (
-    ((quizStore.currentQuestionIndex + 1) /
-      quizStore.currentQuiz.questions.length) *
-    100
-  )
 })
 
 const isLastQuestion = computed(() => {
@@ -395,11 +374,53 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 
-.aspect-video {
-  aspect-ratio: 16 / 9;
+.quiz-card {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: none;
 }
 
-.h-1rem {
-  height: 1rem;
+.quiz-card :deep(.p-card-body) {
+  height: 300px; /* Fixed height for the card body */
+  display: flex;
+  flex-direction: column;
+}
+
+.quiz-card :deep(.p-card-content) {
+  flex: 1;
+  padding: 1.5rem;
+  background: var(--color-background-soft);
+  color: var(--color-heading);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Pin content and buttons */
+}
+
+.thumbnail-frame {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding: 0 0 1rem;
+}
+
+.thumbnail-image {
+  width: 606px;
+  height: 344px; /* Reverted to original fixed height */
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 3px solid var(--text-main);
+  background: var(--bg-surface);
+}
+
+.question-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word; /* Ensure long words don't break layout */
 }
 </style>
