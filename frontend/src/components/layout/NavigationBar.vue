@@ -97,29 +97,30 @@ const handleLogout = () => {
   width: 20rem;
 }
 
+
 :deep(.p-button.p-button-text) {
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
 }
 :deep(.p-button.p-button-text:hover) {
-  background-color: var(--surface-hover);
+  background-color: var(--bg-surface-hover);
 }
 
 .nav-ghost {
   border: none !important;
   background: transparent !important;
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
   font-weight: 600;
 }
 
 /* Force ALL navigation text to use heading color */
 .app-header,
 .app-header :deep(*) {
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
 }
 
 .nav-ghost:hover {
-  background: rgba(0, 150, 136, 0.08) !important; /* 아주 연한 틸 */
-  color: #006f62 !important; /* 틸톤 텍스트 */
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-main) !important;
   border: none !important;
 }
 
@@ -131,13 +132,13 @@ const handleLogout = () => {
 
 .app-header :deep(.p-menubar-root-list),
 .app-header :deep(.p-menubar-button) {
-  color: var(--color-heading);
+  color: var(--text-main);
 }
 
 .app-header :deep(.p-inputtext) {
-  background: var(--color-background-soft);
-  color: var(--color-heading);
-  border-color: var(--color-border);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-color: var(--border);
 }
 
 .logo-link {
@@ -165,64 +166,64 @@ const handleLogout = () => {
 .logout-btn {
   border: none !important;
   background: transparent !important;
-  color: #dc2626 !important;
+  color: var(--text-main) !important;
   font-weight: 600;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
 .logout-btn:hover {
-  background: rgba(220, 38, 38, 0.1) !important;
-  color: #b91c1c !important;
-  transform: translateY(-2px); /* Slightly more movement for decoration */
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15); /* Add glow effect */
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-main) !important;
+  transform: translateY(-2px);
+  box-shadow: none;
 }
 
 .text-dark {
-  color: var(--color-heading);
+  color: var(--text-main);
 }
 
 /* Dark theme header harmonization */
 :global([data-theme="dark"] .p-menubar) {
   background-color: transparent !important;
   border-color: transparent !important;
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
 }
 
 :global([data-theme="dark"] .p-menubar .p-menuitem-link) {
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
 }
 
 :global([data-theme="dark"] .p-menubar .p-menuitem-link:hover) {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--bg-surface-hover) !important;
 }
 
 :global([data-theme="dark"] .p-menubar .p-inputtext) {
-  background: #111821 !important;
-  color: var(--color-heading) !important;
-  border-color: var(--color-border) !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border) !important;
 }
 
 :global([data-theme="dark"] .p-menubar .p-inputtext:focus) {
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 1px rgba(26, 188, 156, 0.4);
+  border-color: var(--primary) !important;
+  box-shadow: none;
 }
 
 :global([data-theme="dark"] .nav-ghost) {
-  color: var(--color-heading) !important;
+  color: var(--text-main) !important;
 }
 
 :global([data-theme="dark"] .nav-ghost:hover) {
-  background: rgba(26, 188, 156, 0.12) !important;
-  color: var(--color-heading) !important;
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-main) !important;
 }
 
 :global([data-theme="dark"] .logout-btn) {
-  color: #fca5a5 !important;
+  color: var(--text-main) !important;
 }
 
 :global([data-theme="dark"] .logout-btn:hover) {
-  background: rgba(239, 68, 68, 0.16) !important;
-  color: #fecdd3 !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-main) !important;
+  box-shadow: none;
 }
 </style>

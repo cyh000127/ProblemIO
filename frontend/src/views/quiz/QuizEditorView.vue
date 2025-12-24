@@ -187,6 +187,7 @@
 import { ref, computed, reactive, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import { useQuizStore } from "@/stores/quiz";
 import { createQuiz, getQuiz, updateQuiz } from "@/api/quiz";
 import { createCandidates, confirmCandidate } from "@/api/aiThumbnail";
@@ -601,12 +602,31 @@ const getImagePreview = (path?: string) => buildImageUrl(path);
 const isImageFile = (file: File) => file.type.startsWith("image/");
 
 // ==== 취소/저장 ====
+const confirmService = useConfirm();
+
 const handleCancel = () => {
   if (props.mode === "create") {
-    if (confirm("작성 중인 내용이 모두 사라집니다. 취소하시겠습니까?")) {
-      quizStore.resetQuizForm();
-      router.push("/");
-    }
+    confirmService.require({
+      message: '작성 중인 내용이 모두 사라집니다. 취소하시겠습니까?',
+      header: '취소 확인',
+      icon: 'pi pi-exclamation-triangle',
+      rejectProps: {
+        label: '계속 작성',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptProps: {
+        label: '나가기',
+        severity: 'danger'
+      },
+      accept: () => {
+        quizStore.resetQuizForm();
+        router.push("/");
+      },
+      reject: () => {
+        // stay
+      }
+    });
   } else {
     router.push(`/quiz/${props.quizId}`);
   }
@@ -725,9 +745,9 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .question-list-wrapper) {
-  background: #121212;
-  border: 1px solid #2c2c2c;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
 }
 
 /* 문제 카드 그리드 */
@@ -764,9 +784,9 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .question-card) {
-  background: #161616;
-  border: 1px solid #262626;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
 }
 
 .question-card:hover {
@@ -777,8 +797,8 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .question-card:hover) {
-  background: #1d1d1d;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: var(--bg-surface-hover);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-image-wrapper {
@@ -792,8 +812,8 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .card-image-wrapper) {
-  background: #0f0f0f;
-  border-color: #303030;
+  background: var(--bg-main);
+  border-color: var(--border);
 }
 
 .card-image-wrapper img {
@@ -897,7 +917,7 @@ onMounted(() => {
 }
 
 .thumbnail-box {
-  border: 2px dashed #7c4dff;
+  border: 2px dashed var(--primary);
   border-radius: 16px;
   padding: 0.75rem;
   cursor: pointer;
@@ -905,7 +925,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(124, 77, 255, 0.05);
+  background: rgba(39, 181, 207, 0.05); /* var(--primary) with opacity */
 }
 
 .thumbnail-box img {
@@ -915,8 +935,8 @@ onMounted(() => {
 }
 
 .thumbnail-box.drag-over {
-  background: rgba(124, 77, 255, 0.12);
-  border-color: #5b2fff;
+  background: rgba(39, 181, 207, 0.12);
+  border-color: var(--primary-hover);
 }
 
 .thumbnail-placeholder {
@@ -924,7 +944,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: #7c4dff;
+  color: var(--primary);
 }
 
 .ai-thumbnail-actions {
@@ -976,14 +996,14 @@ onMounted(() => {
 }
 
 .ai-candidate-card.selected {
-  border-color: #7c4dff;
+  border-color: var(--primary);
 }
 
 .ai-selected-badge {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #7c4dff;
+  background: var(--primary);
   color: #fff;
   font-size: 0.7rem;
   padding: 2px 6px;
@@ -1002,13 +1022,13 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] :deep(.ai-generate-button.p-button:hover)) {
-  background: rgba(124, 77, 255, 0.18) !important;
-  border-color: rgba(124, 77, 255, 0.5) !important;
-  color: #e9ddff !important;
+  background: rgba(39, 181, 207, 0.18) !important;
+  border-color: rgba(39, 181, 207, 0.5) !important;
+  color: #aeddeb !important;
 }
 
 :global([data-theme="dark"] :deep(.ai-generate-button.p-button:enabled:focus-visible)) {
-  box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.35) !important;
+  box-shadow: 0 0 0 2px rgba(39, 181, 207, 0.35) !important;
 }
 
 /* 문제 편집 모달 */
@@ -1079,5 +1099,28 @@ onMounted(() => {
 :global([data-theme="dark"] .p-inputchips-input) {
   background-color: transparent !important;
   color: var(--color-heading) !important;
+}
+
+/* PrimeVue Dialog Dark Mode Fixes */
+:global([data-theme="dark"] .p-dialog) {
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border) !important;
+}
+
+:global([data-theme="dark"] .p-dialog-header),
+:global([data-theme="dark"] .p-dialog-content),
+:global([data-theme="dark"] .p-dialog-footer) {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+:global([data-theme="dark"] .p-dialog .p-dialog-header-icon) {
+  color: var(--text-sub) !important;
+}
+
+:global([data-theme="dark"] .p-dialog .p-dialog-header-icon:hover) {
+  background: var(--bg-surface-hover) !important;
+  color: var(--text-main) !important;
 }
 </style>

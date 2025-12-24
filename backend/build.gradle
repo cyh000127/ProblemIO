@@ -111,12 +111,12 @@ task buildVue(type: Exec) {
     }
 }
 
-processResources {
-    dependsOn buildVue
-}
-
-bootJar {
-    archiveBaseName = 'problemio'  // JAR 파일의 이름 설정
-    version = '0.0.1-SNAPSHOT'     // 버전 설정
-    mainClass.set('com.problemio.BackendApplication')  // main 클래스 설정
-}
+//processResources {
+//    dependsOn buildVue
+//}
+//
+//bootJar {
+//    archiveBaseName = 'problemio'  // JAR 파일의 이름 설정
+//    version = '0.0.1-SNAPSHOT'     // 버전 설정
+//    mainClass.set('com.problemio.BackendApplication')  // main 클래스 설정
+//}

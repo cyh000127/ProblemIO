@@ -6,68 +6,64 @@
       </div>
 
       <div v-else-if="quiz" class="flex flex-col gap-6">
+        <!-- 1. Image Section (Separated) -->
+        <div class="thumbnail-frame">
+          <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="thumbnail-image" />
+        </div>
+
+        <!-- 2. Content Card (Title & Description) -->
         <Card class="quiz-card">
-          <template #header>
-            <div class="aspect-video bg-surface-100 overflow-hidden thumbnail-frame">
-              <img :src="quiz.thumbnailUrl || '/placeholder.svg'" :alt="quiz.title" class="thumbnail-image" />
-            </div>
-          </template>
           <template #content>
-            <div class="flex flex-col gap-4">
-              <div class="flex justify-between items-start gap-4">
-                <div class="flex-1">
-                  <h1 class="text-3xl font-bold mb-2">
-                    {{ quiz.title }}
-                  </h1>
-                  <p class="text-color-secondary text-lg">
-                    {{ quiz.description }}
-                  </p>
-                </div>
+            <div class="flex flex-col gap-6 items-center text-center py-4">
+              <!-- Title & Description -->
+              <div class="flex flex-col gap-3 max-w-2xl">
+                <h1 class="text-3xl font-extrabold m-0 leading-tight">
+                  {{ quiz.title }}
+                </h1>
+                <p class="text-color-secondary text-lg leading-relaxed whitespace-pre-line">
+                  {{ quiz.description }}
+                </p>
+              </div>
 
-                <div class="flex flex-col items-end gap-2 shrink-0">
-                  <div class="view-chip">
-                    <i class="pi pi-eye text-xs"></i>
-                    <span>{{ quiz.playCount || 0 }}</span>
-                  </div>
-                  <!-- 👍 좋아요 버튼: 내가 만든 퀴즈면 disabled -->
-                  <Button
-                    :icon="isLiked ? 'pi pi-heart-fill' : 'pi pi-heart'"
-                    :label="`${quiz.likeCount || 0}`"
-                    :severity="isLiked ? 'danger' : 'secondary'"
-                    :outlined="!isLiked"
-                    :text="isLiked"
-                    :disabled="isMyQuiz"
-                    :title="isMyQuiz ? '내가 만든 퀴즈에는 좋아요를 누를 수 없습니다.' : ''"
-                    class="like-button"
-                    @click="handleLike"
-                  />
+              <!-- Unified Meta Info Row (Centered) -->
+              <div class="flex flex-wrap items-center justify-center gap-4 mt-2 text-color-secondary text-sm">
+                <!-- Author -->
+                <div class="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" @click="openAuthorPopover">
+                   <UserAvatar :user="quiz.author" size="small" />
+                   <span class="font-bold">{{ quiz.author?.nickname }}</span>
+                </div>
+                
+                <span class="opacity-30">|</span>
+
+                <!-- Stats -->
+                <span>문제 {{ quiz.questions?.length || 0 }}개</span>
+                
+                <span class="opacity-30">|</span>
+                
+                <span>조회 {{ quiz.playCount || 0 }}</span>
+
+                <span class="opacity-30">|</span>
+
+                <!-- Like Button (Minimal) -->
+                <div 
+                  class="flex items-center gap-1 transition-colors"
+                  :class="isMyQuiz ? 'opacity-50 cursor-default' : 'cursor-pointer hover:text-red-500'"
+                  @click.stop="!isMyQuiz && handleLike()"
+                >
+                  <i :class="isLiked ? 'pi pi-heart-fill text-red-500' : 'pi pi-heart'"></i>
+                  <span>{{ quiz.likeCount || 0 }}</span>
                 </div>
               </div>
 
-              <!-- 작성자 영역: 클릭 시 팝오버 오픈 -->
-              <div class="flex items-center gap-3 cursor-pointer" @click="openAuthorPopover">
-                           <UserAvatar
-                            :user="quiz.author"
-                            size="medium"
-                            class="mr-1 font-bold"
-                            :class="{ 'surface-200 text-700': !quiz.author?.profileImageUrl }"
-                          />
-                <div>
-                  <p class="font-semibold m-0">
-                    {{ quiz.author?.nickname }}
-                  </p>
-                  <p class="text-sm text-color-secondary m-0">{{ quiz.questions?.length || 0 }} questions</p>
-                </div>
-              </div>
-
-              <div class="start-button-grid">
+              <!-- Start Buttons -->
+              <div class="start-button-grid mt-6 w-full max-w-md">
                 <Button
                   v-for="option in questionOptions"
                   :key="option"
                   :label="getOptionLabel(option)"
                   icon="pi pi-play"
                   size="large"
-                  class="start-button"
+                  class="start-button font-bold text-lg py-3 shadow-sm w-full"
                   :loading="startLoadingOption === option"
                   @click="startQuizWithLimit(option)"
                 />
@@ -189,7 +185,7 @@ const handleLike = async () => {
   if (!authStore.isAuthenticated) {
     confirm.require({
       message: "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?",
-      header: "Login Required",
+      header: "로그인 필요",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
         router.push("/login");
@@ -232,7 +228,7 @@ const handleFollow = async () => {
   if (!authStore.isAuthenticated) {
     confirm.require({
       message: "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?",
-      header: "Login Required",
+      header: "로그인 필요",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
         router.push("/login");
@@ -305,18 +301,15 @@ const getOptionLabel = (option: number) => {
   aspect-ratio: 16 / 9;
 }
 
-.quiz-card .p-card-header {
-  padding: 0;
-}
-
-.quiz-card .p-card-body {
-  padding: 0;
-  background: var(--color-background-soft);
+.quiz-card {
+  border-radius: 24px;
+  overflow: hidden;
   border: 1px solid var(--color-border);
+  box-shadow: none; /* User prefers flat design usually, or keep minimal */
 }
 
 .quiz-card .p-card-content {
-  padding: 1.25rem;
+  padding: 1.5rem;
   background: var(--color-background-soft);
   color: var(--color-heading);
 }
@@ -328,18 +321,28 @@ const getOptionLabel = (option: number) => {
 }
 
 .thumbnail-frame {
-  background: var(--color-background-soft);
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
 }
 
 .thumbnail-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 606px;
+  height: 344px;
+  max-width: 100%; /* Mobile responsive */
+  object-fit: cover; /* Fill the area */
+  border-radius: 12px;
+  border: 3px solid var(--text-main);
+  background: var(--bg-surface); /* Fallback/Loading bg */
 }
 .start-button-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Slightly wider buttons */
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto; /* Center the grid */
+  width: 100%;
 }
 .start-button {
   width: 100%;
@@ -350,16 +353,10 @@ const getOptionLabel = (option: number) => {
   gap: 0.35rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.12);
-  color: var(--color-heading);
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
   font-size: 0.9rem;
 }
 
-.like-button.p-button-danger {
-  color: #ffffff !important;
-}
 
-.like-button.p-button-danger .pi-heart-fill {
-  color: #ffffff !important;
-}
 </style>

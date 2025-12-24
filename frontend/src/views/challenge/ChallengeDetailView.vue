@@ -14,19 +14,25 @@
 
       <div v-else-if="challenge" class="flex flex-col lg:flex-row justify-center gap-6 items-start relative">
         <!-- Left Column: Challenge Info (Centered Fixed Width) -->
-        <div class="w-full max-w-3xl flex flex-col gap-6 py-6">
+        <div class="w-full max-w-3xl flex flex-col gap-6">
           <Card class="challenge-info-card shadow-lg border-0 rounded-2xl overflow-hidden">
             <template #header>
               <div class="aspect-video bg-surface-100 overflow-hidden thumbnail-frame relative">
-                <img v-if="challenge.targetQuiz?.thumbnailUrl" :src="resolveImageUrl(challenge.targetQuiz.thumbnailUrl)" class="w-full h-full object-cover" alt="Challenge Thumbnail" />
-                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/10 to-purple-500/10 text-gray-400">
+                <img v-if="challenge.targetQuiz?.thumbnailUrl" :src="resolveImageUrl(challenge.targetQuiz.thumbnailUrl)" class="w-full h-full object-scale-down" alt="Challenge Thumbnail" />
+                <div v-else class="w-full h-full flex items-center justify-center bg-surface-100 text-gray-400">
                   <!-- Placeholder Icon -->
-                  <i class="pi pi-bolt text-6xl text-indigo-300"></i>
+                  <i class="pi pi-bolt text-6xl text-gray-400"></i>
                 </div>
                 <div class="absolute top-4 left-4 flex gap-2">
-                  <Tag v-if="challenge.challengeType === 'TIME_ATTACK'" icon="pi pi-clock" severity="danger" value="TIME ATTACK" rounded class="force-text-red"></Tag>
-                  <Tag v-else-if="challenge.challengeType === 'SURVIVAL'" icon="pi pi-shield" severity="help" value="SURVIVAL" rounded class="force-text-purple"></Tag>
-                  <Tag v-else severity="info" value="EVENT" rounded class="force-text-gray"></Tag>
+                  <div class="px-3 py-1 rounded font-bold border-1 badge-time-attack" v-if="challenge.challengeType === 'TIME_ATTACK'">
+                    <i class="pi pi-clock mr-2"></i>TIME ATTACK
+                  </div>
+                  <div class="px-3 py-1 rounded font-bold border-1 badge-survival" v-else-if="challenge.challengeType === 'SURVIVAL'">
+                    <i class="pi pi-shield mr-2"></i>SURVIVAL
+                  </div>
+                  <div class="px-3 py-1 rounded font-bold border-1 badge-event" v-else>
+                    EVENT
+                  </div>
                 </div>
               </div>
             </template>
@@ -35,7 +41,7 @@
                 <div class="flex justify-between items-start">
                   <h1 class="text-3xl font-extrabold m-0 text-heading tracking-tight">{{ challenge.title }}</h1>
                   <span v-if="challenge.timeLimit > 0" class="text-color-secondary font-medium bg-surface-100 px-3 py-1 rounded-full text-sm">
-                    <i class="pi pi-stopwatch mr-1 text-indigo-500"></i>
+                    <i class="pi pi-stopwatch mr-1 text-gray-500"></i>
                     {{ challenge.timeLimit }}초 제한
                   </span>
                 </div>
@@ -48,7 +54,7 @@
 
                 <div class="flex flex-col gap-2">
                   <div class="flex items-center gap-2 text-color-secondary">
-                    <i class="pi pi-calendar text-primary"></i>
+                    <i class="pi pi-calendar text-gray-500"></i>
                     <span class="font-medium">이벤트 기간:</span>
                     <span>{{ formatDate(challenge.startAt) }} ~ {{ formatDate(challenge.endAt) }}</span>
                   </div>
@@ -63,7 +69,7 @@
                   :icon="isExpired ? 'pi pi-lock' : 'pi pi-bolt'"
                   :disabled="isExpired"
                   size="large"
-                  class="flex-1 font-bold p-button-lg shadow-lg shadow-indigo-500/30"
+                  class="flex-1 font-bold p-button-lg shadow-none"
                   @click="startChallengeGame"
                 />
               </div>
@@ -156,38 +162,36 @@ onMounted(() => {
   padding: 1.5rem;
 }
 
-/* Force heading color for tags in Light Mode (Default) */
-.force-text-red,
-.force-text-red :deep(.p-tag-label),
-.force-text-red :deep(.p-tag-icon),
-.force-text-purple,
-.force-text-purple :deep(.p-tag-label),
-.force-text-purple :deep(.p-tag-icon),
-.force-text-gray,
-.force-text-gray :deep(.p-tag-label),
-.force-text-gray :deep(.p-tag-icon) {
-  color: var(--color-heading) !important;
+/* Badge Styles (Consistent with ChallengeCard) */
+.badge-time-attack {
+  background-color: var(--bg-surface-hover);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
-/* Force specific color for tags to ensure readability in Dark Mode */
-:global([data-theme="dark"] .force-text-red),
-:global([data-theme="dark"] .force-text-red .p-tag-label),
-:global([data-theme="dark"] .force-text-red .p-tag-icon),
-:global([data-theme="dark"] .force-text-red span) {
-  color: #dc2626 !important; /* red-600 */
+.badge-survival {
+  background-color: var(--bg-surface-hover);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
-:global([data-theme="dark"] .force-text-purple),
-:global([data-theme="dark"] .force-text-purple .p-tag-label),
-:global([data-theme="dark"] .force-text-purple .p-tag-icon),
-:global([data-theme="dark"] .force-text-purple span) {
-  color: #9333ea !important; /* purple-600 */
+.badge-event {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-sub);
+  border-color: var(--border);
 }
 
-:global([data-theme="dark"] .force-text-gray),
-:global([data-theme="dark"] .force-text-gray .p-tag-label),
-:global([data-theme="dark"] .force-text-gray .p-tag-icon),
-:global([data-theme="dark"] .force-text-gray span) {
-  color: #4b5563 !important; /* gray-600 */
+/* Dark Mode Overrides */
+:global([data-theme="dark"]) .badge-time-attack {
+  background-color: rgba(255, 200, 49, 0.1);
+  color: var(--accent);
+}
+:global([data-theme="dark"]) .badge-survival {
+  background-color: rgba(100, 189, 172, 0.1);
+  color: var(--primary);
+}
+:global([data-theme="dark"]) .badge-event {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-sub);
 }
 </style>

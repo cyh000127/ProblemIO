@@ -21,7 +21,7 @@
         </div>
 
         <div v-if="loading" class="text-center py-8">
-          <i class="pi pi-spin pi-spinner text-4xl" style="color: var(--primary-color)"></i>
+          <i class="pi pi-spin pi-spinner text-4xl" style="color: var(--text-main)"></i>
         </div>
 
         <div v-else-if="quizzes.length === 0" class="text-center py-8 text-secondary">
@@ -167,8 +167,8 @@
                 class="border-2 border-dashed border-surface-border rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:bg-surface-hover transition-colors group bg-surface-50"
                 @click="triggerFileUpload"
               >
-                <div class="w-10 h-10 rounded-full bg-surface-200 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
-                  <i v-if="!uploadedImageUrl && !localPreviewUrl" class="pi pi-image text-lg text-secondary group-hover:text-primary"></i>
+                <div class="w-10 h-10 rounded-full bg-surface-200 flex items-center justify-center group-hover:bg-surface-300 transition-colors flex-shrink-0">
+                  <i v-if="!uploadedImageUrl && !localPreviewUrl" class="pi pi-image text-lg text-secondary group-hover:text-surface-900 dark:group-hover:text-surface-0"></i>
                   <img v-else :src="localPreviewUrl || resolveImageUrl(uploadedImageUrl)" class="w-full h-full object-cover rounded-full border border-surface-border" />
                 </div>
                 <div class="flex-1 min-w-0">
@@ -177,7 +177,7 @@
                   </p>
                   <p class="text-xs text-secondary m-0">업로드한 이미지는 미리보기와 실제 아이템에 자동 적용됩니다.</p>
                 </div>
-                <i v-if="uploadedImageUrl" class="pi pi-check-circle text-primary"></i>
+                <i v-if="uploadedImageUrl" class="pi pi-check-circle text-surface-900 dark:text-surface-0"></i>
               </div>
               <input type="file" ref="fileInput" @change="onFileSelect" accept="image/*" class="hidden" />
             </div>
@@ -249,9 +249,9 @@
                         <span v-if="uploadedImageUrl || localPreviewUrl" class="text-xs font-normal text-red-400 ml-2">(이미지 사용 중 비활성화)</span>
                       </span>
                       <div class="flex items-center gap-2 text-xs bg-surface-ground p-1 rounded-lg">
-                        <span :class="!builderForm.useGradient ? 'font-bold text-primary' : ''">단색</span>
+                        <span :class="!builderForm.useGradient ? 'font-bold text-surface-900 dark:text-surface-0' : ''">단색</span>
                         <ToggleSwitch v-model="builderForm.useGradient" class="scale-75" />
-                        <span :class="builderForm.useGradient ? 'font-bold text-primary' : ''">그라데이션</span>
+                        <span :class="builderForm.useGradient ? 'font-bold text-surface-900 dark:text-surface-0' : ''">그라데이션</span>
                       </div>
                     </div>
 
@@ -285,7 +285,7 @@
                     <div class="col-span-2 mt-2">
                       <label class="block text-xs font-bold mb-2 opacity-80 flex justify-between">
                         <span>테두리 두께</span>
-                        <span class="text-primary">{{ builderForm.borderWidth }}px</span>
+                        <span class="text-surface-900 dark:text-surface-0">{{ builderForm.borderWidth }}px</span>
                       </label>
                       <Slider v-model="builderForm.borderWidth" :min="0" :max="10" />
                     </div>
@@ -322,13 +322,13 @@
               <div class="field col-span-2" style="grid-column: span 2">
                 <div
                   class="flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:bg-surface-50"
-                  :class="newItem.isDefault ? 'border-primary bg-primary/5' : 'border-surface-200'"
+                  :class="newItem.isDefault ? 'border-surface-900 dark:border-surface-0 bg-surface-100 dark:bg-surface-800' : 'border-surface-200'"
                   @click="newItem.isDefault = !newItem.isDefault"
                 >
                   <div class="flex items-center gap-3">
                     <div
                       class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                      :style="newItem.isDefault ? 'background-color: var(--color-primary); color: white;' : 'background-color: var(--surface-200); color: var(--text-color-secondary);'"
+                      :style="newItem.isDefault ? 'background-color: var(--text-main); color: var(--bg-surface);' : 'background-color: var(--surface-200); color: var(--text-color-secondary);'"
                     >
                       <i class="pi" :class="newItem.isDefault ? 'pi-check' : 'pi-gift'"></i>
                     </div>
@@ -367,7 +367,7 @@
             <div class="font-bold text-lg" style="color: var(--color-heading)">
               {{ item.name }}
             </div>
-            <div v-if="item.isDefault" class="default-item-badge absolute top-2 right-2 bg-primary/90 text-xs px-2 py-1 rounded shadow-sm font-bold z-10">Default</div>
+            <div v-if="item.isDefault" class="default-item-badge absolute top-2 right-2 bg-surface-900 dark:bg-surface-0 text-surface-0 dark:text-surface-900 text-xs px-2 py-1 rounded shadow-sm font-bold z-10">Default</div>
             <div class="text-sm mb-2" style="color: var(--text-color-secondary)">{{ item.itemType }}</div>
             <!-- Mini Preview of JSON for reference, or removed if too cluttered. Keeping for admin debug. -->
             <div class="text-xs bg-black/5 p-2 rounded overflow-hidden h-16 mb-2 opacity-50 font-mono">
@@ -556,11 +556,7 @@ const builderForm = reactive({
   borderColor: "cccccc",
   borderWidth: 1,
   shadowColor: "000000",
-  borderColor: "cccccc",
-  borderWidth: 1,
-  shadowColor: "000000",
   animationNames: [], // Changed from animationName string to array
-  animationDuration: 2,
   animationDuration: 2,
   useGradient: false,
   gradientStart: "ffffff",
@@ -698,7 +694,7 @@ const generateConfigFromBuilder = () => {
     if (builderForm.useGradient) {
       style.background = `linear-gradient(45deg, #${builderForm.gradientStart}, #${builderForm.gradientEnd}) !important`;
       style.backgroundSize = "200% 200%";
-      style.animation = builderForm.animationName === "none" ? "gradient-flow 3s ease infinite" : style.animation;
+      style.animation = (!builderForm.animationNames || builderForm.animationNames.length === 0 || builderForm.animationNames.includes('none')) ? "gradient-flow 3s ease infinite" : style.animation;
     } else {
       style.backgroundColor = `#${builderForm.bgColor} !important`;
     }
@@ -1301,7 +1297,7 @@ onMounted(() => {
 
 .quiz-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .quiz-card:hover .quiz-thumbnail-img {
@@ -1316,7 +1312,7 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   border-radius: 14px;
-  background: linear-gradient(180deg, #eef3f6, #f7ede8);
+  background: var(--surface-section);
   position: relative;
 }
 
@@ -1365,11 +1361,8 @@ onMounted(() => {
 }
 
 .default-item-badge {
-  color: #000000 !important;
-}
-
-[data-theme="dark"] .default-item-badge {
-  color: #ffffff !important;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .quiz-stat {
@@ -1378,7 +1371,7 @@ onMounted(() => {
   gap: 0.25rem;
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
-  background: rgba(137, 168, 124, 0.15);
+  background: var(--primary-50);
   color: var(--color-heading);
   font-size: 0.85rem;
 }

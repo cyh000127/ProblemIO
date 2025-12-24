@@ -48,7 +48,7 @@
 
             <!-- 버튼 클릭 시에는 카드 클릭 이벤트 안 타게 stop -->
             <div class="quiz-actions" @click.stop>
-              <Button label="수정" icon="pi pi-pencil" severity="secondary" outlined size="small" class="flex-1 text-xs" @click="goToEdit(quiz.id)" />
+              <Button label="수정" icon="pi pi-pencil" severity="secondary" outlined size="small" class="flex-1 text-xs edit-btn" @click="goToEdit(quiz.id)" />
               <Button label="삭제" icon="pi pi-trash" severity="danger" outlined size="small" class="text-xs" @click="handleDelete(quiz.id)" />
             </div>
           </div>
@@ -222,7 +222,7 @@ const goToCreateQuiz = () => {
 
 const handleDelete = (quizId: number) => {
   confirm.require({
-    message: "한번 지우면 되돌릴 수 없어요!!",
+    message: "한번 지우면 되돌릴 수 없어요!",
     header: "진짜 퀴즈를 지울거에요? ",
     icon: "pi pi-exclamation-triangle",
     accept: async () => {
@@ -263,7 +263,7 @@ onMounted(() => {
 .profile-card-content p,
 .profile-card-content span,
 .profile-card-content h1 {
-  color: inherit !important;
+  color: inherit;
 }
 
 /* 통계 부분 */
@@ -363,7 +363,7 @@ onMounted(() => {
   overflow: hidden;
   border-radius: 14px;
   position: relative;
-  background: linear-gradient(180deg, #eef3f6, #f7ede8);
+  background: var(--bg-surface-hover);
 }
 
 .quiz-thumbnail-img {
@@ -406,7 +406,7 @@ onMounted(() => {
 
 .quiz-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg, 0 16px 28px rgba(0, 0, 0, 0.08));
 }
 
 .quiz-card:hover .quiz-thumbnail-img {
@@ -437,7 +437,7 @@ onMounted(() => {
   gap: 0.25rem;
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
-  background: rgba(137, 168, 124, 0.15);
+  background: var(--bg-surface-hover);
   color: var(--color-heading);
   font-size: 0.85rem;
 }
@@ -446,5 +446,10 @@ onMounted(() => {
   display: flex;
   gap: 0.5rem;
   padding: 0 0.4rem 0.4rem;
+}
+
+:global([data-theme="dark"] .edit-btn) {
+  color: var(--text-main) !important;
+  border-color: var(--text-main) !important;
 }
 </style>

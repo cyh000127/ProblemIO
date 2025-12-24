@@ -65,12 +65,19 @@
             </div>
           </div>
 
-          <div v-if="loading" class="text-center py-8">
-            <i class="pi pi-spin pi-spinner text-4xl"></i>
+          <div v-if="loading" class="quiz-grid-container mb-6">
+            <div v-for="i in 8" :key="i" class="quiz-card p-3">
+              <Skeleton height="200px" class="mb-3 rounded-xl" style="background-color: var(--skeleton-bg)"></Skeleton>
+              <Skeleton width="60%" height="1.5rem" class="mb-2" style="background-color: var(--skeleton-bg)"></Skeleton>
+              <div class="flex gap-2">
+                 <Skeleton width="4rem" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+                 <Skeleton width="4rem" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+              </div>
+            </div>
           </div>
 
           <div v-else-if="quizzes.length === 0" class="text-center py-8 empty-state">
-            <p class="text-color-secondary text-xl">No quizzes found</p>
+            <p class="text-color-secondary text-xl">퀴즈를 찾지 못했어요.</p>
           </div>
 
           <div v-else class="quiz-grid-container mb-6">
@@ -133,6 +140,7 @@ import OverlayPanel from "primevue/overlaypanel";
 import LiveRankingWidget from "@/components/LiveRankingWidget.vue";
 import HomeChallengeWidget from "@/components/challenge/HomeChallengeWidget.vue";
 import Paginator from "primevue/paginator";
+import Skeleton from "primevue/skeleton";
 
 const router = useRouter();
 const toast = useToast();
@@ -164,6 +172,7 @@ const loadQuizzes = async () => {
       page: currentPage.value,
       size: pageSize.value,
       sort: sort.value,
+      keyword: searchKeyword.value,
     });
     quizzes.value = response.content || [];
     totalPages.value = response.totalPages || 0;
@@ -185,9 +194,13 @@ const goToQuiz = (quizId: number) => {
 };
 
 const handleSearch = () => {
-  if (searchKeyword.value.trim()) {
-    router.push({ name: "search", query: { q: searchKeyword.value, sort: searchSort.value } });
+  // ✅ 비동기 검색 (페이지 이동 X)
+  currentPage.value = 1;
+  // 검색바의 정렬 옵션을 메인 정렬 상태에 반영 (선택 사항, 사용자 경험상 동기화 추천)
+  if (searchSort.value) {
+      sort.value = searchSort.value;
   }
+  loadQuizzes();
 };
 
 const onPageChange = (event: any) => {
@@ -248,19 +261,19 @@ onMounted(() => {
   gap: 0.75rem;
 }
 
-.search-filter-btn {
+.search-filter-btn.p-button {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  background: var(--color-bg-card) !important;
-  border: 1px solid var(--color-border) !important;
-  color: var(--color-text-main) !important;
+  background: var(--bg-surface); /* Changed from --color-bg-card to --bg-surface (White) */
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
 }
 
-:global([data-theme="dark"] .search-filter-btn) {
-  background: rgba(35, 45, 80, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  color: var(--color-heading) !important;
+:global([data-theme="dark"] .search-filter-btn.p-button) {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
 }
 
 .search-input-wrapper {
@@ -288,10 +301,10 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .search-input-wrapper .search-input) {
-  background: rgba(35, 45, 80, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--color-heading);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  box-shadow: none;
 }
 
 /* ✅ 핵심: 2컬럼 레이아웃 (왼쪽: 카드 / 오른쪽: 랭킹) */
@@ -299,7 +312,8 @@ onMounted(() => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 18px;
-  align-items: start;
+  gap: 18px;
+  /* align-items: start; (제거) */
 }
 
 .home-main {
@@ -313,7 +327,9 @@ onMounted(() => {
 /* ✅ 랭킹 패널은 "컨테이너 안"에서 카드처럼 보이게 */
 .ranking-panel {
   position: sticky;
-  top: 140px; /* 헤더 높이에 따라 조절 */
+  top: 24px;
+  z-index: 10;
+  height: fit-content;
 }
 
 /* ✅ 화면 좁아지면 랭킹을 아래로 내리거나 숨김(선택) */
@@ -342,10 +358,10 @@ onMounted(() => {
   flex-wrap: nowrap;
 }
 
-.filter-button {
-  color: var(--color-text-muted) !important;
-  background: var(--color-bg-card) !important;
-  border-color: var(--color-border) !important;
+.filter-button.p-button {
+  color: var(--color-text-muted);
+  background: var(--bg-surface); /* Changed from --color-bg-card to --bg-surface (White) */
+  border-color: var(--color-border);
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   height: 48px;
   display: inline-flex;
@@ -355,18 +371,18 @@ onMounted(() => {
   line-height: 1;
 }
 
-:global(.filter-button.is-active) {
-  background: var(--brand-cyan-soft) !important;
-  border-color: var(--brand-cyan) !important;
-  color: #0369a1 !important;
-  box-shadow: 0 10px 26px rgba(19, 184, 163, 0.26);
+:global(.filter-button.p-button.is-active) {
+  background: var(--bg-surface-hover);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: none;
 }
 
-:global([data-theme="dark"] .filter-button.is-active) {
-  background: #0fb397 !important;
-  border-color: #1abc9c !important;
-  color: #ffffff !important;
-  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.35);
+:global([data-theme="dark"] .filter-button.p-button.is-active) {
+  background: var(--bg-surface-hover);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: none;
 }
 
 /* ✅ 카드: 4열 → 3열 */
@@ -398,12 +414,12 @@ onMounted(() => {
   justify-content: center;
   overflow: hidden;
   border-radius: 14px;
-  background: linear-gradient(180deg, #eef3f6, #f7ede8);
+  background: var(--bg-surface-hover);
 }
 
 :global([data-theme="dark"] .quiz-thumbnail) {
-  background: #0f0f0f;
-  border: 1px solid #2d2d2d;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
 }
 
 .quiz-thumbnail-img {
@@ -426,9 +442,9 @@ onMounted(() => {
 }
 
 :global([data-theme="dark"] .quiz-card) {
-  background: #161616;
-  border: 1px solid #262626;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
 }
 
 .quiz-card:hover {
@@ -456,6 +472,7 @@ onMounted(() => {
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -481,12 +498,13 @@ onMounted(() => {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .empty-state {
-  background: rgba(244, 241, 236, 0.6);
+  background: var(--bg-surface);
   border-radius: 14px;
   padding: 2rem;
 }
@@ -517,10 +535,12 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.empty-state {
-  background: rgba(244, 241, 236, 0.6);
-  border-radius: 14px;
-  padding: 2rem;
+:root {
+  --skeleton-bg: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] {
+  --skeleton-bg: rgba(255, 255, 255, 0.08);
 }
 </style>
 

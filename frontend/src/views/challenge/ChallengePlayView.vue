@@ -9,25 +9,28 @@
         <!-- Main Game Area -->
         <div class="w-full max-w-3xl flex flex-col gap-6">
             <!-- 상단 타이머 및 정보 -->
-            <div class="mb-4">
-                 <div class="flex justify-between items-center mb-2">
-                    <div class="font-bold text-xl">
-                        {{ challengeTitle }}
-                    </div>
-                <div v-if="challengeType === 'SURVIVAL'" class="text-2xl font-bold text-primary">
-                    <i class="pi mr-2"></i>
-                    현재 문제 {{ currentIndex + 1 }}
-                </div>
-                <div v-else class="text-2xl font-mono font-bold" :class="timerColorClass">
-                    <i class="pi pi-stopwatch mr-2"></i>
-                    {{ formattedTimer }}
-                </div>
-            </div>
-        </div>
+
 
         <Card>
           <template #content>
             <div class="flex flex-col gap-6">
+              <!-- 상단 타이머 및 정보 (Moved Inside) -->
+              <div class="mb-2">
+                   <div class="flex justify-between items-center">
+                      <div class="font-bold text-xl">
+                          {{ challengeTitle }}
+                      </div>
+                  <div v-if="challengeType === 'SURVIVAL'" class="text-2xl font-bold text-primary">
+                      <i class="pi mr-2"></i>
+                      현재 문제 {{ currentIndex + 1 }}
+                  </div>
+                  <div v-else class="text-2xl font-mono font-bold" :class="timerColorClass">
+                      <i class="pi pi-stopwatch mr-2"></i>
+                      {{ formattedTimer }}
+                  </div>
+              </div>
+              </div>
+
               <!-- 문제 풀이 화면 -->
               <div v-if="currentQuestion.imageUrl" class="question-image-container aspect-video bg-surface-100 overflow-hidden border-round flex items-center justify-center mb-4">
                 <img :src="resolveImageUrl(currentQuestion.imageUrl)" :alt="currentQuestion.description" class="w-full h-full object-contain" />
@@ -38,11 +41,11 @@
               </div>
 
               <div class="flex flex-col gap-3">
-                <label class="text-lg font-semibold">Answer:</label>
+                <label class="text-lg font-semibold">정답:</label>
                 <InputText
                   ref="answerInput"
                   v-model="currentAnswer"
-                  placeholder="Enter your answer..."
+                  placeholder="정답을 입력해주세요..."
                   class="w-full"
                   @keydown.enter="submitAnswer"
                   :disabled="submitting"
@@ -94,7 +97,7 @@ const toast = useToast()
 const loading = ref(true)
 const submitting = ref(false)
 const challengeId = route.params.id
-const challengeTitle = ref("Challenge")
+const challengeTitle = ref("")
 const challengeType = ref("") 
 const submissionId = ref(null)
 const questions = ref([])
@@ -150,7 +153,7 @@ const startTimer = () => {
 
 const handleTimeOver = () => {
     clearInterval(timerInterval.value)
-    toast.add({ severity: 'error', summary: 'Time Over', detail: '제한 시간이 초과되었습니다!', life: 3000 })
+    toast.add({ severity: 'error', summary: '시간 초과!', detail: '제한 시간이 초과되었습니다!', life: 3000 })
     // 자동 제출 로직이 필요하다면 추가, 혹은 바로 결과 화면으로
     router.push(`/challenges/${challengeId}/result`)
 }

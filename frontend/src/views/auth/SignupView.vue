@@ -22,9 +22,9 @@
                 <label for="email" class="text-sm font-medium">이메일 (ID)</label>
                 <div class="flex gap-2">
                   <InputText
-                    id="email"
+                    id="이메일"
                     v-model="formData.email"
-                    type="email"
+                    type="이메일"
                     placeholder="you@example.com"
                     :disabled="emailState.isVerified"
                     :class="{ 'p-invalid': errors.email }"
@@ -72,7 +72,7 @@
                 <label for="nickname" class="text-sm font-medium">닉네임</label>
                 <div class="flex gap-2">
                   <InputText
-                    id="nickname"
+                    id="닉네임"
                     v-model="formData.nickname"
                     type="text"
                     placeholder="닉네임을 입력해주세요"
@@ -419,7 +419,7 @@ const handleSignup = async () => {
 <style scoped>
 .signup-container {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, var(--primary-50), var(--surface-ground), var(--accent-50));
+  background: var(--bg-main);
 }
 
 .max-w-md {

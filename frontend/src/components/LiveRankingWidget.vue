@@ -2,9 +2,8 @@
   <div class="ranking-widget">
     <div class="ranking-header">
       <div class="title">
-        <span class="flame">🔥</span>
+        <i class="pi pi-trophy text-yellow-500 text-xl"></i>
         <span>Ranking</span>
-        <span class="flame">🔥</span>
       </div>
 
       <div class="header-actions">
@@ -29,9 +28,15 @@
     </div>
 
     <div class="ranking-table">
-      <div v-if="loading" class="state-row">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>랭킹을 불러오는 중...</span>
+      <div v-if="loading" class="table-body">
+        <div v-for="i in 5" :key="i" class="table-row">
+           <Skeleton width="2rem" height="1.5rem" class="mr-2" style="background-color: var(--skeleton-bg)"></Skeleton>
+           <Skeleton shape="circle" size="2.5rem" class="mr-3" style="background-color: var(--skeleton-bg)"></Skeleton>
+           <div class="flex flex-col flex-1 gap-1">
+             <Skeleton width="60%" height="1rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+             <Skeleton width="40%" height="0.8rem" style="background-color: var(--skeleton-bg)"></Skeleton>
+           </div>
+        </div>
       </div>
 
       <div v-else-if="error" class="state-row error">
@@ -52,7 +57,7 @@
         >
           <div class="col-rank rank-cell">
             <span class="rank-hash">#{{ idx + 1 }}</span>
-            <span class="rank-emoji">{{ rankEmoji(idx + 1) }}</span>
+            <i v-if="idx < 3" class="pi pi-crown text-sm ml-1" :class="getRankIconColor(idx + 1)"></i>
           </div>
 
           <div class="col-avatar">
@@ -91,6 +96,7 @@
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { getRanking } from "@/api/ranking";
 import { resolveImageUrl } from "@/lib/image";
+import Skeleton from "primevue/skeleton";
 
 const rankings = ref([]);
 const loading = ref(false);
@@ -133,16 +139,20 @@ const displayName = (row) => {
 };
 
 const rankEmoji = (rank) => {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
-  return "⭐";
+  return "";
 };
 
 const rankClass = (rank) => {
   if (rank === 1) return "rank-top rank-gold";
   if (rank === 2) return "rank-top rank-silver";
   if (rank === 3) return "rank-top rank-bronze";
+  return "";
+};
+
+const getRankIconColor = (rank) => {
+  if (rank === 1) return "text-[var(--primary)]";
+  if (rank === 2) return "text-[var(--accent)]";
+  if (rank === 3) return "text-[var(--text-sub)]";
   return "";
 };
 
@@ -215,18 +225,16 @@ onUnmounted(() => {
   container-type: inline-size;
   container-name: ranking;
 
-  background: var(--color-background-soft);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
   overflow: hidden;
 }
 
 :global([data-theme="dark"] .ranking-widget) {
-  background: radial-gradient(circle at 20% 20%, rgba(88, 28, 135, 0.08), transparent 35%),
-    radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.08), transparent 35%),
-    #0f172a;
-  border: 1px solid rgba(94, 234, 212, 0.25);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(148, 163, 184, 0.1), 0 0 30px rgba(94, 234, 212, 0.18);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: none;
 }
 
 /* Header */
@@ -265,15 +273,15 @@ onUnmounted(() => {
 
 .period-toggle {
   display: inline-flex;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 2px;
 }
 
 :global([data-theme="dark"] .period-toggle) {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: rgba(59, 130, 246, 0.4);
+  background: var(--bg-surface-hover);
+  border-color: var(--border);
 }
 
 .period-btn {
@@ -288,25 +296,28 @@ onUnmounted(() => {
 }
 
 .period-btn.active {
-  background: linear-gradient(135deg, #60a5fa, #22d3ee);
-  color: #0b1220;
-  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.4);
+  background: var(--primary);
+  color: #ffffff; /* White text on Teal background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 800;
 }
 
 :global([data-theme="dark"] .period-btn.active) {
-  color: #04101b;
-  box-shadow: 0 8px 20px rgba(94, 234, 212, 0.45);
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: none;
 }
 
 .live-badge {
   padding: 4px 10px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ef4444, #f97316);
-  color: #fff;
+  background: transparent;
+  border: 1px solid var(--text-main);
+  color: var(--text-main);
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.4px;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35), 0 6px 16px rgba(249, 115, 22, 0.35);
+  box-shadow: none;
 }
 
 /* Table */
@@ -348,36 +359,35 @@ onUnmounted(() => {
 }
 
 .table-row.rank-gold {
-  background: linear-gradient(135deg, rgba(255, 215, 128, 0.32), rgba(255, 249, 195, 0.25));
-  border-color: rgba(255, 215, 128, 0.8);
-  color: #1f2937;
+  background: color-mix(in srgb, var(--primary), transparent 85%);
+  border-color: color-mix(in srgb, var(--primary), transparent 40%);
+  color: var(--color-heading);
 }
 
 .table-row.rank-silver {
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.55), rgba(248, 250, 252, 0.5));
-  border-color: rgba(180, 190, 200, 0.7);
+  background: color-mix(in srgb, var(--accent), transparent 88%);
+  border-color: color-mix(in srgb, var(--accent), transparent 50%);
 }
 
 .table-row.rank-bronze {
-  background: linear-gradient(135deg, rgba(244, 164, 96, 0.38), rgba(255, 237, 213, 0.4));
-  border-color: rgba(234, 179, 132, 0.8);
+  background: color-mix(in srgb, var(--text-sub), transparent 90%);
+  border-color: color-mix(in srgb, var(--text-sub), transparent 70%);
 }
 
 :global([data-theme="dark"] .table-row.rank-gold) {
-  background: linear-gradient(135deg, rgba(253, 224, 71, 0.2), rgba(255, 214, 10, 0.12));
-  border-color: rgba(253, 224, 71, 0.6);
-  box-shadow: 0 10px 30px rgba(253, 224, 71, 0.2);
-  color: #f8fafc;
+  background: color-mix(in srgb, var(--primary), transparent 85%);
+  border-color: color-mix(in srgb, var(--primary), transparent 50%);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary), transparent 90%);
 }
 
 :global([data-theme="dark"] .table-row.rank-silver) {
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.18), rgba(148, 163, 184, 0.14));
-  border-color: rgba(226, 232, 240, 0.4);
+  background: color-mix(in srgb, var(--accent), transparent 90%);
+  border-color: color-mix(in srgb, var(--accent), transparent 60%);
 }
 
 :global([data-theme="dark"] .table-row.rank-bronze) {
-  background: linear-gradient(135deg, rgba(248, 180, 107, 0.22), rgba(251, 146, 60, 0.18));
-  border-color: rgba(249, 115, 22, 0.35);
+  background: color-mix(in srgb, var(--text-sub), transparent 92%);
+  border-color: color-mix(in srgb, var(--text-sub), transparent 80%);
 }
 
 /* Cells */

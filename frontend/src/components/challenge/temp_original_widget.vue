@@ -2,8 +2,8 @@
   <div class="ranking-widget">
     <div class="ranking-header">
       <div class="title">
-        <i class="pi pi-trophy text-amber-400 text-xl" style="color: var(--accent) !important"></i>
-        <span>랭킹</span>
+        <i class="pi pi-trophy text-yellow-500 text-xl"></i>
+        <span>Challenge Ranking</span>
       </div>
       <div class="header-actions">
         <span class="live-badge">LIVE</span>
@@ -148,9 +148,9 @@ const rankClass = (rank) => {
 };
 
 const getRankIconColor = (rank) => {
-  if (rank === 1) return "text-[var(--primary)]";
-  if (rank === 2) return "text-[var(--accent)]";
-  if (rank === 3) return "text-[var(--text-sub)]";
+  if (rank === 1) return "text-yellow-500";
+  if (rank === 2) return "text-gray-400";
+  if (rank === 3) return "text-orange-400";
   return "";
 };
 
@@ -239,7 +239,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  padding: 20px; /* Original padding */
+  padding: 20px;
   border-radius: 16px;
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
@@ -300,45 +300,26 @@ onUnmounted(() => {
 
 .table-row {
   display: grid;
-  grid-template-columns: 50px 40px minmax(0, 1fr); /* Original Grid */
+  grid-template-columns: 50px 40px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-  padding: 10px; /* Original Padding */
+  padding: 10px;
   border-radius: 10px;
   background: var(--color-background-mute);
   transition: transform 0.1s;
 }
 
-/* Updated Colors (Vivid Cyan) */
-/* Updated Colors (Theme Variables) */
 .table-row.rank-gold {
-  background: color-mix(in srgb, var(--primary), transparent 85%);
-  border: 1px solid color-mix(in srgb, var(--primary), transparent 40%);
-  color: var(--color-heading);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 223, 0, 0.05));
+  border: 1px solid rgba(255, 215, 0, 0.3);
 }
 .table-row.rank-silver {
-  background: color-mix(in srgb, var(--accent), transparent 88%);
-  border: 1px solid color-mix(in srgb, var(--accent), transparent 50%);
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(220, 220, 220, 0.05));
+  border: 1px solid rgba(192, 192, 192, 0.3);
 }
 .table-row.rank-bronze {
-  background: color-mix(in srgb, var(--text-sub), transparent 90%);
-  border: 1px solid color-mix(in srgb, var(--text-sub), transparent 70%);
-}
-
-:global([data-theme="dark"] .table-row.rank-gold) {
-  background: color-mix(in srgb, var(--primary), transparent 85%);
-  border-color: color-mix(in srgb, var(--primary), transparent 50%);
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary), transparent 90%);
-}
-
-:global([data-theme="dark"] .table-row.rank-silver) {
-  background: color-mix(in srgb, var(--accent), transparent 90%);
-  border-color: color-mix(in srgb, var(--accent), transparent 60%);
-}
-
-:global([data-theme="dark"] .table-row.rank-bronze) {
-  background: color-mix(in srgb, var(--text-sub), transparent 92%);
-  border-color: color-mix(in srgb, var(--text-sub), transparent 80%);
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(210, 180, 140, 0.05));
+  border: 1px solid rgba(205, 127, 50, 0.3);
 }
 
 .rank-cell {
@@ -384,11 +365,11 @@ onUnmounted(() => {
 .nick-text {
   font-weight: 700;
   color: var(--color-heading);
-  font-size: 0.95rem; /* Original Font Size */
+  font-size: 0.95rem;
 }
 
 .score-big {
-  color: var(--primary); /* Updated to Vivid Cyan */
+  color: #7c3aed;
   font-weight: 800;
   font-family: monospace;
 }
@@ -421,7 +402,7 @@ onUnmounted(() => {
   background: var(--color-border);
 }
 .table-row.my-rank {
-  border: 2px solid var(--primary); /* Updated to Vivid Cyan */
-  background: var(--bg-surface-hover); /* Updated background */
+  border: 2px solid #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
 }
 </style>

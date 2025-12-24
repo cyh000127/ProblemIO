@@ -11,7 +11,7 @@
           <div class="flex flex-col gap-8">
             <!-- SECTION 1: 닉네임 변경 & 상태메시지 수정 -->
             <section class="flex flex-col gap-6">
-              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">내 정보 수정</h2>
+              <h2 class="text-xl font-bold border-l-4 border-surface-900 dark:border-surface-0 pl-3">내 정보 수정</h2>
 
               <div class="flex flex-col gap-2 items-center my-8">
                 <div class="relative inline-block group cursor-pointer" @click="triggerFileUpload">
@@ -27,7 +27,7 @@
                 <!-- Hidden File Input -->
                 <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleFileChange" style="display: none" />
 
-                <span class="text-sm text-gray-500 cursor-pointer hover:text-primary underline" @click="triggerFileUpload">프로필 사진 바꾸기</span>
+                <span class="text-sm text-gray-500 cursor-pointer hover:text-white underline" @click="triggerFileUpload">프로필 사진 바꾸기</span>
               </div>
 
               <div class="grid gap-4">
@@ -65,7 +65,7 @@
 
             <!-- SECTION 2: 꾸미기 설정 버튼들 (모달 트리거) -->
             <section class="flex flex-col gap-6">
-              <h2 class="text-xl font-bold border-l-4 border-primary pl-3">꾸미기</h2>
+              <h2 class="text-xl font-bold border-l-4 border-surface-900 dark:border-surface-0 pl-3">꾸미기</h2>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- 배경 테마 설정 -->
@@ -205,7 +205,7 @@
                 v-for="item in availableItems"
                 :key="item.id || item.key"
                 class="cursor-pointer border-2 rounded-lg p-2 aspect-square flex flex-col items-center justify-center gap-2 hover:bg-surface-hover transition-all relative overflow-hidden group"
-                :class="{ 'border-primary ring-2 ring-primary/20': isItemSelected(item) }"
+                :class="{ 'border-surface-900 dark:border-surface-0 ring-2 ring-surface-900/20 dark:ring-surface-0/20': isItemSelected(item) }"
                 @click="selectItem(item)"
                 v-tooltip.bottom="item.description || item.name"
               >
@@ -222,7 +222,7 @@
                 </div>
 
                 <!-- Checkmark if selected -->
-                <div v-if="isItemSelected(item)" class="absolute top-1 right-1 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                <div v-if="isItemSelected(item)" class="absolute top-1 right-1 bg-surface-900 dark:bg-surface-0 text-surface-0 dark:text-surface-900 rounded-full w-5 h-5 flex items-center justify-center text-xs">
                   <i class="pi pi-check" style="font-size: 0.6rem"></i>
                 </div>
               </div>
@@ -564,11 +564,11 @@ const handleSaveProfile = async () => {
 
 const handleChangePassword = async () => {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    toast.add({ severity: "warn", summary: "Warning", detail: "비밀번호가 일치하지 않습니다.", life: 3000 });
+    toast.add({ severity: "warn", summary: "주의", detail: "비밀번호가 일치하지 않습니다.", life: 3000 });
     return;
   }
   if (passwordForm.value.newPassword.length < 8) {
-    toast.add({ severity: "warn", summary: "Warning", detail: "비밀번호는 최소 8자 이상이어야 합니다.", life: 3000 });
+    toast.add({ severity: "warn", summary: "주의", detail: "비밀번호는 최소 8자 이상이어야 합니다.", life: 3000 });
     return;
   }
 
@@ -577,9 +577,9 @@ const handleChangePassword = async () => {
     await changePassword(passwordForm.value.currentPassword, passwordForm.value.newPassword);
     passwordForm.value = { currentPassword: "", newPassword: "", confirmPassword: "" };
     showPasswordDialog.value = false;
-    toast.add({ severity: "success", summary: "Success", detail: "비밀번호가 변경되었습니다.", life: 3000 });
+    toast.add({ severity: "success", summary: "성공", detail: "비밀번호가 변경되었습니다.", life: 3000 });
   } catch (error: any) {
-    toast.add({ severity: "error", summary: "Error", detail: error.response?.data?.message || "비밀번호 변경에 실패했습니다.", life: 3000 });
+    toast.add({ severity: "error", summary: "오류", detail: error.response?.data?.message || "비밀번호 변경에 실패했습니다.", life: 3000 });
   } finally {
     changingPassword.value = false;
   }
@@ -594,12 +594,12 @@ const handleDeleteAccount = async () => {
   deletingAccount.value = true;
   try {
     await deleteAccount(deletePassword.value);
-    toast.add({ severity: "success", summary: "Success", detail: "계정이 삭제되었습니다.", life: 3000 });
+    toast.add({ severity: "success", summary: "성공", detail: "계정이 삭제되었습니다.", life: 3000 });
     authStore.logoutUser();
     showDeleteDialog.value = false;
     router.push("/");
   } catch (error: any) {
-    toast.add({ severity: "error", summary: "Error", detail: error.response?.data?.message || "계정 삭제에 실패했습니다.", life: 3000 });
+    toast.add({ severity: "error", summary: "오류", detail: error.response?.data?.message || "계정 삭제에 실패했습니다.", life: 3000 });
   } finally {
     deletingAccount.value = false;
   }
@@ -667,19 +667,19 @@ const previewUser = computed(() => {
 }
 
 .action-card {
-  background: var(--color-background-soft, #111827);
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Reduced shadow opacity */
 }
 
 .danger-card {
-  background: rgba(255, 99, 71, 0.08);
+  background: rgba(255, 99, 71, 0.08); /* Keeping functional red for now */
   border: 1px solid rgba(255, 99, 71, 0.26);
   box-shadow: 0 12px 32px rgba(255, 99, 71, 0.15);
 }
 
 .muted-text {
-  color: var(--color-text-muted, #9ca3af);
+  color: var(--text-sub);
 }
 
 .danger-muted {
@@ -687,8 +687,8 @@ const previewUser = computed(() => {
 }
 
 :global([data-theme="dark"] .action-card) {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: var(--bg-surface);
+  border-color: var(--border);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
@@ -699,6 +699,6 @@ const previewUser = computed(() => {
 }
 
 :global([data-theme="dark"] .muted-text) {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--text-sub);
 }
 </style>
